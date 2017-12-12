@@ -2292,12 +2292,5 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
     }
 #endif
 
-    // Final check if the user requested to kill the GUI during one of the last operations. If so, exit.
-    if (fRequestShutdown)
-    {
-        LogPrintf("Shutdown requested. Exiting.\n");
-        return false;
-    }
-
     return true;
 }
