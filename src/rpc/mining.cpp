@@ -27,7 +27,7 @@
 #include "utilstrencodings.h"
 #include "validationinterface.h"
 #include "warnings.h"
-
+#include "FounderPayment.h"
 #include "governance/governance-classes.h"
 #include "masternode/masternode-payments.h"
 #include "masternode/masternode-sync.h"
@@ -710,6 +710,18 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
     result.push_back(Pair("superblocks_enabled", sporkManager.IsSporkActive(SPORK_9_SUPERBLOCKS_ENABLED)));
 
     result.push_back(Pair("coinbase_payload", HexStr(pblock->vtx[0]->vExtraPayload)));
+    UniValue founderObj(UniValue::VOBJ);
+    FounderPayment founderPayment = Params().GetConsensus().nFounderPayment;
+	if(pblock->txoutFounder!= CTxOut()) {
+		CTxDestination address;
+		ExtractDestination(pblock->txoutFounder.scriptPubKey, address);
+		std::string addressString = CBitcoinAddress(address).ToString().c_str();
+		founderObj.push_back(Pair("payee", addressString.c_str()));
+		founderObj.push_back(Pair("script", HexStr(pblock->txoutFounder.scriptPubKey.begin(), pblock->txoutFounder.scriptPubKey.end())));
+		founderObj.push_back(Pair("amount", pblock->txoutFounder.nValue));
+	}
+	result.push_back(Pair("founder", founderObj));
+	result.push_back(Pair("founder_payments_started", pindexPrev->nHeight + 1 > founderPayment.getStartBlock()));
 
     return result;
 }

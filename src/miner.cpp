@@ -29,7 +29,7 @@
 #include "masternode/masternode-payments.h"
 #include "masternode/masternode-sync.h"
 #include "validationinterface.h"
-
+#include "FounderPayment.h"
 #include "evo/specialtx.h"
 #include "evo/cbtx.h"
 #include "evo/simplifiedmns.h"
@@ -223,7 +223,9 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     // Update coinbase transaction with additional info about masternode and governance payments,
     // get some info back to pass to getblocktemplate
     FillBlockPayments(coinbaseTx, nHeight, blockReward, pblocktemplate->voutMasternodePayments, pblocktemplate->voutSuperblockPayments);
-
+    //Fill founder payment
+    FounderPayment founderPayment = Params().GetConsensus().nFounderPayment;
+    founderPayment.FillFounderPayment(coinbaseTx, nHeight, blockReward, pblock->txoutFounder);
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
     pblocktemplate->vTxFees[0] = -nFees;
 

@@ -14,7 +14,7 @@
 #include "spork.h"
 #include "util.h"
 #include "validation.h"
-
+#include "FounderPayment.h"
 #include "evo/deterministicmns.h"
 
 #include <string>
@@ -236,7 +236,6 @@ void FillBlockPayments(CMutableTransaction& txNew, int nBlockHeight, CAmount blo
             voutMasternodeStr += ",";
         voutMasternodeStr += txout.ToString();
     }
-
     LogPrint(BCLog::MNPAYMENTS, "%s -- nBlockHeight %d blockReward %lld voutMasternodePaymentsRet \"%s\" txNew %s", __func__,
                             nBlockHeight, blockReward, voutMasternodeStr, txNew.ToString());
 }

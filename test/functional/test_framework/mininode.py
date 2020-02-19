@@ -41,7 +41,7 @@ import threading
 from test_framework.siphash import siphash256
 from test_framework.util import hex_str_to_bytes, bytes_to_hex_str, wait_until
 
-import pigeon_hash
+import dash_hash
 
 BIP0031_VERSION = 60000
 MY_VERSION = 70214  # MIN_PEER_PROTO_VERSION
@@ -85,7 +85,7 @@ def hash256(s):
     return sha256(sha256(s))
 
 def dashhash(s):
-    return pigeon_hash.getPoWHash(s)
+    return dash_hash.getPoWHash(s)
 
 def ser_compact_size(l):
     r = b""

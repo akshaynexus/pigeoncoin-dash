@@ -16,9 +16,9 @@ RUN apt-get update && apt-get install -y python3-pip
 RUN pip3 install pyzmq # really needed?
 RUN pip3 install jinja2
 
-# pigeon_hash
-RUN git clone https://github.com/dashpay/pigeon_hash
-RUN cd pigeon_hash && python3 setup.py install
+# dash_hash
+RUN git clone https://github.com/dashpay/dash_hash
+RUN cd dash_hash && python3 setup.py install
 
 ARG USER_ID=1000
 ARG GROUP_ID=1000
