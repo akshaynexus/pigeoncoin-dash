@@ -902,13 +902,14 @@ void PrintExceptionContinue(const std::exception_ptr pex, const char* pszThread)
 
 fs::path GetDefaultDataDir()
 {
-    // Windows < Vista: C:\Documents and Settings\Username\Application Data\DashCore
-    // Windows >= Vista: C:\Users\Username\AppData\Roaming\DashCore
-    // Mac: ~/Library/Application Support/DashCore
-    // Unix: ~/.dashcore
+    namespace fs = boost::filesystem;
+    // Windows < Vista: C:\Documents and Settings\Username\Application Data\PigeonCore
+    // Windows >= Vista: C:\Users\Username\AppData\Roaming\PigeonCore
+    // Mac: ~/Library/Application Support/PigeonCore
+    // Unix: ~/.pigeoncore
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "DashCore";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "PigeonCore";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -918,10 +919,10 @@ fs::path GetDefaultDataDir()
         pathRet = fs::path(pszHome);
 #ifdef MAC_OSX
     // Mac
-    return pathRet / "Library/Application Support/DashCore";
+    return pathRet / "Library/Application Support/PigeonCore";
 #else
     // Unix
-    return pathRet / ".dashcore";
+    return pathRet / ".pigeoncore";
 #endif
 #endif
 }
