@@ -1,0 +1,58 @@
+{
+    "name": "pigeon",
+    "version": "2.3.0",
+    "vcs": "git",
+    "tools": {
+      "make": "*",
+      "cmake": "*",
+      "python": "3"
+    },
+    "actions": {
+      "clean" : "cte git clean -ffdx -e depends/ -e .vagrant/ . || true",
+      "full-clean" : "cte git clean -ffdx -e .vagrant/ . || true",
+      "prepare": [
+        "require-host-env",
+        "cte cmake -E make_directory ${PIGEONCOIN_BUILD_DIR:-build/$(hostname -s)-release}",
+        "cte cmake -E create_symlink ${PIGEONCOIN_BUILD_DIR:-$(pwd)/build/$(hostname -s)-release} build/current",
+        "cte cmake -E chdir build/current sh -e $(pwd)/autogen.sh",
+        "cte cmake -E chdir build/current $(pwd)/configure --prefix=$(pwd)/build/${PIGEONCOIN_VER:-pigeon} ${PIGEONCOIN_CONFIG_ALL}"
+      ],
+      "prepare-release": "PIGEONCOIN_BUILD_DIR=${PIGEONCOIN_BUILD_DIR:-$(pwd)/build/$(hostname -s)-release} PIGEONCOIN_CONFIG_ALL='' cid prepare",
+      "prepare-debug": "PIGEONCOIN_BUILD_DIR=${PIGEONCOIN_BUILD_DIR:-$(pwd)/build/$(hostname -s)-debug} PIGEONCOIN_CONFIG_ALL='--enable-debug' cid prepare",
+      "prepare-coverage": "PIGEONCOIN_BUILD_DIR=${PIGEONCOIN_BUILD_DIR:-$(pwd)/build/$(hostname -s)-coverage} PIGEONCOIN_CONFIG_ALL='--enable-debug --enable-lcov' LIBS='-lgcov' cid prepare",
+      "build": [
+        "require-host-env",
+        "cte make -C ${PIGEONCOIN_BUILD_DIR:-build/current} -j${MAKEJOBS:-$(nproc)}",
+        "cte make -C ${PIGEONCOIN_BUILD_DIR:-build/current} install"
+      ],
+      "require-host-env": [
+        "if [ -z \"$HOST\" ]; then echo 'Please set HOST env (e.g. x86_64-linux-gnu)'; exit 1; fi"
+      ],
+      "check" : [
+          "check-cpp"
+      ],
+      "check-all": [
+        "check-cpp",
+        "check-rpc"
+      ],
+      "check-make": "cte make -C ${PIGEONCOIN_BUILD_DIR:-build/current} check",
+      "check-cpp": [
+          "cte cmake -E make_directory ./test_results",
+          "./build/${PIGEONCOIN_VER:-pigeon}/bin/test_pigeon${EXE_EXT} --log_format=XML --log_level=warning --log_sink=./test_results/results.xml --report_format=XML --report_level=detailed --report_sink=./test_results/report.xml --result_code=no",
+          "./build/${PIGEONCOIN_VER:-pigeon}/bin/test_pigeon-qt${EXE_EXT} -xml -o ./test_results/test_pigeon-qt.xml"
+      ],
+      "check-rpc": "cte python qa/pull-tester/rpc-tests.py",
+      "package" : "cte make -C ${PIGEONCOIN_BUILD_DIR:-build/current} deploy",
+      "pigeond" : "build/current/src/pigeond",
+      "pigeon-cli" : "build/current/src/pigeon-cli",
+      "pigeon-qt" : "build/current/src/qt/pigeon-qt",
+      "gdbserver" : "gdbserver ${GDBSERVER_COMM:-127.0.0.1:2000}",
+      "gdbserver-pigeond" : "@cid run gdbserver build/current/src/pigeond",
+      "gdbserver-pigeon-cli" : "@cid run gdbserver build/current/src/pigeon-cli",
+      "gdbserver-pigeon-qt" : "@cid run gdbserver build/current/src/qt/pigeon-qt",
+      "gdbgui" : "gdbgui --host ${GDBGUI_HOST:-127.0.0.1} --port ${GDBGUI_PORT:-2000} --no-browser",
+      "gdbgui-pigeond" : "@cid run gdbgui build/current/src/pigeond",
+      "gdbgui-pigeon-cli" : "@cid run gdbgui build/current/src/pigeon-cli",
+      "gdbgui-pigeon-qt" : "@cid run gdbgui build/current/src/qt/pigeon-qt"
+    }
+  }
