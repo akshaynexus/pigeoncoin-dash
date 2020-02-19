@@ -7,7 +7,7 @@ TESTS += test/test_dash
 bin_PROGRAMS += test/test_dash
 noinst_PROGRAMS += test/test_dash_fuzzy
 TEST_SRCDIR = test
-TEST_BINARY=test/test_dash$(EXEEXT)
+TEST_BINARY=test/test_pigeon$(EXEEXT)
 
 JSON_TEST_FILES = \
   test/data/script_tests.json \
@@ -115,17 +115,17 @@ test_test_dash_SOURCES = $(BITCOIN_TESTS) $(JSON_TEST_FILES) $(RAW_TEST_FILES)
 test_test_dash_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(TESTDEFS) $(EVENT_CFLAGS)
 test_test_dash_LDADD =
 if ENABLE_WALLET
-test_test_dash_LDADD += $(LIBBITCOIN_WALLET)
+test_test_pigeon_LDADD += $(LIBBITCOIN_WALLET)
 endif
 test_test_dash_LDADD += $(LIBBITCOIN_SERVER) $(LIBBITCOIN_CLI) $(LIBBITCOIN_COMMON) $(LIBBITCOIN_UTIL) $(LIBBITCOIN_CONSENSUS) $(LIBBITCOIN_CRYPTO) $(LIBUNIVALUE) \
   $(LIBLEVELDB) $(LIBLEVELDB_SSE42) $(LIBMEMENV) $(BACKTRACE_LIB) $(BOOST_LIBS) $(BOOST_UNIT_TEST_FRAMEWORK_LIB) $(LIBSECP256K1) $(EVENT_LIBS) $(EVENT_PTHREADS_LIBS)
 test_test_dash_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
-test_test_dash_LDADD += $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(BLS_LIBS)
-test_test_dash_LDFLAGS = $(LDFLAGS_WRAP_EXCEPTIONS) $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) -static
+test_test_pigeon_LDADD += $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(BLS_LIBS)
+test_test_pigeon_LDFLAGS = $(LDFLAGS_WRAP_EXCEPTIONS) $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) -static
 
 if ENABLE_ZMQ
-test_test_dash_LDADD += $(ZMQ_LIBS)
+test_test_pigeon_LDADD += $(ZMQ_LIBS)
 endif
 #
 
@@ -160,11 +160,11 @@ CLEANFILES += $(CLEAN_BITCOIN_TEST)
 
 dash_test: $(TEST_BINARY)
 
-dash_test_check: $(TEST_BINARY) FORCE
+pigeon_test_check: $(TEST_BINARY) FORCE
 	$(MAKE) check-TESTS TESTS=$^
 
-dash_test_clean : FORCE
-	rm -f $(CLEAN_BITCOIN_TEST) $(test_test_dash_OBJECTS) $(TEST_BINARY)
+pigeon_test_clean : FORCE
+	rm -f $(CLEAN_BITCOIN_TEST) $(test_test_pigeon_OBJECTS) $(TEST_BINARY)
 
 check-local:
 	@echo "Running test/util/bitcoin-util-test.py..."

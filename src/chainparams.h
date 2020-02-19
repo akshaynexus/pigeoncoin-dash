@@ -12,6 +12,7 @@
 #include <protocol.h>
 
 #include <memory>
+#include "timedata.h"
 #include <vector>
 
 struct SeedSpec6 {
@@ -99,11 +100,13 @@ protected:
 
     Consensus::Params consensus;
     CMessageHeader::MessageStartChars pchMessageStart;
+    CMessageHeader::MessageStartChars pchMessageStartNew;
     int nDefaultPort;
     uint64_t nPruneAfterHeight;
     std::vector<std::string> vSeeds;
     std::vector<unsigned char> base58Prefixes[MAX_BASE58_TYPES];
     int nExtCoinType;
+    int HFTimestamp;
     std::string strNetworkID;
     CBlock genesis;
     CBlock devnetGenesis;

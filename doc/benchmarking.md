@@ -7,6 +7,7 @@ for cryptographic algorithms such as SHA1, SHA256, SHA512 and RIPEMD160. As well
 Running
 ---------------------
 After compiling Dash Core, the benchmarks can be run with:
+`src/bench/bench_pigeon`
 
     src/bench/bench_dash
 
