@@ -9,7 +9,7 @@
 #include <uint256.h>
 #include <map>
 #include <string>
-
+#include "FounderPayment.h"
 namespace Consensus {
 
 enum DeploymentPos
@@ -178,6 +178,7 @@ struct Params {
     uint256 nMinimumChainWork;
     uint256 defaultAssumeValid;
     int nPowDifficultyRetargetHeight;
+    FounderPayment nFounderPayment;
     int64_t nPowTargetTimespanShort;
     
     //We need to return the correct values after we adjust the dificulty retarget

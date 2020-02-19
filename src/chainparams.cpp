@@ -354,7 +354,11 @@ public:
 
         // By default assume that the signatures in ancestors of this block are valid.
         consensus.defaultAssumeValid = uint256S("0x000000000023d0c447406c5f05c4f51c70ec3faa5fe3943c1b3136785ebd7cc0"); // 1067570
-        
+        std::vector<FounderRewardStrcuture> rewardStructures = {  {1420000, 5}// 5% founder/dev fee for blocks between startFounder block and 500k block
+
+        																   };
+	    consensus.nFounderPayment = FounderPayment(rewardStructures, 420000, "rQG3D3nzy3jfFxugbmUoZ9LhjpeJ4vrYbR",
+	    											"rLzD7RxVS1QMZ5yYrmoUvfnTNuzgUqJVVK", 738178);
         /**
          * The message start string is designed to be unlikely to occur in normal data.
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -533,7 +537,11 @@ public:
 
         // By default assume that the signatures in ancestors of this block are valid.
         consensus.defaultAssumeValid = uint256S("0x00");
-
+        vector<FounderRewardStrcuture> rewardStructures = {  {500000, 5},
+															 {1000000, 2}
+																		   };
+		consensus.nFounderPayment = FounderPayment(rewardStructures, 3000, "n6yjcgyB6VUJipV9p361QTSCDs3gf8izEh",
+													"nLphepxwA1bNxLDuwB3SLYPXjed6jMwFw4", 4000);
         pchMessageStart[0] = 0x52;
         pchMessageStart[1] = 0x56;
         pchMessageStart[2] = 0x4e;
@@ -686,7 +694,10 @@ public:
 
         // By default assume that the signatures in ancestors of this block are valid.
         consensus.defaultAssumeValid = uint256S("0x000000000000000000000000000000000000000000000000000000000000000");
-
+        vector<FounderRewardStrcuture> rewardStructures = {  {500000, 5},
+															 {1000000, 2}
+																		   };
+		consensus.nFounderPayment = FounderPayment(rewardStructures, 150000, "P9nAM12qNj7qL8JKN3EnShwSYQKHinL9TG");
         pchMessageStart[0] = 0xe2;
         pchMessageStart[1] = 0xca;
         pchMessageStart[2] = 0xff;
