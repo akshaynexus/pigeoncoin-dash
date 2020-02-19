@@ -3669,7 +3669,7 @@ https://www.transifex.com/projects/p/dash/</translation>
     </message>
 </context>
 <context>
-    <name>dash-core</name>
+    <name>pigeon-core</name>
     <message>
         <source>Bind to given address and always listen on it. Use [host]:port notation for IPv6</source>
         <translation>Leagă-te de adresa dată și ascultă întotdeauna. Utilizează [host]: Notation port pentru IPv6</translation>
