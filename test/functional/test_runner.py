@@ -54,11 +54,11 @@ TEST_EXIT_SKIPPED = 77
 BASE_SCRIPTS= [
     # Scripts that are run by the travis build process.
     # Longest test should go first, to favor running tests in parallel
-    'dip3-deterministicmns.py', # NOTE: needs dash_hash to pass
+    'dip3-deterministicmns.py', # NOTE: needs pigeon_hash to pass
     'wallet-hd.py',
     'walletbackup.py',
     # vv Tests less than 5m vv
-    'p2p-fullblocktest.py', # NOTE: needs dash_hash to pass
+    'p2p-fullblocktest.py', # NOTE: needs pigeon_hash to pass
     'fundrawtransaction.py',
     'fundrawtransaction-hd.py',
     # vv Tests less than 2m vv
@@ -68,15 +68,15 @@ BASE_SCRIPTS= [
     'wallet-dump.py',
     'listtransactions.py',
     'multikeysporks.py',
-    'llmq-signing.py', # NOTE: needs dash_hash to pass
-    'llmq-chainlocks.py', # NOTE: needs dash_hash to pass
-    'llmq-simplepose.py', # NOTE: needs dash_hash to pass
-    'llmq-is-cl-conflicts.py', # NOTE: needs dash_hash to pass
-    'llmq-is-retroactive.py', # NOTE: needs dash_hash to pass
-    'llmq-dkgerrors.py', # NOTE: needs dash_hash to pass
-    'dip4-coinbasemerkleroots.py', # NOTE: needs dash_hash to pass
+    'llmq-signing.py', # NOTE: needs pigeon_hash to pass
+    'llmq-chainlocks.py', # NOTE: needs pigeon_hash to pass
+    'llmq-simplepose.py', # NOTE: needs pigeon_hash to pass
+    'llmq-is-cl-conflicts.py', # NOTE: needs pigeon_hash to pass
+    'llmq-is-retroactive.py', # NOTE: needs pigeon_hash to pass
+    'llmq-dkgerrors.py', # NOTE: needs pigeon_hash to pass
+    'dip4-coinbasemerkleroots.py', # NOTE: needs pigeon_hash to pass
     # vv Tests less than 60s vv
-    'sendheaders.py', # NOTE: needs dash_hash to pass
+    'sendheaders.py', # NOTE: needs pigeon_hash to pass
     'zapwallettxes.py',
     'importmulti.py',
     'mempool_limit.py',
@@ -115,8 +115,8 @@ BASE_SCRIPTS= [
     'keypool-hd.py',
     'p2p-mempool.py',
     'prioritise_transaction.py',
-    'invalidblockrequest.py', # NOTE: needs dash_hash to pass
-    'invalidtxrequest.py', # NOTE: needs dash_hash to pass
+    'invalidblockrequest.py', # NOTE: needs pigeon_hash to pass
+    'invalidtxrequest.py', # NOTE: needs pigeon_hash to pass
     'p2p-versionbits-warning.py',
     'preciousblock.py',
     'importprunedfunds.py',

@@ -5,8 +5,10 @@ Utility to generate the seeds.txt list that is compiled into the client
 
 The seeds compiled into the release are created from the current protx list, like this:
 
-    dash-cli protx list valid 1 1185193 > protx_list.json
-    python3 makeseeds.py < protx_list.json > nodes_main.txt
+The seeds compiled into the release are created from the current masternode list, like this:
+
+    pigeon-cli masternodelist full > mnlist.json
+    python3 makeseeds.py < mnlist.json > nodes_main.txt
     python3 generate-seeds.py . > ../../src/chainparamsseeds.h
 
 Make sure to use a recent block height in the "protx list" call. After updating, create a PR and

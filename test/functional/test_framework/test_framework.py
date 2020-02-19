@@ -82,7 +82,7 @@ class BitcoinTestFramework(object):
 
         parser = optparse.OptionParser(usage="%prog [options]")
         parser.add_option("--nocleanup", dest="nocleanup", default=False, action="store_true",
-                          help="Leave dashds and test.* datadir on exit or error")
+                          help="Leave pigeonds and test.* datadir on exit or error")
         parser.add_option("--noshutdown", dest="noshutdown", default=False, action="store_true",
                           help="Don't stop dashds after the test execution")
         parser.add_option("--srcdir", dest="srcdir", default=os.path.normpath(os.path.dirname(os.path.realpath(__file__)) + "/../../../src"),
@@ -155,7 +155,7 @@ class BitcoinTestFramework(object):
                 success = False
                 self.log.exception("Unexpected exception caught during shutdown")
         else:
-            self.log.info("Note: dashds were not stopped and may still be running")
+            self.log.info("Note: pigeonds were not stopped and may still be running")
 
         if not self.options.nocleanup and not self.options.noshutdown and success != TestStatus.FAILED:
             self.log.info("Cleaning up")
@@ -547,7 +547,7 @@ class DashTestFramework(BitcoinTestFramework):
 
     def remove_mastermode(self, idx):
         mn = self.mninfo[idx]
-        rawtx = self.nodes[0].createrawtransaction([{"txid": mn.collateral_txid, "vout": mn.collateral_vout}], {self.nodes[0].getnewaddress(): 999.9999})
+        rawtx = self.nodes[0].createrawtransaction([{"txid": mn.collateral_txid, "vout": mn.collateral_vout}], {self.nodes[0].getnewaddress(): 999.8757})
         rawtx = self.nodes[0].signrawtransaction(rawtx)
         self.nodes[0].sendrawtransaction(rawtx["hex"])
         self.nodes[0].generate(1)
@@ -882,11 +882,11 @@ class ComparisonTestFramework(BitcoinTestFramework):
 
     def add_options(self, parser):
         parser.add_option("--testbinary", dest="testbinary",
-                          default=os.getenv("BITCOIND", "dashd"),
-                          help="dashd binary to test")
+                          default=os.getenv("BITCOIND", "pigeond"),
+                          help="pigeond binary to test")
         parser.add_option("--refbinary", dest="refbinary",
-                          default=os.getenv("BITCOIND", "dashd"),
-                          help="dashd binary to use for reference nodes (if any)")
+                          default=os.getenv("BITCOIND", "pigeond"),
+                          help="pigeond binary to use for reference nodes (if any)")
 
     def setup_network(self):
         extra_args = [['-whitelist=127.0.0.1']] * self.num_nodes
