@@ -73,7 +73,7 @@ bool AppInit(int argc, char* argv[])
     // Parameters
     //
     // If Qt is used, parameters/pigeon.conf are parsed in qt/dash.cpp's main()
-    ParseParameters(argc, argv);
+    gArgs.ParseParameters(argc, argv);
 
     if (gArgs.IsArgSet("-printcrashinfo")) {
         std::cout << GetCrashInfoStrFromSerializedStr(gArgs.GetArg("-printcrashinfo", "")) << std::endl;

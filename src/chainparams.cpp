@@ -560,10 +560,8 @@ public:
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,193);
         // Testnet private keys start with '9' or 'c' (Bitcoin defaults)
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,233);
-        // Testnet Dash BIP32 pubkeys start with 'tpub' (Bitcoin defaults)
-        base58Prefixes[EXT_PUBLIC_KEY] = boost::assign::list_of(0x03)(0x53)(0x77)(0xCA).convert_to_container<std::vector<unsigned char> >();
-        // Testnet Dash BIP32 prvkeys start with 'tprv' (Bitcoin defaults)
-        base58Prefixes[EXT_SECRET_KEY] = boost::assign::list_of(0x03)(0x53)(0x88)(0x91).convert_to_container<std::vector<unsigned char> >();
+        base58Prefixes[EXT_PUBLIC_KEY] = {0x03, 0x53, 0x77, 0xCA}; // from {0x04, 0x35, 0x87, 0xCF};
+        base58Prefixes[EXT_SECRET_KEY] = {0x03, 0x53, 0x88, 0x91}; // {0x04, 0x35, 0x83, 0x94};
 
         // Testnet Dash BIP44 coin type is '1' (All coin's testnet default)
         nExtCoinType = 1;
@@ -592,8 +590,9 @@ public:
         fBIP9CheckMasternodesUpgraded = true;
 
         checkpointData = (CCheckpointData) {
-            boost::assign::map_list_of
-            (    0, uint256S("0x000000a4d5d20f09a4cd9d47cae7e1bb056d46a1ba841ea19267341109f7b3a1"))
+            {
+                { 0, uint256S("0x000000a4d5d20f09a4cd9d47cae7e1bb056d46a1ba841ea19267341109f7b3a1")},
+            }
         };
 
         chainTxData = ChainTxData{

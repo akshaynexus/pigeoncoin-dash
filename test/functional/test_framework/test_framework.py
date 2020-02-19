@@ -519,7 +519,7 @@ class MasternodeInfo:
 
 
 class DashTestFramework(BitcoinTestFramework):
-    def set_dash_test_params(self, num_nodes, masterodes_count, extra_args=None, fast_dip3_enforcement=False):
+    def set_pigeon_test_params(self, num_nodes, masterodes_count, extra_args=None, fast_dip3_enforcement=False):
         self.mn_count = masterodes_count
         self.num_nodes = num_nodes
         self.mninfo = []
