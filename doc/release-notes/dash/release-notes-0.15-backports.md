@@ -303,7 +303,7 @@
 - [`d97fd1ca7`](https://github.com/dashpay/dash/commit/d97fd1ca7) state that getinfo will be deprecated in a future version
 - [`d6633b5fb`](https://github.com/dashpay/dash/commit/d6633b5fb) apply rpcconsole.cpp patch
 - [`4a22fb78f`](https://github.com/dashpay/dash/commit/4a22fb78f) s/dash-util-test.py/bitcoin-util-test.py
-- [`e0424c1a0`](https://github.com/dashpay/dash/commit/e0424c1a0) s/libbitcoin/libdash
+- [`e0424c1a0`](https://github.com/dashpay/dash/commit/e0424c1a0) s/libbitcoin/libpigeon
 - [`316fa1859`](https://github.com/dashpay/dash/commit/316fa1859) s/bitcoind/dashd
 - [`f38ed3c71`](https://github.com/dashpay/dash/commit/f38ed3c71) #10821 continued
 - [`64c195a03`](https://github.com/dashpay/dash/commit/64c195a03) remove witness/segwit based text

@@ -534,7 +534,7 @@ CBlockPolicyEstimator::CBlockPolicyEstimator()
 {
     static_assert(MIN_BUCKET_FEERATE > 0, "Min feerate must be nonzero");
     size_t bucketIndex = 0;
-    for (double bucketBoundary = MIN_BUCKET_FEERATE; bucketBoundary <= MAX_BUCKET_FEERATE; bucketBoundary *= FEE_SPACING, bucketIndex++) {
+    for (double bucketBoundary = MIN_BUCKET_FEERATE; bucketBoundary <= this->MAX_BUCKET_FEERATE; bucketBoundary *= this->FEE_SPACING, bucketIndex++) {
         buckets.push_back(bucketBoundary);
         bucketMap[bucketBoundary] = bucketIndex;
     }
@@ -1027,8 +1027,9 @@ void CBlockPolicyEstimator::FlushUnconfirmed(CTxMemPool& pool) {
 FeeFilterRounder::FeeFilterRounder(const CFeeRate& minIncrementalFee)	
 {	
     CAmount minFeeLimit = std::max(CAmount(1), minIncrementalFee.GetFeePerK() / 2);	
+    CBlockPolicyEstimator temp;
     feeset.insert(0);	
-    for (double bucketBoundary = minFeeLimit; bucketBoundary <= MAX_BUCKET_FEERATE; bucketBoundary *= FEE_SPACING) {	
+    for (double bucketBoundary = minFeeLimit; bucketBoundary <= temp.GetMaxBucketFee(); bucketBoundary *= temp.GetFeeSpacing()) {	
         feeset.insert(bucketBoundary);	
     }	
 }	

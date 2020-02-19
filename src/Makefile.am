@@ -45,13 +45,13 @@ BITCOIN_INCLUDES += $(UNIVALUE_CFLAGS)
 
 BLS_LIBS=-lchiabls -lgmp
 
-LIBBITCOIN_SERVER=libdash_server.a
-LIBBITCOIN_COMMON=libdash_common.a
-LIBBITCOIN_CONSENSUS=libdash_consensus.a
-LIBBITCOIN_CLI=libdash_cli.a
-LIBBITCOIN_UTIL=libdash_util.a
-LIBBITCOIN_CRYPTO_BASE=crypto/libdash_crypto_base.a
-LIBBITCOINQT=qt/libdashqt.a
+LIBBITCOIN_SERVER=libpigeon_server.a
+LIBBITCOIN_COMMON=libpigeon_common.a
+LIBBITCOIN_CONSENSUS=libpigeon_consensus.a
+LIBBITCOIN_CLI=libpigeon_cli.a
+LIBBITCOIN_UTIL=libpigeon_util.a
+LIBBITCOIN_CRYPTO_BASE=crypto/libpigeon_crypto_base.a
+LIBBITCOINQT=qt/libpigeonqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 
 if ENABLE_ZMQ
@@ -66,15 +66,15 @@ endif
 
 LIBBITCOIN_CRYPTO= $(LIBBITCOIN_CRYPTO_BASE)
 if ENABLE_SSE41
-LIBBITCOIN_CRYPTO_SSE41 = crypto/libdash_crypto_sse41.a
+LIBBITCOIN_CRYPTO_SSE41 = crypto/libpigeon_crypto_sse41.a
 LIBBITCOIN_CRYPTO += $(LIBBITCOIN_CRYPTO_SSE41)
 endif
 if ENABLE_AVX2
-LIBBITCOIN_CRYPTO_AVX2 = crypto/libdash_crypto_avx2.a
+LIBBITCOIN_CRYPTO_AVX2 = crypto/libpigeon_crypto_avx2.a
 LIBBITCOIN_CRYPTO += $(LIBBITCOIN_CRYPTO_AVX2)
 endif
 if ENABLE_SHANI
-LIBBITCOIN_CRYPTO_SHANI = crypto/libdash_crypto_shani.a
+LIBBITCOIN_CRYPTO_SHANI = crypto/libpigeon_crypto_shani.a
 LIBBITCOIN_CRYPTO += $(LIBBITCOIN_CRYPTO_SHANI)
 endif
 
@@ -266,12 +266,12 @@ obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
 	@$(top_srcdir)/share/genbuild.sh "$(abs_top_builddir)/src/obj/build.h" \
 	  "$(abs_top_srcdir)"
-libdash_util_a-clientversion.$(OBJEXT): obj/build.h
+libpigeon_util_a-clientversion.$(OBJEXT): obj/build.h
 
 # server: shared between dashd and dash-qt
-libdash_server_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
-libdash_server_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libdash_server_a_SOURCES = \
+libpigeon_server_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
+libpigeon_server_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libpigeon_server_a_SOURCES = \
   addrdb.cpp \
   addrman.cpp \
   batchedlogger.cpp \
@@ -380,9 +380,9 @@ libpigeon_wallet_a_SOURCES = \
   $(BITCOIN_CORE_H)
 
 # crypto primitives library
-crypto_libdash_crypto_base_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_CONFIG_INCLUDES) $(PIC_FLAGS)
-crypto_libdash_crypto_base_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(PIC_FLAGS)
-crypto_libdash_crypto_base_a_SOURCES = \
+crypto_libpigeon_crypto_base_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_CONFIG_INCLUDES) $(PIC_FLAGS)
+crypto_libpigeon_crypto_base_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(PIC_FLAGS)
+crypto_libpigeon_crypto_base_a_SOURCES = \
   crypto/aes.cpp \
   crypto/aes.h \
   crypto/chacha_poly_aead.h \
@@ -407,46 +407,23 @@ crypto_libdash_crypto_base_a_SOURCES = \
   crypto/sha512.h
 
 if USE_ASM
-crypto_libdash_crypto_base_a_SOURCES += crypto/sha256_sse4.cpp
+crypto_libpigeon_crypto_base_a_SOURCES += crypto/sha256_sse4.cpp
 endif
 
-crypto_libdash_crypto_sse41_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-crypto_libdash_crypto_sse41_a_CPPFLAGS = $(AM_CPPFLAGS)
-crypto_libdash_crypto_sse41_a_CXXFLAGS += $(SSE41_CXXFLAGS)
-crypto_libdash_crypto_sse41_a_CPPFLAGS += -DENABLE_SSE41
-crypto_libdash_crypto_sse41_a_SOURCES = crypto/sha256_sse41.cpp
+crypto_libpigeon_crypto_sse41_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+crypto_libpigeon_crypto_sse41_a_CPPFLAGS = $(AM_CPPFLAGS)
+crypto_libpigeon_crypto_sse41_a_CXXFLAGS += $(SSE41_CXXFLAGS)
+crypto_libpigeon_crypto_sse41_a_CPPFLAGS += -DENABLE_SSE41
+crypto_libpigeon_crypto_sse41_a_SOURCES = crypto/sha256_sse41.cpp
 
-crypto_libdash_crypto_avx2_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-crypto_libdash_crypto_avx2_a_CPPFLAGS = $(AM_CPPFLAGS)
-crypto_libdash_crypto_avx2_a_CXXFLAGS += $(AVX2_CXXFLAGS)
-crypto_libdash_crypto_avx2_a_CPPFLAGS += -DENABLE_AVX2
-crypto_libdash_crypto_avx2_a_SOURCES = crypto/sha256_avx2.cpp
+crypto_libpigeon_crypto_avx2_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+crypto_libpigeon_crypto_avx2_a_CPPFLAGS = $(AM_CPPFLAGS)
+crypto_libpigeon_crypto_avx2_a_CXXFLAGS += $(AVX2_CXXFLAGS)
+crypto_libpigeon_crypto_avx2_a_CPPFLAGS += -DENABLE_AVX2
+crypto_libpigeon_crypto_avx2_a_SOURCES = crypto/sha256_avx2.cpp
 
 # x11
-crypto_libdash_crypto_base_a_SOURCES += \
-  crypto/blake.c \
-  crypto/bmw.c \
-  crypto/cubehash.c \
-  crypto/echo.c \
-  crypto/groestl.c \
-  crypto/jh.c \
-  crypto/keccak.c \
-  crypto/luffa.c \
-  crypto/shavite.c \
-  crypto/simd.c \
-  crypto/skein.c \
-  crypto/sph_blake.h \
-  crypto/sph_bmw.h \
-  crypto/sph_cubehash.h \
-  crypto/sph_echo.h \
-  crypto/sph_groestl.h \
-  crypto/sph_jh.h \
-  crypto/sph_keccak.h \
-  crypto/sph_luffa.h \
-  crypto/sph_shavite.h \
-  crypto/sph_simd.h \
-  crypto/sph_skein.h \
-crypto/sph_types.h \
+crypto_libpigeon_crypto_base_a_SOURCES += \
   algo/sph_groestl.h \
   algo/sph_types.h \
   algo/sph_blake.h \
@@ -492,11 +469,11 @@ crypto/sph_types.h \
   algo/sph_sha2.c \
   algo/gost_streebog.c 
 
-crypto_libdash_crypto_shani_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-crypto_libdash_crypto_shani_a_CPPFLAGS = $(AM_CPPFLAGS)
-crypto_libdash_crypto_shani_a_CXXFLAGS += $(SHANI_CXXFLAGS)
-crypto_libdash_crypto_shani_a_CPPFLAGS += -DENABLE_SHANI
-crypto_libdash_crypto_shani_a_SOURCES = crypto/sha256_shani.cpp
+crypto_libpigeon_crypto_shani_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+crypto_libpigeon_crypto_shani_a_CPPFLAGS = $(AM_CPPFLAGS)
+crypto_libpigeon_crypto_shani_a_CXXFLAGS += $(SHANI_CXXFLAGS)
+crypto_libpigeon_crypto_shani_a_CPPFLAGS += -DENABLE_SHANI
+crypto_libpigeon_crypto_shani_a_SOURCES = crypto/sha256_shani.cpp
 
 # consensus: shared between all executables that validate any consensus rules.
 libpigeon_consensus_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
@@ -674,7 +651,7 @@ pigeon_tx_LDADD += $(BACKTRACE_LIB) $(BOOST_LIBS) $(CRYPTO_LIBS) $(BLS_LIBS)
 # dashconsensus library #
 if BUILD_BITCOIN_LIBS
 include_HEADERS = script/dashconsensus.h
-libdashconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libdash_crypto_base_a_SOURCES) $(libdash_consensus_a_SOURCES)
+libpigeonconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libpigeon_crypto_base_a_SOURCES) $(libpigeon_consensus_a_SOURCES)
 
 if GLIBC_BACK_COMPAT
   libpigeonconsensus_la_SOURCES += compat/glibc_compat.cpp

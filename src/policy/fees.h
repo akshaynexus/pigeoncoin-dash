@@ -224,7 +224,9 @@ public:
 
     /** Empty mempool transactions on shutdown to record failure to confirm for txs still in mempool */
     void FlushUnconfirmed(CTxMemPool& pool);
-
+    double GetMaxBucketFee() {return MAX_BUCKET_FEERATE;}
+    double GetMinBucketFee() {return MIN_BUCKET_FEERATE;}
+    double GetFeeSpacing()   {return FEE_SPACING;}
     /** Calculation of highest target that estimates are tracked for */
     unsigned int HighestTargetTracked(FeeEstimateHorizon horizon) const;
 

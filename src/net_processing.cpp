@@ -3167,7 +3167,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
                 LOCK(pfrom->cs_feeFilter);	
                 pfrom->minFeeFilter = newFeeFilter;	
             }	
-            LogPrint("net", "received: feefilter of %s from peer=%d\n", CFeeRate(newFeeFilter).ToString(), pfrom->id);	
+            LogPrint(BCLog::NET, "received: feefilter of %d from peer=%d\n", newFeeFilter, pfrom->GetId());	
         }	
     }
 
@@ -4068,15 +4068,15 @@ bool PeerLogicValidation::SendMessages(CNode* pto, std::atomic<bool>& interruptM
         // Message: feefilter	
         //	
         // We don't want white listed peers to filter txs to us if we have -whitelistforcerelay	
-        if (pto->nVersion >= FEEFILTER_VERSION && GetBoolArg("-feefilter", DEFAULT_FEEFILTER) &&	
-            !(pto->fWhitelisted && GetBoolArg("-whitelistforcerelay", DEFAULT_WHITELISTFORCERELAY))) {	
-            CAmount currentFilter = mempool.GetMinFee(GetArg("-maxmempool", DEFAULT_MAX_MEMPOOL_SIZE) * 1000000).GetFeePerK();	
+        if (pto->nVersion >= FEEFILTER_VERSION && gArgs.GetBoolArg("-feefilter", DEFAULT_FEEFILTER) &&	
+            !(pto->fWhitelisted && gArgs.GetBoolArg("-whitelistforcerelay", DEFAULT_WHITELISTFORCERELAY))) {	
+            CAmount currentFilter = mempool.GetMinFee(gArgs.GetArg("-maxmempool", DEFAULT_MAX_MEMPOOL_SIZE) * 1000000).GetFeePerK();	
             int64_t timeNow = GetTimeMicros();	
             if (timeNow > pto->nextSendTimeFeeFilter) {	
                 CAmount filterToSend = filterRounder.round(currentFilter);	
                     filterToSend = std::max(filterToSend, ::minRelayTxFee.GetFeePerK());	
                 if (filterToSend != pto->lastSentFeeFilter) {	
-                    connman.PushMessage(pto, msgMaker.Make(NetMsgType::FEEFILTER, filterToSend));	
+                    connman->PushMessage(pto, msgMaker.Make(NetMsgType::FEEFILTER, filterToSend));	
                     pto->lastSentFeeFilter = filterToSend;	
                 }	
                 pto->nextSendTimeFeeFilter = PoissonNextSend(timeNow, AVG_FEEFILTER_BROADCAST_INTERVAL);	

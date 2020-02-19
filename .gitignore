@@ -10,10 +10,10 @@ src/dash
 src/dashd
 src/dash-cli
 src/dash-tx
-src/test/test_dash
-src/test/test_dash_fuzzy
-src/qt/test/test_dash-qt
-src/bench/bench_dash
+src/test/test_pigeon
+src/test/test_pigeon_fuzzy
+src/qt/test/test_pigeon-qt
+src/bench/bench_pigeon
 
 # autoreconf
 Makefile.in
@@ -36,8 +36,8 @@ config.log
 config.status
 configure
 libtool
-src/config/dash-config.h
-src/config/dash-config.h.in
+src/config/pigeon-config.h
+src/config/pigeon-config.h.in
 src/config/stamp-h1
 share/setup.nsi
 share/qt/Info.plist
@@ -101,7 +101,7 @@ build
 *.gcno
 *.gcda
 /*.info
-test_dash.coverage/
+test_pigeon.coverage/
 total.coverage/
 coverage_percent.txt
 
@@ -119,7 +119,7 @@ test/cache/*
 .autotools
 /doc/doxygen/
 
-libdashconsensus.pc
+libpigeonconsensus.pc
 contrib/devtools/split-debug.sh
 src/qt/dash-qt.bash
 qa/pull-tester/tests-config.sh
