@@ -38,8 +38,8 @@ class TestNode(P2PInterface):
 
 class LLMQCoinbaseCommitmentsTest(DashTestFramework):
     def set_test_params(self):
-        self.set_dash_test_params(4, 3, fast_dip3_enforcement=True)
-        self.set_dash_dip8_activation(200)
+        self.set_pigeon_test_params(4, 3, fast_dip3_enforcement=True)
+        self.set_pigeon_dip8_activation(200)
 
     def run_test(self):
         self.test_node = self.nodes[0].add_p2p_connection(TestNode())

@@ -385,7 +385,7 @@ See detailed [set of changes](https://github.com/dashpay/dash/compare/v0.14.0.5.
 - [`6b5b70fab`](https://github.com/dashpay/dash/commit/6b5b70fab) Remove liquidity provider privatesend (#3082)
 - [`0b2221ed6`](https://github.com/dashpay/dash/commit/0b2221ed6) Clarify default max peer connections (#3081)
 - [`c22169d57`](https://github.com/dashpay/dash/commit/c22169d57) Reduce non-debug PS log output (#3076)
-- [`41ae1c7e2`](https://github.com/dashpay/dash/commit/41ae1c7e2) Add LDFLAGS_WRAP_EXCEPTIONS to dash_fuzzy linking (#3075)
+- [`41ae1c7e2`](https://github.com/dashpay/dash/commit/41ae1c7e2) Add LDFLAGS_WRAP_EXCEPTIONS to pigeon_fuzzy linking (#3075)
 - [`77b88558e`](https://github.com/dashpay/dash/commit/77b88558e) Update/modernize macOS plist (#3074)
 - [`f1ff14818`](https://github.com/dashpay/dash/commit/f1ff14818) Fix bip69 vs change position issue (#3063)
 - [`9abc39383`](https://github.com/dashpay/dash/commit/9abc39383) Refactor few things here and there (#3066)

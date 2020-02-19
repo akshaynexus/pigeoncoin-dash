@@ -607,7 +607,7 @@ void BitcoinGUI::createToolBars()
         toolbar->addWidget(spacer);
 
         QLabel *logoLabel = new QLabel();
-        QString logoImage = ":/images/dash_logo_toolbar";
+        QString logoImage = ":/images/pigeon_logo_toolbar";
         if (!GUIUtil::dashThemeActive()) {
             logoImage = ":/images/dash_logo_toolbar_blue";
         }
