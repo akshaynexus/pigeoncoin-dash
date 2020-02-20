@@ -3374,25 +3374,6 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
         if (block.vtx[i]->IsCoinBase())
             return state.DoS(100, false, REJECT_INVALID, "bad-cb-multiple", false, "more than one coinbase");
 
-    // Check transactions
-    bool isPassedLastExploitedHeight = chainActive.Height() > 186803;
-    CAmount blockReward = GetBlockSubsidy(0, chainActive.Height(),consensusParams);
-    FounderPayment founderPayment = consensusParams.nFounderPayment;
-    CAmount founderReward = founderPayment.getFounderPaymentAmount(chainActive.Height(), blockReward);
-    int founderStartHeight = founderPayment.getStartBlock();
-    bool FrIsPositive = founderReward > 0;// if founder reward is 0 no need to check
-    bool fPayedFr = false;
-    for (const auto& tx : block.vtx){
-	    fPayedFr = FrIsPositive && founderPayment.IsBlockPayeeValid(*tx,chainActive.Height(),blockReward);
-        if (!CheckTransaction(*tx, state,isPassedLastExploitedHeight))
-            return state.Invalid(false, state.GetRejectCode(), state.GetRejectReason(),
-                                 strprintf("Transaction check failed (tx hash %s) %s", tx->GetHash().ToString(), state.GetDebugMessage()));
-    }
-    if(!fPayedFr) {
-		LogPrintf("Founder payment of %s is not found\n", block.txoutFounder.ToString().c_str());
-		return state.DoS(0, error("CheckBlock(): transaction %s does not contains founder transaction",
-				block.txoutFounder.ToString().c_str()), REJECT_INVALID, "founderpayment-not-found");
-	}
 
     unsigned int nSigOps = 0;
     for (const auto& tx : block.vtx)
@@ -3405,7 +3386,27 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
 
     if (fCheckPOW && fCheckMerkleRoot)
         block.fChecked = true;
-
+    // Check transactions
+    bool isPassedLastExploitedHeight = chainActive.Height() > 186803;
+    CAmount blockReward = GetBlockSubsidy(0, chainActive.Height(),consensusParams);
+    FounderPayment founderPayment = consensusParams.nFounderPayment;
+    CAmount founderReward = founderPayment.getFounderPaymentAmount(chainActive.Height(), blockReward);
+    int founderStartHeight = founderPayment.getStartBlock();
+    bool founderTransaction = founderReward == 0;// if founder reward is 0 no need to check
+    bool fCheckFounderPayment = chainActive.Height() > founderStartHeight && !founderTransaction;
+    for (const auto& tx : block.vtx){
+        if (!CheckTransaction(*tx, state,isPassedLastExploitedHeight))
+            return state.Invalid(false, state.GetRejectCode(), state.GetRejectReason(),
+                                 strprintf("Transaction check failed (tx hash %s) %s", tx->GetHash().ToString(), state.GetDebugMessage()));
+        //Check for founder payment if it isnt already found in txes
+        if(fCheckFounderPayment && !founderTransaction)
+	        founderTransaction = founderPayment.IsBlockPayeeValid(*tx,chainActive.Height(),blockReward);
+    }
+    if(!founderTransaction) {
+		LogPrintf("Founder payment of %d is not found\n",founderReward / COIN);
+		return state.DoS(0, error("CheckBlock(): transaction %s does not contains founder transaction",
+				block.txoutFounder.ToString().c_str()), REJECT_INVALID, "founderpayment-not-found");
+	}
     return true;
 }
 
