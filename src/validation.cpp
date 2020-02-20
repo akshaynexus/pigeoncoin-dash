@@ -3221,19 +3221,6 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     for (unsigned int i = 1; i < block.vtx.size(); i++)
         if (block.vtx[i]->IsCoinBase())
             return state.DoS(100, false, REJECT_INVALID, "bad-cb-multiple", false, "more than one coinbase");
-
-
-    unsigned int nSigOps = 0;
-    for (const auto& tx : block.vtx)
-    {
-        nSigOps += GetLegacySigOpCount(*tx);
-    }
-    // sigops limits (relaxed)
-    if (nSigOps > MaxBlockSigOps(true))
-        return state.DoS(100, false, REJECT_INVALID, "bad-blk-sigops", false, "out-of-bounds SigOpCount");
-
-    if (fCheckPOW && fCheckMerkleRoot)
-        block.fChecked = true;
     // Check transactions
     bool isPassedLastExploitedHeight = chainActive.Height() > 186803;
     CAmount blockReward = GetBlockSubsidy(0, chainActive.Height(),consensusParams);
@@ -3255,6 +3242,17 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
 		return state.DoS(0, error("CheckBlock(): transaction %s does not contains founder transaction",
 				block.txoutFounder.ToString().c_str()), REJECT_INVALID, "founderpayment-not-found");
 	}
+    unsigned int nSigOps = 0;
+    for (const auto& tx : block.vtx)
+    {
+        nSigOps += GetLegacySigOpCount(*tx);
+    }
+    // sigops limits (relaxed)
+    if (nSigOps > MaxBlockSigOps(true))
+        return state.DoS(100, false, REJECT_INVALID, "bad-blk-sigops", false, "out-of-bounds SigOpCount");
+
+    if (fCheckPOW && fCheckMerkleRoot)
+        block.fChecked = true;
     return true;
 }
 
