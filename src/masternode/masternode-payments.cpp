@@ -14,7 +14,6 @@
 #include "spork.h"
 #include "util.h"
 #include "validation.h"
-#include "FounderPayment.h"
 #include "evo/deterministicmns.h"
 
 #include <string>

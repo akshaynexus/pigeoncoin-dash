@@ -3,13 +3,13 @@
  * Distributed under the MIT software license, see the accompanying
  * file COPYING or http://www.opensource.org/licenses/mit-license.php.
  * 
- * FounderPayment.cpp
+ * founderpayment.cpp
  *
  *  Created on: Jun 24, 2018
  *      Author: Tri Nguyen
  */
 
-#include "FounderPayment.h"
+#include "founderpayment.h"
 #include "util.h"
 #include "chainparams.h"
 #include "base58.h"

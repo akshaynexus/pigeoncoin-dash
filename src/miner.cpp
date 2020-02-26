@@ -29,7 +29,7 @@
 #include "masternode/masternode-payments.h"
 #include "masternode/masternode-sync.h"
 #include "validationinterface.h"
-#include "FounderPayment.h"
+#include "founderpayment.h"
 #include "evo/specialtx.h"
 #include "evo/cbtx.h"
 #include "evo/simplifiedmns.h"

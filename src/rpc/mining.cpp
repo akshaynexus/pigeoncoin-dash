@@ -27,7 +27,7 @@
 #include "utilstrencodings.h"
 #include "validationinterface.h"
 #include "warnings.h"
-#include "FounderPayment.h"
+#include "founderpayment.h"
 #include "governance/governance-classes.h"
 #include "masternode/masternode-payments.h"
 #include "masternode/masternode-sync.h"
