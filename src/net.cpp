@@ -3482,6 +3482,7 @@ void CConnman::RelayInv(CInv &inv, const int minProtoVersion, bool fAllowMastern
 void CConnman::RelayInvFiltered(CInv &inv, const CTransaction& relatedTx, const int minProtoVersion, bool fAllowMasternodeConnections)
 {
     LOCK(cs_vNodes);
+    minProtoVersion = sporkManager.GetSporkValue(SPORK_21_MIN_PEER_PROTOCOL_VERSION);
     for (const auto& pnode : vNodes) {
         if (pnode->nVersion < minProtoVersion || (pnode->fMasternode && !fAllowMasternodeConnections))
             continue;
@@ -3497,6 +3498,7 @@ void CConnman::RelayInvFiltered(CInv &inv, const CTransaction& relatedTx, const 
 void CConnman::RelayInvFiltered(CInv &inv, const uint256& relatedTxHash, const int minProtoVersion, bool fAllowMasternodeConnections)
 {
     LOCK(cs_vNodes);
+    minProtoVersion = sporkManager.GetSporkValue(SPORK_21_MIN_PEER_PROTOCOL_VERSION);
     for (const auto& pnode : vNodes) {
         if (pnode->nVersion < minProtoVersion || (pnode->fMasternode && !fAllowMasternodeConnections))
             continue;
