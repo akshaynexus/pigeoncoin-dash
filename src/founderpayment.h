@@ -3,7 +3,7 @@
  * Distributed under the MIT software license, see the accompanying
  * file COPYING or http://www.opensource.org/licenses/mit-license.php.
  * 
- * FounderPayment.h
+ * founderpayment.h
  *
  *  Created on: Jun 24, 2018
  *      Author: Tri Nguyen

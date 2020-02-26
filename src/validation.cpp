@@ -1116,7 +1116,7 @@ CAmount GetBlockSubsidy(int nPrevBits, int nHeight, const Consensus::Params& con
 
 CAmount GetMasternodePayment(int nHeight, CAmount blockValue)
 {
-    // CAmount ret = blockValue/5; // start at 20%
+    CAmount ret =  0; // start at 20%
 
     // int nMNPIBlock = Params().GetConsensus().nMasternodePaymentsIncreaseBlock;
     // int nMNPIPeriod = Params().GetConsensus().nMasternodePaymentsIncreasePeriod;
@@ -1131,8 +1131,9 @@ CAmount GetMasternodePayment(int nHeight, CAmount blockValue)
     // if(nHeight > nMNPIBlock+(nMNPIPeriod* 6)) ret += blockValue / 40; // 261680 - 45.0% - 2015-05-01
     // if(nHeight > nMNPIBlock+(nMNPIPeriod* 7)) ret += blockValue / 40; // 278960 - 47.5% - 2015-06-01
     // if(nHeight > nMNPIBlock+(nMNPIPeriod* 9)) ret += blockValue / 40; // 313520 - 50.0% - 2015-08-03
-
-    return 0;
+    if(nHeight >= Params().GetConsensus().nMasternodePaymentsStartBlock)
+        ret = blockValue * 0.2;
+    return ret;
 }
 
 bool IsInitialBlockDownload()

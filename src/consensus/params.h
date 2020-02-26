@@ -9,7 +9,7 @@
 #include <uint256.h>
 #include <map>
 #include <string>
-#include "FounderPayment.h"
+#include "founderpayment.h"
 namespace Consensus {
 
 enum DeploymentPos
