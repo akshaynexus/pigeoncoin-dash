@@ -1020,9 +1020,9 @@ CAmount GetBlockSubsidy(int nPrevBits, int nHeight, const Consensus::Params& con
 
 CAmount GetMasternodePayment(int nHeight, CAmount blockValue)
 {
-    CAmount ret =  0; // start at 20%
+    CAmount ret =  0;
     if(nHeight >= Params().GetConsensus().nMasternodePaymentsStartBlock)
-        ret = blockValue * 0.2;
+        ret = blockValue * 0.15;
     return ret;
 }
 
