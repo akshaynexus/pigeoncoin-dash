@@ -496,7 +496,7 @@ libpigeon_consensus_a_SOURCES = \
   consensus/merkle.h \
   consensus/params.h \
   consensus/validation.h \
-  FounderPayment.h \
+  founderpayment.h \
   hash.cpp \
   hash.h \
   prevector.h \
@@ -533,7 +533,7 @@ libpigeon_common_a_SOURCES = \
   compressor.cpp \
   core_read.cpp \
   core_write.cpp \
-  FounderPayment.cpp \
+  founderpayment.cpp \
   hdchain.cpp \
   key.cpp \
   keystore.cpp \
