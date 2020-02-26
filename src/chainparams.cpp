@@ -178,6 +178,23 @@ static Consensus::LLMQParams llmq50_60 = {
         .keepOldConnections = 25,
 };
 
+static Consensus::LLMQParams llmq5_10 = {
+        .type = Consensus::LLMQ_5_10,
+        .name = "llmq_5_10",
+        .size = 5,
+        .minSize = 4,
+        .threshold = 5,
+
+        .dkgInterval = 24, // one DKG per hour
+        .dkgPhaseBlocks = 2,
+        .dkgMiningWindowStart = 10, // dkgPhaseBlocks * 5 = after finalization
+        .dkgMiningWindowEnd = 18,
+        .dkgBadVotesThreshold = 40,
+
+        .signingActiveQuorumCount = 24, // a full day worth of LLMQs
+
+        .keepOldConnections = 25,
+};
 static Consensus::LLMQParams llmq400_60 = {
         .type = Consensus::LLMQ_400_60,
         .name = "llmq_400_60",
@@ -527,11 +544,11 @@ public:
         nExtCoinType = 1;
 
         // long living quorum params
-        consensus.llmqs[Consensus::LLMQ_50_60] = llmq50_60;
+        consensus.llmqs[Consensus::LLMQ_5_10] = llmq5_10;
         consensus.llmqs[Consensus::LLMQ_400_60] = llmq400_60;
         consensus.llmqs[Consensus::LLMQ_400_85] = llmq400_85;
-        consensus.llmqTypeChainLocks = Consensus::LLMQ_50_60;
-        consensus.llmqTypeInstantSend = Consensus::LLMQ_50_60;
+        consensus.llmqTypeChainLocks = Consensus::LLMQ_5_10;
+        consensus.llmqTypeInstantSend = Consensus::LLMQ_5_10;
 
         fDefaultConsistencyChecks = false;
         fRequireStandard = false;
