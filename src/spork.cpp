@@ -10,7 +10,7 @@
 #include "messagesigner.h"
 #include "net_processing.h"
 #include "netmessagemaker.h"
-
+#include "version.h"
 #include <string>
 
 const std::string CSporkManager::SERIALIZATION_VERSION_STRING = "CSporkManager-Version-2";
@@ -26,6 +26,7 @@ std::vector<CSporkDef> sporkDefs = {
     MAKE_SPORK_DEF(SPORK_17_QUORUM_DKG_ENABLED,            4070908800ULL), // OFF
     MAKE_SPORK_DEF(SPORK_19_CHAINLOCKS_ENABLED,            4070908800ULL), // OFF
     MAKE_SPORK_DEF(SPORK_20_INSTANTSEND_LLMQ_BASED,        4070908800ULL), // OFF
+    MAKE_SPORK_DEF(SPORK_21_MIN_PEER_PROTOCOL_VERSION,     PROTOCOL_RVN_VERSION), // OFF
 };
 
 CSporkManager sporkManager;

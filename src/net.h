@@ -25,7 +25,6 @@
 #include "util.h"
 #include "threadinterrupt.h"
 #include "consensus/params.h"
-
 #include <atomic>
 #include <deque>
 #include <stdint.h>
@@ -344,10 +343,10 @@ public:
     void ReleaseNodeVector(const std::vector<CNode*>& vecNodes);
 
     void RelayTransaction(const CTransaction& tx);
-    void RelayInv(CInv &inv, const int minProtoVersion = MIN_PEER_PROTO_VERSION);
-    void RelayInvFiltered(CInv &inv, const CTransaction &relatedTx, const int minProtoVersion = MIN_PEER_PROTO_VERSION);
+    void RelayInv(CInv &inv,  int minProtoVersion = MIN_PEER_PROTO_VERSION);
+    void RelayInvFiltered(CInv &inv, const CTransaction &relatedTx,  int minProtoVersion = MIN_PEER_PROTO_VERSION);
     // This overload will not update node filters,  so use it only for the cases when other messages will update related transaction data in filters
-    void RelayInvFiltered(CInv &inv, const uint256 &relatedTxHash, const int minProtoVersion = MIN_PEER_PROTO_VERSION);
+    void RelayInvFiltered(CInv &inv, const uint256 &relatedTxHash,  int minProtoVersion = MIN_PEER_PROTO_VERSION);
     void RemoveAskFor(const uint256& hash);
 
     // Addrman functions

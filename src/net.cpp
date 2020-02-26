@@ -24,7 +24,7 @@
 #include "ui_interface.h"
 #include "utilstrencodings.h"
 #include "validation.h"
-
+#include "spork.h"
 #include "masternode/masternode-sync.h"
 #include "privatesend/privatesend.h"
 #include "evo/deterministicmns.h"
@@ -2959,16 +2959,18 @@ void CConnman::RelayTransaction(const CTransaction& tx)
     }
 }
 
-void CConnman::RelayInv(CInv &inv, const int minProtoVersion) {
+void CConnman::RelayInv(CInv &inv, int minProtoVersion) {
     LOCK(cs_vNodes);
+    minProtoVersion = sporkManager.GetSporkValue(SPORK_21_MIN_PEER_PROTOCOL_VERSION);
     for (const auto& pnode : vNodes)
         if(pnode->nVersion >= minProtoVersion)
             pnode->PushInventory(inv);
 }
 
-void CConnman::RelayInvFiltered(CInv &inv, const CTransaction& relatedTx, const int minProtoVersion)
+void CConnman::RelayInvFiltered(CInv &inv, const CTransaction& relatedTx, int minProtoVersion)
 {
     LOCK(cs_vNodes);
+    minProtoVersion = sporkManager.GetSporkValue(SPORK_21_MIN_PEER_PROTOCOL_VERSION);
     for (const auto& pnode : vNodes) {
         if(pnode->nVersion < minProtoVersion)
             continue;
@@ -2981,9 +2983,10 @@ void CConnman::RelayInvFiltered(CInv &inv, const CTransaction& relatedTx, const 
     }
 }
 
-void CConnman::RelayInvFiltered(CInv &inv, const uint256& relatedTxHash, const int minProtoVersion)
+void CConnman::RelayInvFiltered(CInv &inv, const uint256& relatedTxHash, int minProtoVersion)
 {
     LOCK(cs_vNodes);
+    minProtoVersion = sporkManager.GetSporkValue(SPORK_21_MIN_PEER_PROTOCOL_VERSION);
     for (const auto& pnode : vNodes) {
         if(pnode->nVersion < minProtoVersion) continue;
         {
