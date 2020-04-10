@@ -359,7 +359,10 @@ void OverviewPage::updatePrivateSendProgress()
     // If it's more than the anon threshold, limit to that.
     if(nMaxToAnonymize > privateSendClient.nPrivateSendAmount*COIN) nMaxToAnonymize = privateSendClient.nPrivateSendAmount*COIN;
 
-    if(nMaxToAnonymize == 0) return;
+    if(nMaxToAnonymize == 0){
+        LogPrintf("PrivateSend DEBUG: no coins to anonymize");
+        return;
+    }
 
     if(nMaxToAnonymize >= privateSendClient.nPrivateSendAmount * COIN) {
         ui->labelAmountRounds->setToolTip(tr("Found enough compatible inputs to anonymize %1")
@@ -459,7 +462,7 @@ void OverviewPage::privateSendStatus()
     int nBestHeight = clientModel->getNumBlocks();
 
     // We are processing more then 1 block per second, we'll just leave
-    if(((nBestHeight - privateSendClient.nCachedNumBlocks) / (GetTimeMillis() - nLastDSProgressBlockTime + 1) > 1)) return;
+    // if(((nBestHeight - privateSendClient.nCachedNumBlocks) / (GetTimeMillis() - nLastDSProgressBlockTime + 1) > 1)) return;
     nLastDSProgressBlockTime = GetTimeMillis();
 
     QString strKeysLeftText(tr("keys left: %1").arg(vpwallets[0]->nKeysLeftSinceAutoBackup));
