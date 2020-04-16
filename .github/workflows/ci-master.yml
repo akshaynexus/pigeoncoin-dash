@@ -23,9 +23,9 @@ jobs:
         sudo apt-get install -y libboost-all-dev libdb-dev libdb++-dev libevent-dev python3-setuptools
         pip3 install wheel
         pip3 install --user futoin-cid
-        cid prepare
     - name: Create Distribution Tarball
       run: |
+        ~/.local/bin/cid build
         ./autogen.sh
         ./configure
         make dist
