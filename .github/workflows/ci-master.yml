@@ -25,6 +25,7 @@ jobs:
         pip3 install --user futoin-cid
     - name: Create Distribution Tarball
       run: |
+        export HOST=x86_64-linux-gnu
         ~/.local/bin/cid prepare
         ./autogen.sh
         ./configure
