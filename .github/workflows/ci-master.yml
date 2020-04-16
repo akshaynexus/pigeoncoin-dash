@@ -20,7 +20,7 @@ jobs:
     - name: Install Required Packages
       run: |
         sudo apt-get update
-        sudo apt-get install -y libboost-all-dev libdb-dev libdb++-dev libevent-dev
+        sudo apt-get install -y libboost-all-dev libdb-dev libdb++-dev libevent-dev python3-setuptools
         pip3 install --user futoin-cid
         cid prepare
     - name: Create Distribution Tarball
