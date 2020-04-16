@@ -808,6 +808,8 @@ bool CPrivateSendClientSession::DoAutomaticDenominating(CConnman& connman, bool 
 
         // check if there is anything left to do
         CAmount nBalanceAnonymized = vpwallets[0]->GetAnonymizedBalance();
+        LogPrintf("Privatesend amount is : %d\n",privateSendClient.nPrivateSendAmount);
+        LogPrintf("nBalanceAnonymized amount is : %d\n",nBalanceAnonymized / COIN);
         nBalanceNeedsAnonymized = privateSendClient.nPrivateSendAmount*COIN - nBalanceAnonymized;
 
         if (nBalanceNeedsAnonymized < 0) {
