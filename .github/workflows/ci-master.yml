@@ -19,7 +19,8 @@ jobs:
       uses: actions/checkout@v2
     - name: Install Required Packages
       run: |
-        sudo add-apt-repository ppa:bitcoin/bitcoin
+        sudo apt-get install software-properties-common
+        sudo add-apt-repository ppa:pivx/pivx
         sudo apt-get update
         sudo apt-get install -y libboost-all-dev libdb-dev libdb++-dev libdb4.8-dev libdb4.8++-dev libevent-dev python3-setuptools
         sudo apt-get update
