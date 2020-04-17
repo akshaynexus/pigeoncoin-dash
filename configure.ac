@@ -13,7 +13,11 @@ AC_CONFIG_SRCDIR([src/validation.cpp])
 AC_CONFIG_HEADERS([src/config/pigeon-config.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
-
+AC_CONFIG_LINKS([src/algo/md_helper.c:src/algo/md_helper.c])
+AC_CONFIG_LINKS([src/algo/hamsi_helper.c:src/algo/hamsi_helper.c])
+AC_CONFIG_LINKS([src/algo/sph_md_helper.c:src/algo/sph_md_helper.c])
+AC_CONFIG_LINKS([src/algo/aes_helper.c:src/algo/aes_helper.c])
+AC_CONFIG_LINKS([src/algo/haval_helper.c:src/algo/haval_helper.c])
 BITCOIN_DAEMON_NAME=pigeond
 BITCOIN_GUI_NAME=pigeon-qt
 BITCOIN_CLI_NAME=pigeon-cli
