@@ -19,8 +19,10 @@ jobs:
       uses: actions/checkout@v2
     - name: Install Required Packages
       run: |
+        sudo add-apt-repository ppa:bitcoin/bitcoin
         sudo apt-get update
-        sudo apt-get install -y libboost-all-dev libdb-dev libdb++-dev libevent-dev python3-setuptools
+        sudo apt-get install -y libboost-all-dev libdb-dev libdb++-dev libdb4.8-dev libdb4.8++-dev libevent-dev python3-setuptools
+        sudo apt-get update
         pip3 install wheel
         pip3 install --user futoin-cid
     - name: Create Distribution Tarball
@@ -35,7 +37,7 @@ jobs:
     - name: Prepare Files for Artifact
       run: |
         mkdir -p $ARTIFACT_DIR
-        mv depends.tar.gz pigeon-*.tar.gz $ARTIFACT_DIR
+        mv depends.tar.gz pigeoncoin-*.tar.gz $ARTIFACT_DIR
     - name: Upload Artifact
       uses: actions/upload-artifact@v1
       with:
@@ -56,7 +58,7 @@ jobs:
     - name: Extract Archives
       run: |
         tar -xzf depends.tar.gz
-        tar -xzf pigeon-*.tar.gz --strip-components=1
+        tar -xzf pigeoncoin-*.tar.gz --strip-components=1
       working-directory: ${{ env.SOURCE_ARTIFACT }}
     - name: Install Required Packages
       run: |
@@ -73,7 +75,7 @@ jobs:
     - name: Prepare Files for Artifact
       run: |
         mkdir -p $ARTIFACT_DIR
-        mv $SOURCE_ARTIFACT/src/{pigeon-cli,pigeon-tx,pigeond,qt/pigeon-qt} $ARTIFACT_DIR
+        mv $SOURCE_ARTIFACT/src/{pigeoncoin-cli,pigeoncoin-tx,pigeond,qt/pigeoncoin-qt} $ARTIFACT_DIR
     - name: Upload Artifact
       uses: actions/upload-artifact@v1
       with:
@@ -93,7 +95,7 @@ jobs:
     - name: Extract Archives
       run: |
         tar -xzf depends.tar.gz
-        tar -xzf pigeon-*.tar.gz --strip-components=1
+        tar -xzf pigeoncoin-*.tar.gz --strip-components=1
       working-directory: ${{ env.SOURCE_ARTIFACT }}
     - name: Install Required Packages
       run: |
@@ -114,7 +116,7 @@ jobs:
     - name: Prepare Files for Artifact
       run: |
         mkdir -p $ARTIFACT_DIR
-        mv $SOURCE_ARTIFACT/src/{pigeon-cli.exe,pigeon-tx.exe,pigeond.exe,qt/pigeon-qt.exe} $ARTIFACT_DIR
+        mv $SOURCE_ARTIFACT/src/{pigeoncoin-cli.exe,pigeoncoin-tx.exe,pigeond.exe,qt/pigeoncoin-qt.exe} $ARTIFACT_DIR
     - name: Upload Artifact
       uses: actions/upload-artifact@v1
       with:
@@ -134,7 +136,7 @@ jobs:
   #   - name: Extract Archives
   #     run: |
   #       tar -xzf depends.tar.gz
-  #       tar -xzf pigeon-*.tar.gz --strip-components=1
+  #       tar -xzf pigeoncoin-*.tar.gz --strip-components=1
   #     working-directory: ${{ env.SOURCE_ARTIFACT }}
   #   - name: Use Xcode instead of Command Line Tools
   #     run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
@@ -151,7 +153,7 @@ jobs:
   #   - name: Prepare Files for Artifact
   #     run: |
   #       mkdir -p $ARTIFACT_DIR
-  #       mv $SOURCE_ARTIFACT/src/{pigeon-cli,pigeon-tx,pigeond,qt/pigeon-qt} $ARTIFACT_DIR
+  #       mv $SOURCE_ARTIFACT/src/{pigeoncoin-cli,pigeoncoin-tx,pigeond,qt/pigeoncoin-qt} $ARTIFACT_DIR
   #   - name: Upload Artifact
   #     uses: actions/upload-artifact@v1
   #     with:
