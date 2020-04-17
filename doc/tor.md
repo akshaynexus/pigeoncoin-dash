@@ -51,7 +51,7 @@ If you configure your Tor system accordingly, it is possible to make your node a
 reachable from the Tor network. Add these lines to your /etc/tor/torrc (or equivalent
 config file):
 
-	HiddenServiceDir /var/lib/tor/dashcore-service/
+	HiddenServiceDir /var/lib/tor/pigeoncoin-service/
 	HiddenServicePort 8757 127.0.0.1:8757
 	HiddenServicePort 18757 127.0.0.1:18757
 
@@ -61,7 +61,7 @@ your pigeond's P2P listen port (8757 by default).
 	-externalip=X   You can tell Dash Core about its publicly reachable address using
 	                this option, and this can be a .onion address. Given the above
 	                configuration, you can find your onion address in
-	                /var/lib/tor/dashcore-service/hostname. Onion addresses are given
+	                /var/lib/tor/pigeoncoin-service/hostname. Onion addresses are given
 	                preference for your node to advertise itself with, for connections
 	                coming from unroutable addresses (such as 127.0.0.1, where the
 	                Tor proxy typically runs).

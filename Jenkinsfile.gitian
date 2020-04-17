@@ -37,7 +37,7 @@ for(int i = 0; i < targets.size(); i++) {
         dir('gitian-builder') {
           git url: 'https://github.com/dashpay/gitian-builder.git'
         }
-        sh "mkdir -p dashcore-binaries"
+        sh "mkdir -p pigeoncoin-binaries"
         if (target == "osx") {
           dir('gitian-builder') {
             sh 'mkdir -p inputs'
@@ -111,10 +111,10 @@ for(int i = 0; i < targets.size(); i++) {
               // make sure it doesn't run forever
               sh "docker rm -fv gitian-target || true"
             }
-            sh "mv build/out/dashcore-* ../dashcore-binaries/"
-            sh "mv build/out/src/dashcore-* ../dashcore-binaries/"
+            sh "mv build/out/pigeoncoin-* ../pigeoncoin-binaries/"
+            sh "mv build/out/src/pigeoncoin-* ../pigeoncoin-binaries/"
           }
-          archiveArtifacts artifacts: 'dashcore-binaries/*', fingerprint: true
+          archiveArtifacts artifacts: 'pigeoncoin-binaries/*', fingerprint: true
         }
 
         // TODO remove this in a few days (only needed to prune the old compressed file from Jenkins caches)
