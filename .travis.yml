@@ -55,7 +55,6 @@ before_script:
     - if [ -n "$OSX_SDK" -a -f depends/sdk-sources/MacOSX${OSX_SDK}.sdk.tar.gz ]; then tar -C depends/SDKs -xf depends/sdk-sources/MacOSX${OSX_SDK}.sdk.tar.gz; fi
     - pip3 install --user futoin-cid
     - chmod -R 775 *
-    - bash test/lint-format-strings.sh
     - make -j$MAKEJOBS -C depends HOST=$HOST $DEP_OPTS
 script:
     - export TRAVIS_COMMIT_LOG=`git log --format=fuller -1`
