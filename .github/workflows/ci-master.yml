@@ -25,9 +25,8 @@ jobs:
         pip3 install --user futoin-cid
     - name: Create Distribution Tarball
       run: |
-        export HOST=x86_64-linux-gnu
         ./autogen.sh
-        ./configure
+        ./configure --with-incompatible-bdb
         make dist
     - name: Download Dependencies
       run: make -C depends download
