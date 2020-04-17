@@ -38,7 +38,6 @@ env:
     - HOST=x86_64-apple-darwin11 PACKAGES="cmake imagemagick libcap-dev librsvg2-bin libz-dev libbz2-dev libtiff-tools python3-dev" BITCOIN_CONFIG="--enable-gui --enable-reduce-exports" OSX_SDK=10.11 GOAL="deploy" RUN_TESTS=false 
 
 before_install:
-    - travis_retry sudo add-apt-repository ppa:ubuntu-wine/ppa -y
     - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
 install:
     - travis_retry sudo apt-get install python3-pip
