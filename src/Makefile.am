@@ -438,6 +438,10 @@ crypto_libpigeon_crypto_base_a_SOURCES += \
   algo/sph_shavite.h \
   algo/sph_sha2.h \
   algo/sph_haval.h \
+  algo/sph_hamsi.h \
+  algo/sph_whirlpool.h \
+  algo/sph_shabal.h \
+  algo/sph_fugue.h \
   algo/sph_tiger.h \
   algo/lyra2.h \
   algo/sponge.h \
