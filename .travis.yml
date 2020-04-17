@@ -7,8 +7,7 @@
 #   IPv6 support
 
 sudo: required
-dist: trusty
-group: deprecated-2017Q3
+dist: bionic
 
 os: linux
 language: generic
