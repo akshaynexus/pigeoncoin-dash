@@ -76,7 +76,7 @@ jobs:
     - name: Prepare Files for Artifact
       run: |
         mkdir -p $ARTIFACT_DIR
-        mv $SOURCE_ARTIFACT/src/{pigeoncoin-cli,pigeoncoin-tx,pigeond,qt/pigeoncoin-qt} $ARTIFACT_DIR
+        mv $SOURCE_ARTIFACT/src/{pigeon-cli,pigeon-tx,pigeond,qt/pigeon-qt} $ARTIFACT_DIR
     - name: Upload Artifact
       uses: actions/upload-artifact@v1
       with:
@@ -117,7 +117,7 @@ jobs:
     - name: Prepare Files for Artifact
       run: |
         mkdir -p $ARTIFACT_DIR
-        mv $SOURCE_ARTIFACT/src/{pigeoncoin-cli.exe,pigeoncoin-tx.exe,pigeond.exe,qt/pigeoncoin-qt.exe} $ARTIFACT_DIR
+        mv $SOURCE_ARTIFACT/src/{pigeon-cli.exe,pigeon-tx.exe,pigeond.exe,qt/pigeon-qt.exe} $ARTIFACT_DIR
     - name: Upload Artifact
       uses: actions/upload-artifact@v1
       with:
@@ -154,7 +154,7 @@ jobs:
   #   - name: Prepare Files for Artifact
   #     run: |
   #       mkdir -p $ARTIFACT_DIR
-  #       mv $SOURCE_ARTIFACT/src/{pigeoncoin-cli,pigeoncoin-tx,pigeond,qt/pigeoncoin-qt} $ARTIFACT_DIR
+  #       mv $SOURCE_ARTIFACT/src/{pigeon-cli,pigeon-tx,pigeond,qt/pigeon-qt} $ARTIFACT_DIR
   #   - name: Upload Artifact
   #     uses: actions/upload-artifact@v1
   #     with:
