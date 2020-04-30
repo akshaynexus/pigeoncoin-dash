@@ -4149,10 +4149,6 @@ bool PeerLogicValidation::SendMessages(CNode* pto, std::atomic<bool>& interruptM
                     }
                     CInv inv(nInvType, hash);
                     pto->setInventoryTxToSend.erase(hash);
-                    if (filterrate) {	
-                        if (txinfo.feeRate.GetFeePerK() < filterrate)	
-                            continue;	
-                    }
                     if (pto->pfilter) {
                         if (!pto->pfilter->IsRelevantAndUpdate(*txinfo.tx)) continue;
                     }
