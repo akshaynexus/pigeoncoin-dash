@@ -1024,21 +1024,3 @@ void CBlockPolicyEstimator::FlushUnconfirmed(CTxMemPool& pool) {
     int64_t endclear = GetTimeMicros();
     LogPrint(BCLog::ESTIMATEFEE, "Recorded %u unconfirmed txs from mempool in %ld micros\n",txids.size(), endclear - startclear);
 }
-FeeFilterRounder::FeeFilterRounder(const CFeeRate& minIncrementalFee)	
-{	
-    CAmount minFeeLimit = std::max(CAmount(1), minIncrementalFee.GetFeePerK() / 2);	
-    CBlockPolicyEstimator temp;
-    feeset.insert(0);	
-    for (double bucketBoundary = minFeeLimit; bucketBoundary <= temp.GetMaxBucketFee(); bucketBoundary *= temp.GetFeeSpacing()) {	
-        feeset.insert(bucketBoundary);	
-    }	
-}	
-
-CAmount FeeFilterRounder::round(CAmount currentMinFee)	
-{	
-    std::set<double>::iterator it = feeset.lower_bound(currentMinFee);	
-    if ((it != feeset.begin() && insecure_rand.rand32() % 3 != 0) || it == feeset.end()) {	
-        it--;	
-    }	
-    return *it;	
-}

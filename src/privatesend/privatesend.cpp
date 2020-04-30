@@ -331,9 +331,6 @@ void CPrivateSend::InitStandardDenominations()
     /* Disabled
     vecStandardDenominations.push_back( (100      * COIN)+100000 );
     */
-    vecStandardDenominations.push_back((1000000 * COIN) + 1000000000);
-    vecStandardDenominations.push_back((100000 * COIN) + 100000000);
-    vecStandardDenominations.push_back((10000 * COIN) + 10000000);
     vecStandardDenominations.push_back((1000 * COIN) + 1000000);
     vecStandardDenominations.push_back((100 * COIN) + 100000);
     vecStandardDenominations.push_back((10 * COIN) + 10000);
