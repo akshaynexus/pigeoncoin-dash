@@ -53,7 +53,7 @@ config file):
 
 	HiddenServiceDir /var/lib/tor/pigeoncoin-service/
 	HiddenServicePort 8757 127.0.0.1:8757
-	HiddenServicePort 18757 127.0.0.1:18757
+	HiddenServicePort 18765 127.0.0.1:18765
 
 The directory can be different of course, but (both) port numbers should be equal to
 your pigeond's P2P listen port (8757 by default).
