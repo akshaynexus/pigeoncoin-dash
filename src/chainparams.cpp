@@ -235,6 +235,25 @@ static Consensus::LLMQParams llmq5_10 = {
 
         .keepOldConnections = 25,
 };
+
+static Consensus::LLMQParams llmq4_1 = {
+        .type = Consensus::LLMQ_4_1,
+        .name = "llmq_4_1",
+        .size = 4,
+        .minSize = 2,
+        .threshold = 1,
+
+        .dkgInterval = 24, // one DKG per hour
+        .dkgPhaseBlocks = 2,
+        .dkgMiningWindowStart = 10, // dkgPhaseBlocks * 5 = after finalization
+        .dkgMiningWindowEnd = 18,
+        .dkgBadVotesThreshold = 40,
+
+        .signingActiveQuorumCount = 12, // half a day  worth of LLMQs
+
+        .keepOldConnections = 5,
+};
+
 static Consensus::LLMQParams llmq400_60 = {
         .type = Consensus::LLMQ_400_60,
         .name = "llmq_400_60",
@@ -496,9 +515,9 @@ public:
         consensus.BIP34Hash = uint256S("0x000008ebb1db2598e897d17275285767717c6acfeac4c73def49fbea1ddcbcb6");
         consensus.BIP65Height = 2431; // 0000039cf01242c7f921dcb4806a5994bc003b48c1973ae0c89b67809c2bb2ab
         consensus.BIP66Height = 2075; // 0000002acdd29a14583540cb72e1c5cc83783560e38fa7081495d474fe1671f7
-        consensus.DIP0001Height = 5500;
-        consensus.DIP0003Height = 50550;
-        consensus.DIP0003EnforcementHeight = 50550;
+        consensus.DIP0001Height = 100;
+        consensus.DIP0003Height = 600;
+        consensus.DIP0003EnforcementHeight = 610;
         consensus.DIP0003EnforcementHash = uint256();
         consensus.powLimit = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // ~uint256(0) >> 20
         consensus.nPowTargetTimespan = 2016 * 60; // 1.4 days
@@ -559,11 +578,11 @@ public:
 																		   };
 		consensus.nFounderPayment = FounderPayment(rewardStructures, 3000, "n6yjcgyB6VUJipV9p361QTSCDs3gf8izEh",
 													"nLphepxwA1bNxLDuwB3SLYPXjed6jMwFw4", 4000);
-        pchMessageStart[0] = 0x52;
-        pchMessageStart[1] = 0x56;
-        pchMessageStart[2] = 0x4e;
-        pchMessageStart[3] = 0x54;
-        nDefaultPort = 18757;
+        pchMessageStart[0] = 0x53;
+        pchMessageStart[1] = 0x5a;
+        pchMessageStart[2] = 0x4d;
+        pchMessageStart[3] = 0x5a;
+        nDefaultPort = 18765;
         nPruneAfterHeight = 1000;
 
         genesis = CreateGenesisBlock(1569289438, 6681907, 0x1e00ffff, 4, 5000 * COIN);
@@ -576,10 +595,9 @@ public:
 
         vSeeds.clear();
         // nodes with support for servicebits filtering should be at the top
-        vSeeds.push_back(CDNSSeedData("pigeondot.io",  "testnet-seed.pigeondot.io"));
-        vSeeds.push_back(CDNSSeedData("masternode.io", "test.dnsseed.masternode.io"));
+        vSeeds.push_back(CDNSSeedData("mineit.io",  "mineit.io"));
 
-        // Testnet Pigeon Addresses start with 'y'
+        // Testnet Pigeon Addresses start with 'n'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,112);
         // Testnet Dash script addresses start with '8' or '9'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,193);
@@ -592,11 +610,12 @@ public:
         nExtCoinType = 1;
 
         // long living quorum params
+        consensus.llmqs[Consensus::LLMQ_4_1] = llmq4_1;
         consensus.llmqs[Consensus::LLMQ_50_60] = llmq50_60;
         consensus.llmqs[Consensus::LLMQ_400_60] = llmq400_60;
         consensus.llmqs[Consensus::LLMQ_400_85] = llmq400_85;
-        consensus.llmqTypeChainLocks = Consensus::LLMQ_50_60;
-        consensus.llmqTypeInstantSend = Consensus::LLMQ_50_60;
+        consensus.llmqTypeChainLocks = Consensus::LLMQ_4_1;
+        consensus.llmqTypeInstantSend = Consensus::LLMQ_4_1;
 
         fDefaultConsistencyChecks = false;
         fRequireStandard = false;
