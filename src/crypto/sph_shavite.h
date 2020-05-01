@@ -39,7 +39,7 @@
 #define SPH_SHAVITE_H__
 
 #include <stddef.h>
-#include <crypto/sph_types.h>
+#include "algo/sph_types.h"
 
 #ifdef __cplusplus
 extern "C"{

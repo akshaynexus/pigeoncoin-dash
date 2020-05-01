@@ -461,66 +461,6 @@ int GetUTXOConfirmations(const COutPoint& outpoint)
     return (nPrevoutHeight > -1 && chainActive.Tip()) ? chainActive.Height() - nPrevoutHeight + 1 : -1;
 }
 
-
-bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fCheckDuplicateInputs)
-{
-    bool allowEmptyTxInOut = false;
-    if (tx.nType == TRANSACTION_QUORUM_COMMITMENT) {
-        allowEmptyTxInOut = true;
-    }
-
-    // Basic checks that don't depend on any context
-    if (!allowEmptyTxInOut && tx.vin.empty())
-        return state.DoS(10, false, REJECT_INVALID, "bad-txns-vin-empty");
-    if (!allowEmptyTxInOut && tx.vout.empty())
-        return state.DoS(10, false, REJECT_INVALID, "bad-txns-vout-empty");
-    // Size limits
-    if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION) > MAX_LEGACY_BLOCK_SIZE)
-        return state.DoS(100, false, REJECT_INVALID, "bad-txns-oversize");
-    if (tx.vExtraPayload.size() > MAX_TX_EXTRA_PAYLOAD)
-        return state.DoS(100, false, REJECT_INVALID, "bad-txns-payload-oversize");
-
-    // Check for negative or overflow output values
-    CAmount nValueOut = 0;
-    for (const auto& txout : tx.vout)
-    {
-        if (txout.nValue < 0)
-            return state.DoS(100, false, REJECT_INVALID, "bad-txns-vout-negative");
-        if (txout.nValue > MAX_MONEY)
-            return state.DoS(100, false, REJECT_INVALID, "bad-txns-vout-toolarge");
-        nValueOut += txout.nValue;
-        if (!MoneyRange(nValueOut))
-            return state.DoS(100, false, REJECT_INVALID, "bad-txns-txouttotal-toolarge");
-    }
-
-    // Check for duplicate inputs
-    std::set<COutPoint> vInOutPoints;
-    for (const auto& txin : tx.vin)
-    {
-        if (!vInOutPoints.insert(txin.prevout).second && fCheckDuplicateInputs)
-            return state.DoS(100, false, REJECT_INVALID, "bad-txns-inputs-duplicate");
-    }
-
-    if (tx.IsCoinBase())
-    {
-        size_t minCbSize = 2;
-        if (tx.nType == TRANSACTION_COINBASE) {
-            // With the introduction of CbTx, coinbase scripts are not required anymore to hold a valid block height
-            minCbSize = 1;
-        }
-        if (tx.vin[0].scriptSig.size() < minCbSize || tx.vin[0].scriptSig.size() > 100)
-            return state.DoS(100, false, REJECT_INVALID, "bad-cb-length");
-    }
-    else
-    {
-        for (const auto& txin : tx.vin)
-            if (txin.prevout.IsNull())
-                return state.DoS(10, false, REJECT_INVALID, "bad-txns-prevout-null");
-    }
-
-    return true;
-}
-
 bool ContextualCheckTransaction(const CTransaction& tx, CValidationState &state, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev)
 {
     int nHeight = pindexPrev == nullptr ? 0 : pindexPrev->nHeight + 1;
@@ -1156,11 +1096,6 @@ double ConvertBitsToDouble(unsigned int nBits)
     return dDiff;
 }
 
-/*
-NOTE:   unlike bitcoin we are using PREVIOUS block height here,
-        might be a good idea to change this to use prev bits
-        but current height to avoid confusion.
-*/
 CAmount GetBlockSubsidy(int nPrevBits, int nHeight, const Consensus::Params& consensusParams, bool fSuperblockPartOnly)
 {
     int halvings = nHeight  / consensusParams.nSubsidyHalvingInterval;
@@ -1176,23 +1111,10 @@ CAmount GetBlockSubsidy(int nPrevBits, int nHeight, const Consensus::Params& con
 
 CAmount GetMasternodePayment(int nHeight, CAmount blockValue)
 {
-    // CAmount ret = blockValue/5; // start at 20%
-
-    // int nMNPIBlock = Params().GetConsensus().nMasternodePaymentsIncreaseBlock;
-    // int nMNPIPeriod = Params().GetConsensus().nMasternodePaymentsIncreasePeriod;
-
-    //                                                                   // mainnet:
-    // if(nHeight > nMNPIBlock)                  ret += blockValue / 20; // 158000 - 25.0% - 2014-10-24
-    // if(nHeight > nMNPIBlock+(nMNPIPeriod* 1)) ret += blockValue / 20; // 175280 - 30.0% - 2014-11-25
-    // if(nHeight > nMNPIBlock+(nMNPIPeriod* 2)) ret += blockValue / 20; // 192560 - 35.0% - 2014-12-26
-    // if(nHeight > nMNPIBlock+(nMNPIPeriod* 3)) ret += blockValue / 40; // 209840 - 37.5% - 2015-01-26
-    // if(nHeight > nMNPIBlock+(nMNPIPeriod* 4)) ret += blockValue / 40; // 227120 - 40.0% - 2015-02-27
-    // if(nHeight > nMNPIBlock+(nMNPIPeriod* 5)) ret += blockValue / 40; // 244400 - 42.5% - 2015-03-30
-    // if(nHeight > nMNPIBlock+(nMNPIPeriod* 6)) ret += blockValue / 40; // 261680 - 45.0% - 2015-05-01
-    // if(nHeight > nMNPIBlock+(nMNPIPeriod* 7)) ret += blockValue / 40; // 278960 - 47.5% - 2015-06-01
-    // if(nHeight > nMNPIBlock+(nMNPIPeriod* 9)) ret += blockValue / 40; // 313520 - 50.0% - 2015-08-03
-
-    return 0;
+    CAmount ret =  0;
+    if(nHeight >= Params().GetConsensus().nMasternodePaymentsStartBlock)
+        ret = blockValue * 0.15;
+    return ret;
 }
 
 bool IsInitialBlockDownload()
@@ -3433,15 +3355,27 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     for (unsigned int i = 1; i < block.vtx.size(); i++)
         if (block.vtx[i]->IsCoinBase())
             return state.DoS(100, false, REJECT_INVALID, "bad-cb-multiple", false, "more than one coinbase");
-
     // Check transactions
-        bool isPassedLastExploitedHeight = chainActive.Height() > 186803;
-
-    for (const auto& tx : block.vtx)
+    bool isPassedLastExploitedHeight = chainActive.Height() > 186803;
+    CAmount blockReward = GetBlockSubsidy(0, chainActive.Height(),consensusParams);
+    FounderPayment founderPayment = consensusParams.nFounderPayment;
+    CAmount founderReward = founderPayment.getFounderPaymentAmount(chainActive.Height(), blockReward);
+    int founderStartHeight = founderPayment.getStartBlock();
+    bool founderTransaction = founderReward == 0;// if founder reward is 0 no need to check
+    bool fCheckFounderPayment = chainActive.Height() > founderStartHeight && !founderTransaction;
+    for (const auto& tx : block.vtx){
         if (!CheckTransaction(*tx, state,isPassedLastExploitedHeight))
             return state.Invalid(false, state.GetRejectCode(), state.GetRejectReason(),
                                  strprintf("Transaction check failed (tx hash %s) %s", tx->GetHash().ToString(), state.GetDebugMessage()));
-
+        //Check for founder payment if it isnt already found in txes
+        if(fCheckFounderPayment && !founderTransaction)
+	        founderTransaction = founderPayment.IsBlockPayeeValid(*tx,chainActive.Height(),blockReward);
+    }
+    if(!founderTransaction) {
+		LogPrintf("Founder payment of %d is not found\n",founderReward / COIN);
+		return state.DoS(0, error("CheckBlock(): transaction %s does not contains founder transaction",
+				block.txoutFounder.ToString().c_str()), REJECT_INVALID, "founderpayment-not-found");
+	}
     unsigned int nSigOps = 0;
     for (const auto& tx : block.vtx)
     {
@@ -3453,7 +3387,6 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
 
     if (fCheckPOW && fCheckMerkleRoot)
         block.fChecked = true;
-
     return true;
 }
 

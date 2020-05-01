@@ -54,11 +54,11 @@ TEST_EXIT_SKIPPED = 77
 BASE_SCRIPTS= [
     # Scripts that are run by the travis build process.
     # Longest test should go first, to favor running tests in parallel
-    'dip3-deterministicmns.py', # NOTE: needs pigeon_hash to pass
+    'dip3-deterministicmns.py', # NOTE: needs dash_hash to pass
     'wallet-hd.py',
     'walletbackup.py',
     # vv Tests less than 5m vv
-    'p2p-fullblocktest.py', # NOTE: needs pigeon_hash to pass
+    'p2p-fullblocktest.py', # NOTE: needs dash_hash to pass
     'fundrawtransaction.py',
     'fundrawtransaction-hd.py',
     # vv Tests less than 2m vv
@@ -78,7 +78,7 @@ BASE_SCRIPTS= [
     'llmq-dkgerrors.py', # NOTE: needs dash_hash to pass
     'dip4-coinbasemerkleroots.py', # NOTE: needs dash_hash to pass
     # vv Tests less than 60s vv
-    'sendheaders.py', # NOTE: needs pigeon_hash to pass
+    'sendheaders.py', # NOTE: needs dash_hash to pass
     'zapwallettxes.py',
     'importmulti.py',
     'mempool_limit.py',
@@ -119,8 +119,8 @@ BASE_SCRIPTS= [
     'keypool-hd.py',
     'p2p-mempool.py',
     'prioritise_transaction.py',
-    'invalidblockrequest.py', # NOTE: needs pigeon_hash to pass
-    'invalidtxrequest.py', # NOTE: needs pigeon_hash to pass
+    'invalidblockrequest.py', # NOTE: needs dash_hash to pass
+    'invalidtxrequest.py', # NOTE: needs dash_hash to pass
     'p2p-versionbits-warning.py',
     'preciousblock.py',
     'importprunedfunds.py',
@@ -141,7 +141,7 @@ BASE_SCRIPTS= [
     'uptime.py',
     'resendwallettransactions.py',
     'minchainwork.py',
-    'p2p-acceptblock.py', # NOTE: needs pigeon_hash to pass
+    'p2p-acceptblock.py', # NOTE: needs dash_hash to pass
     'feature_shutdown.py',
     'privatesend.py',
     'uacomment.py',
