@@ -961,7 +961,7 @@ std::unique_ptr<CChainParams> CreateChainParams(const std::string& chain)
 void SelectParams(const std::string& network)
 {
     bNetwork.SetNetwork(network);
-    	printf("SelectParams %s\n", network.c_str());
+    	// printf("SelectParams %s\n", network.c_str());
     SelectBaseParams(network);
     globalChainParams = CreateChainParams(network);
 }
