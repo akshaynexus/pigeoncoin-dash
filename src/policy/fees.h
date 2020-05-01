@@ -274,17 +274,4 @@ private:
     /** Calculation of highest target that reasonable estimate can be provided for */
     unsigned int MaxUsableEstimate() const;
 };
-class FeeFilterRounder	
-{	
-public:	
-    /** Create new FeeFilterRounder */	
-    FeeFilterRounder(const CFeeRate& minIncrementalFee);	
-
-    /** Quantize a minimum fee for privacy purpose before broadcast **/	
-    CAmount round(CAmount currentMinFee);	
-
-private:	
-    std::set<double> feeset;	
-    FastRandomContext insecure_rand;	
-};
 #endif /*BITCOIN_POLICYESTIMATOR_H */

@@ -16,6 +16,7 @@
 #include <validation.h>
 
 #include <evo/deterministicmns.h>
+#include "FounderPayment.h"
 
 #include <string>
 
@@ -206,7 +207,8 @@ bool IsBlockPayeeValid(const CTransaction& txNew, int nBlockHeight, CAmount bloc
         LogPrint(BCLog::MNPAYMENTS, "%s -- Valid masternode payment at height %d: %s", __func__, nBlockHeight, txNew.ToString());
         return true;
     }
-
+    if (nBlockHeight == consensusParams.nMasternodePaymentsStartBlock)
+        return true;
     LogPrintf("%s -- ERROR: Invalid masternode payment detected at height %d: %s", __func__, nBlockHeight, txNew.ToString());
     return false;
 }
@@ -236,7 +238,6 @@ void FillBlockPayments(CMutableTransaction& txNew, int nBlockHeight, CAmount blo
             voutMasternodeStr += ",";
         voutMasternodeStr += txout.ToString();
     }
-
     LogPrint(BCLog::MNPAYMENTS, "%s -- nBlockHeight %d blockReward %lld voutMasternodePaymentsRet \"%s\" txNew %s", __func__,
                             nBlockHeight, blockReward, voutMasternodeStr, txNew.ToString());
 }

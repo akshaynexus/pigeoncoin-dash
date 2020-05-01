@@ -10,7 +10,7 @@ remotes:
 - "url": "https://github.com/Pigeoncoin/pigeoncoin-detached-sigs.git"
   "dir": "signature"
 files:
-- "dashcore-osx-unsigned.tar.gz"
+- "pigeoncoin-osx-unsigned.tar.gz"
 script: |
   WRAP_DIR=$HOME/wrapped
   mkdir -p ${WRAP_DIR}
@@ -27,8 +27,8 @@ script: |
     chmod +x ${WRAP_DIR}/${prog}
   done
 
-  UNSIGNED=dashcore-osx-unsigned.tar.gz
-  SIGNED=dashcore-osx-signed.dmg
+  UNSIGNED=pigeoncoin-osx-unsigned.tar.gz
+  SIGNED=pigeoncoin-osx-signed.dmg
 
   tar -xf ${UNSIGNED}
   OSX_VOLNAME="$(cat osx_volname)"

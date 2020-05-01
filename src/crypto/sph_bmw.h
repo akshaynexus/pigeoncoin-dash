@@ -41,7 +41,7 @@ extern "C"{
 #endif
 
 #include <stddef.h>
-#include <crypto/sph_types.h>
+#include "algo/sph_types.h"
 
 /**
  * Output size (in bits) for BMW-224.
