@@ -63,7 +63,7 @@ UniValue getinfo(const JSONRPCRequest& request)
             "  \"version\": xxxxx,           (numeric) the server version\n"
             "  \"protocolversion\": xxxxx,   (numeric) the protocol version\n"
             "  \"walletversion\": xxxxx,     (numeric) the wallet version\n"
-            "  \"balance\": xxxxxxx,         (numeric) the total dash balance of the wallet\n"
+            "  \"balance\": xxxxxxx,         (numeric) the total pigeon balance of the wallet\n"
             "  \"privatesend_balance\": xxxxxx, (numeric) the PrivateSend balance in " + CURRENCY_UNIT + "\n"
             "  \"blocks\": xxxxxx,           (numeric) the current number of blocks processed in the server\n"
             "  \"timeoffset\": xxxxx,        (numeric) the time offset\n"
@@ -138,7 +138,7 @@ UniValue debug(const JSONRPCRequest& request)
             "libevent logging is configured on startup and cannot be modified by this RPC during runtime.\n"
             "There are also a few meta-categories:\n"
             " - \"all\", \"1\" and \"\" activate all categories at once;\n"
-            " - \"dash\" activates all Dash-specific categories at once;\n"
+            " - \"pigeon\" activates all Dash-specific categories at once;\n"
             " - \"none\" (or \"0\") deactivates all categories at once.\n"
             "Note: If specified category doesn't match any of the above, no error is thrown.\n"
             "\nArguments:\n"
@@ -146,8 +146,8 @@ UniValue debug(const JSONRPCRequest& request)
             "\nResult:\n"
             "  result               (string) \"Debug mode: \" followed by the specified category.\n"
             "\nExamples:\n"
-            + HelpExampleCli("debug", "dash")
-            + HelpExampleRpc("debug", "dash+net")
+            + HelpExampleCli("debug", "pigeon")
+            + HelpExampleRpc("debug", "pigeon+net")
         );
 
     std::string strMode = request.params[0].get_str();
@@ -357,8 +357,8 @@ UniValue validateaddress(const JSONRPCRequest& request)
             "  \"hdchainid\" : \"<hash>\"        (string, optional) The ID of the HD chain\n"
             "}\n"
             "\nExamples:\n"
-            + HelpExampleCli("validateaddress", "\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"")
-            + HelpExampleRpc("validateaddress", "\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"")
+            + HelpExampleCli("validateaddress", "\"PSkeoPYpXT43crZSLwMV9jEnq9aKbFUyLt\"")
+            + HelpExampleRpc("validateaddress", "\"PSkeoPYpXT43crZSLwMV9jEnq9aKbFUyLt\"")
         );
 
 #ifdef ENABLE_WALLET
@@ -738,8 +738,8 @@ UniValue getaddressmempool(const JSONRPCRequest& request)
             "  }\n"
             "]\n"
             "\nExamples:\n"
-            + HelpExampleCli("getaddressmempool", "'{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}'")
-            + HelpExampleRpc("getaddressmempool", "{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}")
+            + HelpExampleCli("getaddressmempool", "'{\"addresses\": [\"PSkeoPYpXT43crZSLwMV9jEnq9aKbFUyLt\"]}'")
+            + HelpExampleRpc("getaddressmempool", "{\"addresses\": [\"PSkeoPYpXT43crZSLwMV9jEnq9aKbFUyLt\"]}")
         );
 
     std::vector<std::pair<uint160, int> > addresses;
@@ -808,8 +808,8 @@ UniValue getaddressutxos(const JSONRPCRequest& request)
             "  }\n"
             "]\n"
             "\nExamples:\n"
-            + HelpExampleCli("getaddressutxos", "'{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}'")
-            + HelpExampleRpc("getaddressutxos", "{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}")
+            + HelpExampleCli("getaddressutxos", "'{\"addresses\": [\"PSkeoPYpXT43crZSLwMV9jEnq9aKbFUyLt\"]}'")
+            + HelpExampleRpc("getaddressutxos", "{\"addresses\": [\"PSkeoPYpXT43crZSLwMV9jEnq9aKbFUyLt\"]}")
         );
 
     std::vector<std::pair<uint160, int> > addresses;
@@ -877,8 +877,8 @@ UniValue getaddressdeltas(const JSONRPCRequest& request)
             "  }\n"
             "]\n"
             "\nExamples:\n"
-            + HelpExampleCli("getaddressdeltas", "'{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}'")
-            + HelpExampleRpc("getaddressdeltas", "{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}")
+            + HelpExampleCli("getaddressdeltas", "'{\"addresses\": [\"PSkeoPYpXT43crZSLwMV9jEnq9aKbFUyLt\"]}'")
+            + HelpExampleRpc("getaddressdeltas", "{\"addresses\": [\"PSkeoPYpXT43crZSLwMV9jEnq9aKbFUyLt\"]}")
         );
 
 
@@ -957,8 +957,8 @@ UniValue getaddressbalance(const JSONRPCRequest& request)
             "  \"received\"  (string) The total number of duffs received (including change)\n"
             "}\n"
             "\nExamples:\n"
-            + HelpExampleCli("getaddressbalance", "'{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}'")
-            + HelpExampleRpc("getaddressbalance", "{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}")
+            + HelpExampleCli("getaddressbalance", "'{\"addresses\": [\"PSkeoPYpXT43crZSLwMV9jEnq9aKbFUyLt\"]}'")
+            + HelpExampleRpc("getaddressbalance", "{\"addresses\": [\"PSkeoPYpXT43crZSLwMV9jEnq9aKbFUyLt\"]}")
         );
 
     std::vector<std::pair<uint160, int> > addresses;
@@ -1015,8 +1015,8 @@ UniValue getaddresstxids(const JSONRPCRequest& request)
             "  ,...\n"
             "]\n"
             "\nExamples:\n"
-            + HelpExampleCli("getaddresstxids", "'{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}'")
-            + HelpExampleRpc("getaddresstxids", "{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}")
+            + HelpExampleCli("getaddresstxids", "'{\"addresses\": [\"PSkeoPYpXT43crZSLwMV9jEnq9aKbFUyLt\"]}'")
+            + HelpExampleRpc("getaddresstxids", "{\"addresses\": [\"PSkeoPYpXT43crZSLwMV9jEnq9aKbFUyLt\"]}")
         );
 
     std::vector<std::pair<uint160, int> > addresses;
@@ -1228,7 +1228,7 @@ UniValue logging(const JSONRPCRequest& request)
             "libevent logging is configured on startup and cannot be modified by this RPC during runtime.\n"
             "There are also a few meta-categories:\n"
             " - \"all\", \"1\" and \"\" activate all categories at once;\n"
-            " - \"dash\" activates all Dash-specific categories at once.\n"
+            " - \"pigeon\" activates all Dash-specific categories at once.\n"
             "To deactivate all categories at once you can specify \"all\" in <exclude>.\n"
             "\nArguments:\n"
             "1. \"include\" (array of strings) add debug logging for these categories.\n"
@@ -1306,8 +1306,8 @@ static const CRPCCommand commands[] =
     { "addressindex",       "getaddressbalance",      &getaddressbalance,      false, {"addresses"} },
 
     /* Dash features */
-    { "dash",               "mnsync",                 &mnsync,                 true,  {} },
-    { "dash",               "spork",                  &spork,                  true,  {"value"} },
+    { "pigeon",               "mnsync",                 &mnsync,                 true,  {} },
+    { "pigeon",               "spork",                  &spork,                  true,  {"value"} },
 
     /* Not shown in help */
     { "hidden",             "setmocktime",            &setmocktime,            true,  {"timestamp"}},

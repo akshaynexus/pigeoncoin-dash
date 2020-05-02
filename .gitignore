@@ -6,10 +6,10 @@ reset-files.bash
 *.tar.gz
 
 *.exe
-src/dash
-src/dashd
-src/dash-cli
-src/dash-tx
+src/pigeon
+src/pigeond
+src/pigeon-cli
+src/pigeon-tx
 src/test/test_pigeon
 src/test/test_pigeon_fuzzy
 src/qt/test/test_pigeon-qt
@@ -82,13 +82,13 @@ libconftest.dylib*
 # Compilation and Qt preprocessor part
 *.qm
 Makefile
-dash-qt
+pigeon-qt
 Dash-Qt.app
 !/depends/Makefile
 
 # Unit-tests
 Makefile.test
-dash-qt_test
+pigeon-qt_test
 
 # Resources cpp
 qrc_*.cpp
@@ -121,13 +121,13 @@ test/cache/*
 
 libpigeonconsensus.pc
 contrib/devtools/split-debug.sh
-src/qt/dash-qt.bash
+src/qt/pigeon-qt.bash
 qa/pull-tester/tests-config.sh
 
 #development symlinks
-dash-cli
-dashd
-dash-qt
+pigeon-cli
+pigeond
+pigeon-qt
 make
 
 /docker/bin

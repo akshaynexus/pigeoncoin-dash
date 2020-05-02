@@ -379,8 +379,8 @@ public:
         assert(consensus.hashGenesisBlock == uint256S("0x000000f049bef9fec0179131874c54c76c0ff59f695db30a4f0da52072c99492"));
         assert(genesis.hashMerkleRoot == uint256S("0xf0cc5f92b11a6655a4939fc239e8bf960cd0453b87b5a0820ab36904279341a5"));
 
-        vSeeds.emplace_back("dnsseed.dash.org", true);
-        vSeeds.emplace_back("dnsseed.dashdot.io", true);
+        vSeeds.emplace_back("dnsseed.pigeon.org", true);
+        vSeeds.emplace_back("dnsseed.pigeondot.io", true);
 
 	    /// Official DNS Seeds
         vSeeds.push_back(CDNSSeedData("seed.pigeoncoin.org", "seed.pigeoncoin.org"));
@@ -536,9 +536,47 @@ public:
         pchMessageStart[3] = 0x5a;
         nDefaultPort = 18765;
         nPruneAfterHeight = 1000;
-
-        genesis = CreateGenesisBlock(1569289438, 6681907, 0x1e00ffff, 4, 5000 * COIN);
-        consensus.hashGenesisBlock= uint256S("0x000000a4d5d20f09a4cd9d47cae7e1bb056d46a1ba841ea19267341109f7b3a1");
+        /*
+        // Build Genesis Block:
+        uint32_t nGenesisTime = 1543578342;
+        arith_uint256 test;
+        bool fNegative;
+        bool fOverflow;
+        test.SetCompact(0x1e0ffff0, &fNegative, &fOverflow);
+        std::cout << "Test threshold: " << test.GetHex() << "\n\n";
+        int genesisNonce = 0;
+        uint256 TempHashHolding = uint256S("0x0000000000000000000000000000000000000000000000000000000000000000");
+        uint256 BestBlockHash = uint256S("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        for (int i=0;i<40000000;i++) {
+            genesis = CreateGenesisBlock(nGenesisTime, i, 0x1e0ffff0, 4, 5000 * COIN);
+            //genesis.hashPrevBlock = TempHashHolding;
+            consensus.hashGenesisBlock = genesis.GetHash();
+            arith_uint256 BestBlockHashArith = UintToArith256(BestBlockHash);
+            if (UintToArith256(consensus.hashGenesisBlock) < BestBlockHashArith) {
+                BestBlockHash = consensus.hashGenesisBlock;
+                std::cout << BestBlockHash.GetHex() << " Nonce: " << i << "\n";
+                std::cout << "   PrevBlockHash: " << genesis.hashPrevBlock.GetHex() << "\n";
+        	std::cout << "hashGenesisBlock to 0x" << BestBlockHash.GetHex() << std::endl;
+        	std::cout << "Genesis Nonce to " << genesisNonce << std::endl;
+        	std::cout << "Genesis Merkle " << genesis.hashMerkleRoot.GetHex() << std::endl;
+            }
+            TempHashHolding = consensus.hashGenesisBlock;
+            if (BestBlockHashArith < test) {
+                genesisNonce = i - 1;
+                break;
+            }
+            //std::cout << consensus.hashGenesisBlock.GetHex() << "\n";
+        }
+        std::cout << "\n";
+        std::cout << "\n";
+        std::cout << "\n";
+        std::cout << "hashGenesisBlock to 0x" << BestBlockHash.GetHex() << std::endl;
+        std::cout << "Genesis Nonce to " << genesisNonce << std::endl;
+        std::cout << "Genesis Merkle " << genesis.hashMerkleRoot.GetHex() << std::endl;
+        std::cout << "\n";
+        return;*/
+        genesis = CreateGenesisBlock(1543578342, 453532, 0x1e0ffff0, 4, 5000 * COIN);
+        consensus.hashGenesisBlock= uint256S("0x000006da310a93a3feaa9c5d0dce878e31644c616d4e7d8a17db5d848757b79a");
         // assert(consensus.hashGenesisBlock == uint256S("0x000000a4d5d20f09a4cd9d47cae7e1bb056d46a1ba841ea19267341109f7b3a1"));
 			assert(genesis.hashMerkleRoot == uint256S("0xf0cc5f92b11a6655a4939fc239e8bf960cd0453b87b5a0820ab36904279341a5"));
 
@@ -702,7 +740,7 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        //vSeeds.push_back(CDNSSeedData("dashevo.org",  "devnet-seed.dashevo.org"));
+        //vSeeds.push_back(CDNSSeedData("pigeonevo.org",  "devnet-seed.pigeonevo.org"));
 
         // Testnet Pigeon Addresses start with 'y'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,140);
@@ -826,11 +864,51 @@ public:
         nDefaultPort = 19899;
         nPruneAfterHeight = 1000;
 
-        genesis = CreateGenesisBlock(1417713337, 1096447, 0x207fffff, 1, 50 * COIN);
-        consensus.hashGenesisBlock = genesis.GetHash();
-        // assert(consensus.hashGenesisBlock == uint256S("0x000008ca1832a4baf228eb1553c03d3a2c8e02399550dd6ea8d65cec3ef23d2e"));
-        // assert(genesis.hashMerkleRoot == uint256S("0xe0028eb9648db56b1ac77cf090b99048a8007e2bb64b68f092c03c7f56a662c7"));
+        genesis = CreateGenesisBlock(1588377010, 1, 0x207fffff, 3, 50 * COIN);
 
+        consensus.hashGenesisBlock = genesis.GetHash();
+        // uint32_t nGenesisTime = 1588377010;
+        // arith_uint256 test;
+        // bool fNegative;
+        // bool fOverflow;
+        // test.SetCompact(0x207fffff, &fNegative, &fOverflow);
+        // std::cout << "Test threshold: " << test.GetHex() << "\n\n";
+        // int genesisNonce = 0;
+        // uint256 TempHashHolding = uint256S("0x0000000000000000000000000000000000000000000000000000000000000000");
+        // uint256 BestBlockHash = uint256S("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        // for (int i=0;i<40000000;i++) {
+        //     genesis = CreateGenesisBlock(nGenesisTime, i, 0x207fffff, 3, 50 * COIN);
+        //     //genesis.hashPrevBlock = TempHashHolding;
+        //     consensus.hashGenesisBlock = genesis.GetHash();
+        //     arith_uint256 BestBlockHashArith = UintToArith256(BestBlockHash);
+        //     if (UintToArith256(consensus.hashGenesisBlock) < BestBlockHashArith) {
+        //         BestBlockHash = consensus.hashGenesisBlock;
+        //         std::cout << BestBlockHash.GetHex() << " Nonce: " << i << "\n";
+        //         std::cout << "   PrevBlockxHash: " << genesis.hashPrevBlock.GetHex() << "\n";
+        // 	std::cout << "hashGenesisBlocxk to 0x" << BestBlockHash.GetHex() << std::endl;
+        // 	std::cout << "Genesis xNonce to " << genesisNonce << std::endl;
+        // 	std::cout << "Genesisx Merkle " << genesis.hashMerkleRoot.GetHex() << std::endl;
+        //     }
+        //     TempHashHolding = consensus.hashGenesisBlock;
+        //     if (BestBlockHashArith < test) {
+        //         genesisNonce = i - 1;
+        //         break;
+        //     }
+        //     std::cout << consensus.hashGenesisBlock.GetHex() << "\n";
+        // }
+        // consensus.hashGenesisBlock = genesis.GetHash();
+        // std::cout << "\n";
+        // std::cout << "\n";
+        // std::cout << "FINAL\n";
+        // std::cout << "hashGenesisBlock to 0x" << consensus.hashGenesisBlock.GetHex()<< std::endl;
+        // std::cout << "Genesis Nonce to " << genesisNonce << std::endl;
+        // std::cout << "Genesis Merkle " << genesis.hashMerkleRoot.GetHex() << std::endl;
+        // std::cout << "\n";
+        // std::exit(0);
+        // std::cout << "hashGenesisBlock to 0x" << consensus.hashGenesisBlock.GetHex()<< std::endl;
+
+        assert(consensus.hashGenesisBlock == uint256S("0x06c9571437ed1ebb274fd5eb4ebde0ea1ccef0b09ce87478a2b16238b65e38d1"));
+        assert(genesis.hashMerkleRoot == uint256S("0xc79c7b609000e4baa7a96b89263956cef2b7ed2c95b82ba28bac56c3e4206032"));
         vFixedSeeds.clear(); //!< Regtest mode doesn't have any fixed seeds.
         vSeeds.clear();      //!< Regtest mode doesn't have any DNS seeds.
 
@@ -853,7 +931,7 @@ public:
 
         checkpointData = (CCheckpointData) {
             {
-                {0, uint256S("0x000008ca1832a4baf228eb1553c03d3a2c8e02399550dd6ea8d65cec3ef23d2e")},
+                {0, uint256S("0x2eb7cd376d538ed7f335b1d9c4ce29f3678afd94fbddc1263954ce39976bfba5")},
             }
         };
 

@@ -1,5 +1,5 @@
 ---
-name: "dash-win-signer"
+name: "pigeon-win-signer"
 suites:
 - "bionic"
 architectures:
