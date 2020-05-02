@@ -1004,24 +1004,27 @@ double ConvertBitsToDouble(unsigned int nBits)
     return dDiff;
 }
 
-CAmount GetBlockSubsidy(int nPrevBits, int nHeight, const Consensus::Params& consensusParams, bool fSuperblockPartOnly)
+CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams, bool fSuperblockPartOnly)
 {
     int halvings = nHeight  / consensusParams.nSubsidyHalvingInterval;
     // Force block reward to zero when right shift is undefined.
     if (halvings >= 64)
         return 0;
-
     CAmount nSubsidy = 5000 * COIN;
+
+    if (bNetwork.fOnTestnet) {
+        nSubsidy = 20000 * COIN;//Make more moneyz on testnet 
+    }   
     // Subsidy is cut in half every 210,000 blocks which will occur approximately every 4 years.
     nSubsidy >>= halvings;
-    return nSubsidy;
+    return fSuperblockPartOnly ? 0 : nSubsidy;
 }
 
 CAmount GetMasternodePayment(int nHeight, CAmount blockValue)
 {
     CAmount ret =  0;
     if(nHeight >= Params().GetConsensus().nMasternodePaymentsStartBlock)
-        ret = blockValue * 0.15;
+        ret = blockValue * 0.2;
     return ret;
 }
 
@@ -2093,7 +2096,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
     // PGN : MODIFIED TO CHECK MASTERNODE PAYMENTS AND SUPERBLOCKS
 
     // TODO: resync data (both ways?) and try to reprocess this block later.
-    CAmount blockReward = nFees + GetBlockSubsidy(pindex->nBits, pindex->nHeight, chainparams.GetConsensus());
+    CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
     std::string strError = "";
 
     int64_t nTime5_2 = GetTimeMicros(); nTimeSubsidy += nTime5_2 - nTime5_1;
@@ -3199,17 +3202,22 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     // First transaction must be coinbase, the rest must not be
     if (block.vtx.empty() || !block.vtx[0]->IsCoinBase())
         return state.DoS(100, false, REJECT_INVALID, "bad-cb-missing", false, "first tx is not coinbase");
+
     for (unsigned int i = 1; i < block.vtx.size(); i++)
         if (block.vtx[i]->IsCoinBase())
             return state.DoS(100, false, REJECT_INVALID, "bad-cb-multiple", false, "more than one coinbase");
+
     // Check transactions
-    bool isPassedLastExploitedHeight = chainActive.Height() > 186803;
-    CAmount blockReward = GetBlockSubsidy(0, chainActive.Height(),consensusParams);
+    bool isPassedLastExploitedHeight = chainActive.Height() > consensusParams.nAfterExploitHeight;
+
+    CAmount blockReward = GetBlockSubsidy(chainActive.Height(),consensusParams);
+
     FounderPayment founderPayment = consensusParams.nFounderPayment;
     CAmount founderReward = founderPayment.getFounderPaymentAmount(chainActive.Height(), blockReward);
     int founderStartHeight = founderPayment.getStartBlock();
     bool founderTransaction = founderReward == 0;// if founder reward is 0 no need to check
     bool fCheckFounderPayment = chainActive.Height() > founderStartHeight && !founderTransaction;
+
     for (const auto& tx : block.vtx){
         if (!CheckTransaction(*tx, state,isPassedLastExploitedHeight))
             return state.Invalid(false, state.GetRejectCode(), state.GetRejectReason(),
@@ -3218,11 +3226,13 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
         if(fCheckFounderPayment && !founderTransaction)
 	        founderTransaction = founderPayment.IsBlockPayeeValid(*tx,chainActive.Height(),blockReward);
     }
+
     if(!founderTransaction) {
 		LogPrintf("Founder payment of %d is not found\n",founderReward / COIN);
-		return state.DoS(0, error("CheckBlock(): transaction %s does not contains founder transaction",
+		return state.DoS(0, error("CheckBlock(): transaction %s does not contain founder payment output",
 				block.txoutFounder.ToString().c_str()), REJECT_INVALID, "founderpayment-not-found");
 	}
+
     unsigned int nSigOps = 0;
     for (const auto& tx : block.vtx)
     {

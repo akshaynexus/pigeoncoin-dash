@@ -168,15 +168,13 @@ struct Params {
     bool fPowNoRetargeting;
     int64_t nPowTargetSpacing;
     int64_t nPowTargetTimespan;
-    int nPowKGWHeight;
-    int nPowDGWHeight;
     int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
     uint256 nMinimumChainWork;
     uint256 defaultAssumeValid;
     int nPowDifficultyRetargetHeight;
     FounderPayment nFounderPayment;
     int64_t nPowTargetTimespanShort;
-    
+    int masternodeCollateral,nAfterExploitHeight;
     //We need to return the correct values after we adjust the dificulty retarget
     int64_t DifficultyAdjustmentIntervalAtHeight(unsigned nHeight) const { 
         if(nHeight <= nPowDifficultyRetargetHeight) {

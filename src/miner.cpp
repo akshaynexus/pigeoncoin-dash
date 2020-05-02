@@ -184,7 +184,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     coinbaseTx.vout.resize(1);
     coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
 
-    CAmount blockReward = nFees + GetBlockSubsidy(pindexPrev->nBits, nHeight, Params().GetConsensus());
+    CAmount blockReward = nFees + GetBlockSubsidy(nHeight, Params().GetConsensus());
 
     // Compute regular coinbase transaction.
     coinbaseTx.vout[0].nValue = blockReward;
