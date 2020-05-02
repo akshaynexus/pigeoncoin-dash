@@ -1,5 +1,5 @@
 ---
-name: "dash-win-0.16"
+name: "pigeon-win-0.15"
 enable_cache: true
 suites:
 - "bionic"
@@ -27,7 +27,7 @@ packages:
 - "ccache"
 remotes:
 - "url": "https://github.com/Pigeoncoin/pigeoncoin.git"
-  "dir": "dash"
+  "dir": "pigeon"
 files: []
 script: |
   WRAP_DIR=$HOME/wrapped
@@ -135,7 +135,7 @@ script: |
   create_per-host_linker_wrapper "2000-01-01 12:00:00"
   export PATH=${WRAP_DIR}:${PATH}
 
-  cd dash
+  cd pigeon
   BASEPREFIX=`pwd`/depends
   # Build dependencies for each host
   for i in $HOSTS; do

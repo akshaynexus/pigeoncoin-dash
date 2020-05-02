@@ -1,5 +1,5 @@
 ---
-name: "dash-dmg-signer"
+name: "pigeon-dmg-signer"
 suites:
 - "bionic"
 architectures:

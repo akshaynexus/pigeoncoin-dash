@@ -20,7 +20,7 @@
 
 #include <QDir>
 #include <QtGlobal>
-
+#include <QDebug>
 static UniValue rpcNestedTest_rpc(const JSONRPCRequest& request)
 {
     if (request.fHelp) {
@@ -76,7 +76,7 @@ void RPCNestedTests::rpcNestedTests()
     QVERIFY(result == result2);
 
     RPCConsole::RPCExecuteCommandLine(result, "getblock(getbestblockhash())[tx][0]", &filtered);
-    QVERIFY(result == "e0028eb9648db56b1ac77cf090b99048a8007e2bb64b68f092c03c7f56a662c7");
+    QVERIFY(result == "f0cc5f92b11a6655a4939fc239e8bf960cd0453b87b5a0820ab36904279341a5");
     QVERIFY(filtered == "getblock(getbestblockhash())[tx][0]");
 
     RPCConsole::RPCParseCommandLine(result, "importprivkey", false, &filtered);

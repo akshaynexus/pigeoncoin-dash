@@ -1,6 +1,6 @@
 [Protocol]
 exec=pigeon-qt '%u'
-protocol=dash
+protocol=pigeon
 input=none
 output=none
 helper=true
