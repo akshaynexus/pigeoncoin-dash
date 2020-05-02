@@ -89,10 +89,10 @@ std::string GetHelpString(int nParamNum, std::string strParamName)
             "                              be unused and must differ from the collateralAddress\n"
         },
         {"payoutAddress_register",
-            "%d. \"payoutAddress\"            (string, required) The dash address to use for masternode reward payments.\n"
+            "%d. \"payoutAddress\"            (string, required) The pigeon address to use for masternode reward payments.\n"
         },
         {"payoutAddress_update",
-            "%d. \"payoutAddress\"            (string, required) The dash address to use for masternode reward payments.\n"
+            "%d. \"payoutAddress\"            (string, required) The pigeon address to use for masternode reward payments.\n"
             "                              If set to an empty string, the currently active payout address is reused.\n"
         },
         {"proTxHash",

@@ -325,22 +325,22 @@ BOOST_AUTO_TEST_CASE(rpc_convert_values_generatetoaddress)
 {
     UniValue result;
 
-    BOOST_CHECK_NO_THROW(result = RPCConvertValues("generatetoaddress", {"101", "yhq7ifNCtTKEpY4Yu5XPCcztQco6Fh6JsZ"}));
+    BOOST_CHECK_NO_THROW(result = RPCConvertValues("generatetoaddress", {"101", "nNn2NoNAxUivfX5wfDiPeKCWke4y49jxpK"}));
     BOOST_CHECK_EQUAL(result[0].get_int(), 101);
-    BOOST_CHECK_EQUAL(result[1].get_str(), "yhq7ifNCtTKEpY4Yu5XPCcztQco6Fh6JsZ");
+    BOOST_CHECK_EQUAL(result[1].get_str(), "nNn2NoNAxUivfX5wfDiPeKCWke4y49jxpK");
 
-    BOOST_CHECK_NO_THROW(result = RPCConvertValues("generatetoaddress", {"101", "yTretFTpoi3oQ3maZk5QadGaDWPiKnmDBc"}));
+    BOOST_CHECK_NO_THROW(result = RPCConvertValues("generatetoaddress", {"101", "nNn2NoNAxUivfX5wfDiPeKCWke4y49jxpK"}));
     BOOST_CHECK_EQUAL(result[0].get_int(), 101);
-    BOOST_CHECK_EQUAL(result[1].get_str(), "yTretFTpoi3oQ3maZk5QadGaDWPiKnmDBc");
+    BOOST_CHECK_EQUAL(result[1].get_str(), "nNn2NoNAxUivfX5wfDiPeKCWke4y49jxpK");
 
-    BOOST_CHECK_NO_THROW(result = RPCConvertValues("generatetoaddress", {"1", "yNbNZyCiTYSFtDwEXt7jChV7tZVYX862ua", "9"}));
+    BOOST_CHECK_NO_THROW(result = RPCConvertValues("generatetoaddress", {"1", "nNn2NoNAxUivfX5wfDiPeKCWke4y49jxpK", "9"}));
     BOOST_CHECK_EQUAL(result[0].get_int(), 1);
-    BOOST_CHECK_EQUAL(result[1].get_str(), "yNbNZyCiTYSFtDwEXt7jChV7tZVYX862ua");
+    BOOST_CHECK_EQUAL(result[1].get_str(), "nNn2NoNAxUivfX5wfDiPeKCWke4y49jxpK");
     BOOST_CHECK_EQUAL(result[2].get_int(), 9);
 
-    BOOST_CHECK_NO_THROW(result = RPCConvertValues("generatetoaddress", {"1", "yTG8jLL3MvteKXgbEcHyaN7JvTPCejQpSh", "9"}));
+    BOOST_CHECK_NO_THROW(result = RPCConvertValues("generatetoaddress", {"1", "nNn2NoNAxUivfX5wfDiPeKCWke4y49jxpK", "9"}));
     BOOST_CHECK_EQUAL(result[0].get_int(), 1);
-    BOOST_CHECK_EQUAL(result[1].get_str(), "yTG8jLL3MvteKXgbEcHyaN7JvTPCejQpSh");
+    BOOST_CHECK_EQUAL(result[1].get_str(), "nNn2NoNAxUivfX5wfDiPeKCWke4y49jxpK");
     BOOST_CHECK_EQUAL(result[2].get_int(), 9);
 }
 #endif // ENABLE_MINER

@@ -4,7 +4,7 @@ Debian
 This directory contains files used to package pigeond/pigeon-qt
 for Debian-based Linux systems. If you compile pigeond/pigeon-qt yourself, there are some useful files here.
 
-## dash: URI support ##
+## pigeon: URI support ##
 
 
 pigeon-qt.desktop  (Gnome / Open Desktop)

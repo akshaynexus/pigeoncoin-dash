@@ -4,43 +4,42 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include <config/pigeon-config.h>
+#include "config/pigeon-config.h"
 #endif
 
-#include <qt/bitcoingui.h>
+#include "bitcoingui.h"
 
-#include <chainparams.h>
-#include <qt/clientmodel.h>
-#include <fs.h>
-#include <qt/guiconstants.h>
-#include <qt/guiutil.h>
-#include <qt/intro.h>
-#include <net.h>
-#include <qt/networkstyle.h>
-#include <qt/optionsmodel.h>
-#include <qt/platformstyle.h>
-#include <qt/splashscreen.h>
-#include <qt/utilitydialog.h>
-#include <qt/winshutdownmonitor.h>
+#include "chainparams.h"
+#include "clientmodel.h"
+#include "fs.h"
+#include "guiconstants.h"
+#include "guiutil.h"
+#include "intro.h"
+#include "net.h"
+#include "networkstyle.h"
+#include "optionsmodel.h"
+#include "platformstyle.h"
+#include "splashscreen.h"
+#include "utilitydialog.h"
+#include "winshutdownmonitor.h"
 
 #ifdef ENABLE_WALLET
-#include <qt/paymentserver.h>
-#include <qt/walletmodel.h>
+#include "paymentserver.h"
+#include "walletmodel.h"
 #endif
 
-#include <init.h>
-#include <rpc/server.h>
-#include <stacktraces.h>
-#include <ui_interface.h>
-#include <util.h>
-#include <warnings.h>
+#include "init.h"
+#include "rpc/server.h"
+#include "scheduler.h"
+#include "stacktraces.h"
+#include "ui_interface.h"
+#include "util.h"
+#include "warnings.h"
 
 #ifdef ENABLE_WALLET
-#include <wallet/wallet.h>
+#include "wallet/wallet.h"
 #endif
-#include <walletinitinterface.h>
 
-#include <memory>
 #include <stdint.h>
 
 #include <boost/thread.hpp>
@@ -143,11 +142,11 @@ static void initTranslations(QTranslator &qtTranslatorBase, QTranslator &qtTrans
     if (qtTranslator.load("qt_" + lang_territory, QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
         QApplication::installTranslator(&qtTranslator);
 
-    // Load e.g. bitcoin_de.qm (shortcut "de" needs to be defined in dash.qrc)
+    // Load e.g. bitcoin_de.qm (shortcut "de" needs to be defined in pigeon.qrc)
     if (translatorBase.load(lang, ":/translations/"))
         QApplication::installTranslator(&translatorBase);
 
-    // Load e.g. bitcoin_de_DE.qm (shortcut "de_DE" needs to be defined in dash.qrc)
+    // Load e.g. bitcoin_de_DE.qm (shortcut "de_DE" needs to be defined in pigeon.qrc)
     if (translator.load(lang_territory, ":/translations/"))
         QApplication::installTranslator(&translator);
 }
@@ -198,6 +197,8 @@ Q_SIGNALS:
     void runawayException(const QString &message);
 
 private:
+    boost::thread_group threadGroup;
+    CScheduler scheduler;
 
     /// Pass fatal exception message to UI thread
     void handleRunawayException(const std::exception_ptr e);
@@ -230,7 +231,7 @@ public:
     void requestShutdown();
 
     /// Get process return value
-    int getReturnValue() const { return returnValue; }
+    int getReturnValue() { return returnValue; }
 
     /// Get window identifier of QMainWindow (BitcoinGUI)
     WId getMainWinId() const;
@@ -265,7 +266,7 @@ private:
     void startThread();
 };
 
-#include <qt/dash.moc>
+#include "pigeon.moc"
 
 BitcoinCore::BitcoinCore():
     QObject()
@@ -304,7 +305,7 @@ void BitcoinCore::initialize()
     try
     {
         qDebug() << __func__ << ": Running initialization in thread";
-        bool rv = AppInitMain();
+        bool rv = AppInitMain(threadGroup, scheduler);
         Q_EMIT initializeResult(rv);
     } catch (...) {
         handleRunawayException(std::current_exception());
@@ -320,7 +321,8 @@ void BitcoinCore::restart(QStringList args)
         try
         {
             qDebug() << __func__ << ": Running Restart in thread";
-            Interrupt();
+            Interrupt(threadGroup);
+            threadGroup.join_all();
             StartRestart();
             PrepareShutdown();
             qDebug() << __func__ << ": Shutdown finished";
@@ -340,7 +342,8 @@ void BitcoinCore::shutdown()
     try
     {
         qDebug() << __func__ << ": Running Shutdown in thread";
-        Interrupt();
+        Interrupt(threadGroup);
+        threadGroup.join_all();
         Shutdown();
         qDebug() << __func__ << ": Shutdown finished";
         Q_EMIT shutdownResult();
@@ -421,6 +424,7 @@ void BitcoinApplication::createWindow(const NetworkStyle *networkStyle)
 
     pollShutdownTimer = new QTimer(window);
     connect(pollShutdownTimer, SIGNAL(timeout()), window, SLOT(detectShutdown()));
+    pollShutdownTimer->start(200);
 }
 
 void BitcoinApplication::createSplashScreen(const NetworkStyle *networkStyle)
@@ -514,9 +518,9 @@ void BitcoinApplication::initializeResult(bool success)
 
 #ifdef ENABLE_WALLET
         // TODO: Expose secondary wallets
-        if (HasWallets())
+        if (!vpwallets.empty())
         {
-            walletModel = new WalletModel(platformStyle, GetWallets()[0], optionsModel);
+            walletModel = new WalletModel(platformStyle, vpwallets[0], optionsModel);
 
             window->addWallet(BitcoinGUI::DEFAULT_WALLET, walletModel);
             window->setCurrentWallet(BitcoinGUI::DEFAULT_WALLET);
@@ -539,7 +543,7 @@ void BitcoinApplication::initializeResult(bool success)
 
 #ifdef ENABLE_WALLET
         // Now that initialization/startup is done, process any command-line
-        // dash: URIs or payment requests:
+        // pigeon: URIs or payment requests:
         connect(paymentServer, SIGNAL(receivedPaymentRequest(SendCoinsRecipient)),
                          window, SLOT(handlePaymentRequest(SendCoinsRecipient)));
         connect(window, SIGNAL(receivedURI(QString)),
@@ -548,16 +552,14 @@ void BitcoinApplication::initializeResult(bool success)
                          window, SLOT(message(QString,QString,unsigned int)));
         QTimer::singleShot(100, paymentServer, SLOT(uiReady()));
 #endif
-        pollShutdownTimer->start(200);
     } else {
-        Q_EMIT splashFinished(window); // Make sure splash screen doesn't stick around during shutdown
-        quit(); // Exit first main loop invocation
+        quit(); // Exit main loop
     }
 }
 
 void BitcoinApplication::shutdownResult()
 {
-    quit(); // Exit second main loop invocation after shutdown finished
+    quit(); // Exit main loop after shutdown finished
 }
 
 void BitcoinApplication::handleRunawayException(const QString &message)
@@ -595,7 +597,7 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForCStrings(QTextCodec::codecForTr());
 #endif
 
-    Q_INIT_RESOURCE(dash);
+    Q_INIT_RESOURCE(pigeon);
     Q_INIT_RESOURCE(pigeon_locale);
 
 #if QT_VERSION > 0x050100
@@ -677,7 +679,7 @@ int main(int argc, char *argv[])
 
     // Check for -testnet or -regtest parameter (Params() calls are only valid after this clause)
     try {
-        SelectParams(gArgs.GetChainName());
+        SelectParams(ChainNameFromCommandLine());
     } catch(std::exception &e) {
         QMessageBox::critical(0, QObject::tr(PACKAGE_NAME), QObject::tr("Error: %1").arg(e.what()));
         return EXIT_FAILURE;
@@ -705,7 +707,7 @@ int main(int argc, char *argv[])
         exit(EXIT_SUCCESS);
 
     // Start up the payment server early, too, so impatient users that click on
-    // dash: links repeatedly have their payment requests routed to this process:
+    // pigeon: links repeatedly have their payment requests routed to this process:
     app.createPaymentServer();
 #endif
 
@@ -726,7 +728,7 @@ int main(int argc, char *argv[])
     // Allow parameter interaction before we create the options model
     app.parameterSetup();
     // Load GUI settings from QSettings
-    app.createOptionsModel(gArgs.GetBoolArg("-resetguisettings", false));
+    app.createOptionsModel(gArgs.IsArgSet("-resetguisettings"));
 
     // Subscribe to global signals from core
     uiInterface.InitMessage.connect(InitMessage);

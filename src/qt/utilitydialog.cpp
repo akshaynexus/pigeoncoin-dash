@@ -163,7 +163,7 @@ your funds will already be mixed. No additional waiting is required.</li> \
 This means those 1000 addresses last for about 100 mixing events. When 900 of them are used, your wallet must create more addresses. \
 It can only do this, however, if you have automatic backups enabled.<br> \
 Consequently, users who have backups disabled will also have PrivateSend disabled. <hr>\
-For more information, see the <a href=\"https://docs.dash.org/en/stable/wallets/dashcore/privatesend-instantsend.html\">PrivateSend documentation</a>."
+For more information, see the <a href=\"https://docs.pigeon.org/en/stable/wallets/pigeoncore/privatesend-instantsend.html\">PrivateSend documentation</a>."
         ));
         ui->aboutMessage->setWordWrap(true);
         ui->helpMessage->setVisible(false);

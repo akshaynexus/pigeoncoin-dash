@@ -213,8 +213,8 @@ void setupAmountWidget(QLineEdit *widget, QWidget *parent)
 
 bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out)
 {
-    // return if URI is not valid or is no dash: URI
-    if(!uri.isValid() || uri.scheme() != QString("dash"))
+    // return if URI is not valid or is no pigeon: URI
+    if(!uri.isValid() || uri.scheme() != QString("pigeon"))
         return false;
 
     SendCoinsRecipient rv;
@@ -280,13 +280,13 @@ bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out)
 
 bool parseBitcoinURI(QString uri, SendCoinsRecipient *out)
 {
-    // Convert dash:// to dash:
+    // Convert pigeon:// to pigeon:
     //
-    //    Cannot handle this later, because dash:// will cause Qt to see the part after // as host,
+    //    Cannot handle this later, because pigeon:// will cause Qt to see the part after // as host,
     //    which will lower-case it (and thus invalidate the address).
-    if(uri.startsWith("dash://", Qt::CaseInsensitive))
+    if(uri.startsWith("pigeon://", Qt::CaseInsensitive))
     {
-        uri.replace(0, 7, "dash:");
+        uri.replace(0, 7, "pigeon:");
     }
     QUrl uriInstance(uri);
     return parseBitcoinURI(uriInstance, out);
@@ -300,7 +300,7 @@ bool validateBitcoinURI(const QString& uri)
 
 QString formatBitcoinURI(const SendCoinsRecipient &info)
 {
-    QString ret = QString("dash:%1").arg(info.address);
+    QString ret = QString("pigeon:%1").arg(info.address);
     int paramCount = 0;
 
     if (info.amount)
@@ -518,7 +518,7 @@ void openConfigfile()
 {
     fs::path pathConfig = GetConfigFile(gArgs.GetArg("-conf", BITCOIN_CONF_FILENAME));
 
-    /* Open dash.conf with the associated application */
+    /* Open pigeon.conf with the associated application */
     if (fs::exists(pathConfig))
         QDesktopServices::openUrl(QUrl::fromLocalFile(boostPathToQString(pathConfig)));
 }
@@ -817,7 +817,7 @@ fs::path static GetAutostartFilePath()
 {
     std::string chain = gArgs.GetChainName();
     if (chain == CBaseChainParams::MAIN)
-        return GetAutostartDir() / "dashcore.desktop";
+        return GetAutostartDir() / "pigeoncore.desktop";
     return GetAutostartDir() / strprintf("pigeoncoin-%s.lnk", chain);
 }
 

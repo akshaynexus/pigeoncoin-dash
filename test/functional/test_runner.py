@@ -54,11 +54,11 @@ TEST_EXIT_SKIPPED = 77
 BASE_SCRIPTS= [
     # Scripts that are run by the travis build process.
     # Longest test should go first, to favor running tests in parallel
-    'dip3-deterministicmns.py', # NOTE: needs dash_hash to pass
+    'dip3-deterministicmns.py', # NOTE: needs x21s_hash to pass
     'wallet-hd.py',
     'walletbackup.py',
     # vv Tests less than 5m vv
-    'p2p-fullblocktest.py', # NOTE: needs dash_hash to pass
+    'p2p-fullblocktest.py', # NOTE: needs x21s_hash to pass
     'fundrawtransaction.py',
     'fundrawtransaction-hd.py',
     # vv Tests less than 2m vv
@@ -78,7 +78,7 @@ BASE_SCRIPTS= [
     'llmq-dkgerrors.py', # NOTE: needs dash_hash to pass
     'dip4-coinbasemerkleroots.py', # NOTE: needs dash_hash to pass
     # vv Tests less than 60s vv
-    'sendheaders.py', # NOTE: needs dash_hash to pass
+    'sendheaders.py', # NOTE: needs x21s_hash to pass
     'zapwallettxes.py',
     'importmulti.py',
     'mempool_limit.py',
@@ -119,8 +119,8 @@ BASE_SCRIPTS= [
     'keypool-hd.py',
     'p2p-mempool.py',
     'prioritise_transaction.py',
-    'invalidblockrequest.py', # NOTE: needs dash_hash to pass
-    'invalidtxrequest.py', # NOTE: needs dash_hash to pass
+    'invalidblockrequest.py', # NOTE: needs x21s_hash to pass
+    'invalidtxrequest.py', # NOTE: needs x21s_hash to pass
     'p2p-versionbits-warning.py',
     'preciousblock.py',
     'importprunedfunds.py',
@@ -141,7 +141,7 @@ BASE_SCRIPTS= [
     'uptime.py',
     'resendwallettransactions.py',
     'minchainwork.py',
-    'p2p-acceptblock.py', # NOTE: needs dash_hash to pass
+    'p2p-acceptblock.py', # NOTE: needs x21s_hash to pass
     'feature_shutdown.py',
     'privatesend.py',
     'uacomment.py',
@@ -210,7 +210,7 @@ def main():
     parser.add_argument('--failfast', action='store_true', help='stop execution after the first test failure')
     args, unknown_args = parser.parse_known_args()
 
-    # args to be passed on always start with two dashes; tests are the remaining unknown args
+    # args to be passed on always start with two pigeones; tests are the remaining unknown args
     tests = [arg for arg in unknown_args if arg[:2] != "--"]
     passon_args = [arg for arg in unknown_args if arg[:2] == "--"]
 
@@ -309,9 +309,9 @@ def run_tests(*, test_list, src_dir, build_dir, exeext, tmpdir, jobs=1, enable_c
 
     # Warn if dashd is already running (unix only)
     try:
-        pidof_output = subprocess.check_output(["pidof", "dashd"])
+        pidof_output = subprocess.check_output(["pidof", "pigeond"])
         if not (pidof_output is None or pidof_output == b''):
-            print("%sWARNING!%s There is already a dashd process running on this system. Tests may fail unexpectedly due to resource contention!" % (BOLD[1], BOLD[0]))
+            print("%sWARNING!%s There is already a pigeond process running on this system. Tests may fail unexpectedly due to resource contention!" % (BOLD[1], BOLD[0]))
     except (OSError, subprocess.SubprocessError):
         pass
 
@@ -323,8 +323,8 @@ def run_tests(*, test_list, src_dir, build_dir, exeext, tmpdir, jobs=1, enable_c
 
     #Set env vars
     if "BITCOIND" not in os.environ:
-        os.environ["BITCOIND"] = build_dir + '/src/dashd' + exeext
-        os.environ["BITCOINCLI"] = build_dir + '/src/dash-cli' + exeext
+        os.environ["BITCOIND"] = build_dir + '/src/pigeond' + exeext
+        os.environ["BITCOINCLI"] = build_dir + '/src/pigeon-cli' + exeext
 
     tests_dir = src_dir + '/test/functional/'
 

@@ -51,11 +51,11 @@
     </message>
     <message>
         <source>Choose the address to send coins to</source>
-        <translation>Scegli l'indirizzo a cui inviare i dash</translation>
+        <translation>Scegli l'indirizzo a cui inviare i pigeon</translation>
     </message>
     <message>
         <source>Choose the address to receive coins with</source>
-        <translation>Scegli l'indirizzo con cui ricevere dash</translation>
+        <translation>Scegli l'indirizzo con cui ricevere pigeon</translation>
     </message>
     <message>
         <source>C&amp;hoose</source>
@@ -71,7 +71,7 @@
     </message>
     <message>
         <source>These are your Pigeon Addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>Questi sono i tuoi indirizzi Dash per inviare i pagamenti. Controlla sempre l'ammontare e l'indirizzo di destinazione prima di inviare i dash.</translation>
+        <translation>Questi sono i tuoi indirizzi Dash per inviare i pagamenti. Controlla sempre l'ammontare e l'indirizzo di destinazione prima di inviare i pigeon.</translation>
     </message>
     <message>
         <source>These are your Pigeon Addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
@@ -287,15 +287,15 @@
     </message>
     <message>
         <source>Send coins to a Pigeon Address</source>
-        <translation>Spedire dash ad un indirizzo Dash</translation>
+        <translation>Spedire pigeon ad un indirizzo Dash</translation>
     </message>
     <message>
         <source>&amp;Receive</source>
         <translation>&amp;Ricevi</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and dash: URIs)</source>
-        <translation>Richieste di pagamenti (genera codici QR e dash: URLs)</translation>
+        <source>Request payments (generates QR codes and pigeon: URIs)</source>
+        <translation>Richieste di pagamenti (genera codici QR e pigeon: URLs)</translation>
     </message>
     <message>
         <source>&amp;Transactions</source>
@@ -482,8 +482,8 @@
         <translation>Apri &amp;URI...</translation>
     </message>
     <message>
-        <source>Open a dash: URI or payment request</source>
-        <translation>Apri un dash: URI o una richiesta di pagamento</translation>
+        <source>Open a pigeon: URI or payment request</source>
+        <translation>Apri un pigeon: URI o una richiesta di pagamento</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
@@ -992,8 +992,8 @@
         <translation>Informazioni di Private Send</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;PrivateSend Basics&lt;/h3&gt; PrivateSend gives you true financial privacy by obscuring the origins of your funds. All the Dash in your wallet is comprised of different "inputs" which you can think of as separate, discrete coins.&lt;br&gt; PrivateSend uses an innovative process to mix your inputs with the inputs of two other people, without having your coins ever leave your wallet. You retain control of your money at all times.&lt;hr&gt; &lt;b&gt;The PrivateSend process works like this:&lt;/b&gt;&lt;ol type="1"&gt; &lt;li&gt;PrivateSend begins by breaking your transaction inputs down into standard denominations. These denominations are 0.001 PGN, 0.01 PGN, 0.1 PGN, 1 PGN and 10 PGN -- sort of like the paper money you use every day.&lt;/li&gt; &lt;li&gt;Your wallet then sends requests to specially configured software nodes on the network, called "masternodes." These masternodes are informed then that you are interested in mixing a certain denomination. No identifiable information is sent to the masternodes, so they never know "who" you are.&lt;/li&gt; &lt;li&gt;When two other people send similar messages, indicating that they wish to mix the same denomination, a mixing session begins. The masternode mixes up the inputs and instructs all three users' wallets to pay the now-transformed input back to themselves. Your wallet pays that denomination directly to itself, but in a different address (called a change address).&lt;/li&gt; &lt;li&gt;In order to fully obscure your funds, your wallet must repeat this process a number of times with each denomination. Each time the process is completed, it's called a "round." Each round of PrivateSend makes it exponentially more difficult to determine where your funds originated.&lt;/li&gt; &lt;li&gt;This mixing process happens in the background without any intervention on your part. When you wish to make a transaction, your funds will already be anonymized. No additional waiting is required.&lt;/li&gt; &lt;/ol&gt; &lt;hr&gt;&lt;b&gt;IMPORTANT:&lt;/b&gt; Your wallet only contains 1000 of these "change addresses." Every time a mixing event happens, up to 9 of your addresses are used up. This means those 1000 addresses last for about 100 mixing events. When 900 of them are used, your wallet must create more addresses. It can only do this, however, if you have automatic backups enabled.&lt;br&gt; Consequently, users who have backups disabled will also have PrivateSend disabled. &lt;hr&gt;For more information, see the &lt;a href="https://docs.dash.org/en/latest/wallets/dashcore/privatesend-instantsend.html"&gt;PrivateSend documentation&lt;/a&gt;.</source>
-        <translation>&lt;h3&gt;Nozioni di base di PrivateSend&lt;/h3&gt; PrivateSend ti offre una vera privacy finanziaria oscurando le origini dei tuoi fondi. Tutti i Dash nel tuo portafoglio sono costituiti da diversi "input" che puoi pensare come monete separate e discrete. &lt;br&gt;PrivateSend utilizza un processo innovativo per mescolare i tuoi input con gli input di due altre persone, senza che le tue monete lascino mai il tuo portafoglio. Si mantiene il controllo del proprio denaro in ogni momento. &lt;hr&gt;&lt;b&gt;Il processo di PrivateSend funziona in questo modo: &lt;/b&gt;&lt;ol type="1"&gt;&lt;li&gt;PrivateSend inizia dividendo gli input della transazioni in denominazioni standard. Queste denominazioni sono 0,001 PGN, 0,01 PGN, 0,1 PGN, 1 PGN e 10 PGN: una specie di carta moneta che utilizzi ogni giorno.&lt;/li&gt;&lt;li&gt; Il tuo portafoglio quindi invia richieste ai nodi software appositamente configurati sulla rete, chiamati "masternode". Questi masternode vengono informati che sei interessato a mescolare una certa denominazione. Nessuna informazione identificabile viene inviata ai masternodes, quindi non sanno mai "chi" tu sia. &lt;/li&gt;&lt;li&gt;Quando altre due persone inviano messaggi simili, indicando che desiderano mescolare la stessa denominazione, inizia una sessione di mixaggio. Il masternode mescola gli input e incarica i portafogli di tutti e tre gli utenti di pagare a loro stessi l'input trasformato. Il tuo portafoglio paga quella denominazione direttamente a se stessa, ma in un indirizzo diverso (chiamato indirizzo di modifica). &lt;/li&gt;&lt;li&gt;Per oscurare completamente i tuoi fondi, il tuo portafoglio deve ripetere questo processo un certo numero di volte con ogni denominazione. Ogni  processo completato, è chiamato "round". Ogni ciclo di PrivateSend rende esponenzialmente più difficile determinare la provenienza dei fondi. &lt;/li&gt;&lt;li&gt;Questo processo di miscelazione avviene in background senza alcun intervento da parte dell'utente. Quando desideri effettuare una transazione, i tuoi fondi saranno già resi anonimi. Non è richiesta alcuna attesa aggiuntiva.&lt;/li&gt;&lt;/ol&gt;&lt;hr&gt;&lt;b&gt; IMPORTANTE: &lt;/b&gt;il tuo portafoglio contiene solo 1000 di questi "indirizzi di modifica". Ogni volta che si verifica un evento di mixaggio, vengono usati fino a 9 dei tuoi indirizzi. Ciò significa che i 1000 indirizzi durano per circa 100 eventi di mixaggio. Quando vengono utilizzati 900 di questi, il tuo portafoglio deve creare altri indirizzi. Può farlo solo se si dispone dei backup automatici abilitati. &lt;br&gt;Di conseguenza, gli utenti che hanno disabilitato i backup avranno anche PrivateSend disabilitato. &lt;hr&gt;Per maggiori informazioni consulta la &lt;a href="https://docs.dash.org/en/latest/wallets/dashcore/privatesend-instantsend.html"&gt;documentazione di PrivateSend&lt;/a&gt;.</translation>
+        <source>&lt;h3&gt;PrivateSend Basics&lt;/h3&gt; PrivateSend gives you true financial privacy by obscuring the origins of your funds. All the Dash in your wallet is comprised of different "inputs" which you can think of as separate, discrete coins.&lt;br&gt; PrivateSend uses an innovative process to mix your inputs with the inputs of two other people, without having your coins ever leave your wallet. You retain control of your money at all times.&lt;hr&gt; &lt;b&gt;The PrivateSend process works like this:&lt;/b&gt;&lt;ol type="1"&gt; &lt;li&gt;PrivateSend begins by breaking your transaction inputs down into standard denominations. These denominations are 0.001 PGN, 0.01 PGN, 0.1 PGN, 1 PGN and 10 PGN -- sort of like the paper money you use every day.&lt;/li&gt; &lt;li&gt;Your wallet then sends requests to specially configured software nodes on the network, called "masternodes." These masternodes are informed then that you are interested in mixing a certain denomination. No identifiable information is sent to the masternodes, so they never know "who" you are.&lt;/li&gt; &lt;li&gt;When two other people send similar messages, indicating that they wish to mix the same denomination, a mixing session begins. The masternode mixes up the inputs and instructs all three users' wallets to pay the now-transformed input back to themselves. Your wallet pays that denomination directly to itself, but in a different address (called a change address).&lt;/li&gt; &lt;li&gt;In order to fully obscure your funds, your wallet must repeat this process a number of times with each denomination. Each time the process is completed, it's called a "round." Each round of PrivateSend makes it exponentially more difficult to determine where your funds originated.&lt;/li&gt; &lt;li&gt;This mixing process happens in the background without any intervention on your part. When you wish to make a transaction, your funds will already be anonymized. No additional waiting is required.&lt;/li&gt; &lt;/ol&gt; &lt;hr&gt;&lt;b&gt;IMPORTANT:&lt;/b&gt; Your wallet only contains 1000 of these "change addresses." Every time a mixing event happens, up to 9 of your addresses are used up. This means those 1000 addresses last for about 100 mixing events. When 900 of them are used, your wallet must create more addresses. It can only do this, however, if you have automatic backups enabled.&lt;br&gt; Consequently, users who have backups disabled will also have PrivateSend disabled. &lt;hr&gt;For more information, see the &lt;a href="https://docs.pigeon.org/en/latest/wallets/pigeoncore/privatesend-instantsend.html"&gt;PrivateSend documentation&lt;/a&gt;.</source>
+        <translation>&lt;h3&gt;Nozioni di base di PrivateSend&lt;/h3&gt; PrivateSend ti offre una vera privacy finanziaria oscurando le origini dei tuoi fondi. Tutti i Dash nel tuo portafoglio sono costituiti da diversi "input" che puoi pensare come monete separate e discrete. &lt;br&gt;PrivateSend utilizza un processo innovativo per mescolare i tuoi input con gli input di due altre persone, senza che le tue monete lascino mai il tuo portafoglio. Si mantiene il controllo del proprio denaro in ogni momento. &lt;hr&gt;&lt;b&gt;Il processo di PrivateSend funziona in questo modo: &lt;/b&gt;&lt;ol type="1"&gt;&lt;li&gt;PrivateSend inizia dividendo gli input della transazioni in denominazioni standard. Queste denominazioni sono 0,001 PGN, 0,01 PGN, 0,1 PGN, 1 PGN e 10 PGN: una specie di carta moneta che utilizzi ogni giorno.&lt;/li&gt;&lt;li&gt; Il tuo portafoglio quindi invia richieste ai nodi software appositamente configurati sulla rete, chiamati "masternode". Questi masternode vengono informati che sei interessato a mescolare una certa denominazione. Nessuna informazione identificabile viene inviata ai masternodes, quindi non sanno mai "chi" tu sia. &lt;/li&gt;&lt;li&gt;Quando altre due persone inviano messaggi simili, indicando che desiderano mescolare la stessa denominazione, inizia una sessione di mixaggio. Il masternode mescola gli input e incarica i portafogli di tutti e tre gli utenti di pagare a loro stessi l'input trasformato. Il tuo portafoglio paga quella denominazione direttamente a se stessa, ma in un indirizzo diverso (chiamato indirizzo di modifica). &lt;/li&gt;&lt;li&gt;Per oscurare completamente i tuoi fondi, il tuo portafoglio deve ripetere questo processo un certo numero di volte con ogni denominazione. Ogni  processo completato, è chiamato "round". Ogni ciclo di PrivateSend rende esponenzialmente più difficile determinare la provenienza dei fondi. &lt;/li&gt;&lt;li&gt;Questo processo di miscelazione avviene in background senza alcun intervento da parte dell'utente. Quando desideri effettuare una transazione, i tuoi fondi saranno già resi anonimi. Non è richiesta alcuna attesa aggiuntiva.&lt;/li&gt;&lt;/ol&gt;&lt;hr&gt;&lt;b&gt; IMPORTANTE: &lt;/b&gt;il tuo portafoglio contiene solo 1000 di questi "indirizzi di modifica". Ogni volta che si verifica un evento di mixaggio, vengono usati fino a 9 dei tuoi indirizzi. Ciò significa che i 1000 indirizzi durano per circa 100 eventi di mixaggio. Quando vengono utilizzati 900 di questi, il tuo portafoglio deve creare altri indirizzi. Può farlo solo se si dispone dei backup automatici abilitati. &lt;br&gt;Di conseguenza, gli utenti che hanno disabilitato i backup avranno anche PrivateSend disabilitato. &lt;hr&gt;Per maggiori informazioni consulta la &lt;a href="https://docs.pigeon.org/en/latest/wallets/pigeoncore/privatesend-instantsend.html"&gt;documentazione di PrivateSend&lt;/a&gt;.</translation>
     </message>
 </context>
 <context>
@@ -1484,9 +1484,9 @@
     </message>
     <message>
         <source>Language missing or translation incomplete? Help contributing translations here:
-https://www.transifex.com/projects/p/dash/</source>
+https://www.transifex.com/projects/p/pigeon/</source>
         <translation>La tua lingua manca o la traduzione è incompleta? Contribuisci alla traduzione qui: 
-https://www.transifex.com/projects/p/dash/</translation>
+https://www.transifex.com/projects/p/pigeon/</translation>
     </message>
     <message>
         <source>User Interface Theme:</source>
@@ -1801,8 +1801,8 @@ https://www.transifex.com/projects/p/dash/</translation>
         <translation>Errore di richiesta di pagamento</translation>
     </message>
     <message>
-        <source>Cannot start dash: click-to-pay handler</source>
-        <translation>Impossibile avviare dash: gestore click-to-pay</translation>
+        <source>Cannot start pigeon: click-to-pay handler</source>
+        <translation>Impossibile avviare pigeon: gestore click-to-pay</translation>
     </message>
     <message>
         <source>URI handling</source>
@@ -2611,7 +2611,7 @@ https://www.transifex.com/projects/p/dash/</translation>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
-        <translation>Invia dash</translation>
+        <translation>Invia pigeon</translation>
     </message>
     <message>
         <source>Coin Control Features</source>
@@ -2690,7 +2690,7 @@ https://www.transifex.com/projects/p/dash/</translation>
         <translation>Se la tariffa personalizzata è impostata su 1000 duff e la transazione è di soli 250 byte, paga solo 250 duff "per kilobyte" di Fee, &lt;br /&gt;mentre paga "almeno"  1000 duff. Per le transazioni più grandi di un kilobyte pagate entrambi per kilobyte.</translation>
     </message>
     <message>
-        <source>Paying only the minimum fee is just fine as long as there is less transaction volume than space in the blocks.&lt;br /&gt;But be aware that this can end up in a never confirming transaction once there is more demand for dash transactions than the network can process.</source>
+        <source>Paying only the minimum fee is just fine as long as there is less transaction volume than space in the blocks.&lt;br /&gt;But be aware that this can end up in a never confirming transaction once there is more demand for pigeon transactions than the network can process.</source>
         <translation>Pagare solo la commissione minima va bene finché il volume di transazioni è minore rispetto allo spazio nei blocchi. &lt;br /&gt;Ma sii consapevole che questo potrebbe risultare in una transazione non confermata, una volta che ci fosse più richiesta di transazioni di Dash di quanto la rete possa elaborare.</translation>
     </message>
     <message>
@@ -2839,7 +2839,7 @@ https://www.transifex.com/projects/p/dash/</translation>
     </message>
     <message>
         <source>Confirm send coins</source>
-        <translation>Conferma l'invio di dash</translation>
+        <translation>Conferma l'invio di pigeon</translation>
     </message>
     <message>
         <source>The recipient address is not valid. Please recheck.</source>
@@ -2965,8 +2965,8 @@ https://www.transifex.com/projects/p/dash/</translation>
         <translation>Messaggio:</translation>
     </message>
     <message>
-        <source>A message that was attached to the dash: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Dash network.</source>
-        <translation>Un messaggio allegato con l'URI dash che verrà memorizzato nella transazione per il tuo referente. Nota: questo messaggio non verrà inviato attraverso il network Dash.</translation>
+        <source>A message that was attached to the pigeon: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Dash network.</source>
+        <translation>Un messaggio allegato con l'URI pigeon che verrà memorizzato nella transazione per il tuo referente. Nota: questo messaggio non verrà inviato attraverso il network Dash.</translation>
     </message>
     <message>
         <source>This is an unauthenticated payment request.</source>

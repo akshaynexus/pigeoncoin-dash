@@ -253,7 +253,7 @@ Detailed [change log](https://github.com/dashpay/dash/compare/v0.12.1.x...dashpa
 - [`5758ae1bf`](https://github.com/dashpay/dash/commit/5758ae1bf) Full path in "failed to load cache" warnings (#1411)
 - [`18c83f58e`](https://github.com/dashpay/dash/commit/18c83f58e) Qt: bug fixes and enhancement to traffic graph widget  (#1429)
 - [`72fbfe93d`](https://github.com/dashpay/dash/commit/72fbfe93d) Icon Cutoff Fix (#1485)
-- [`4df8a20f9`](https://github.com/dashpay/dash/commit/4df8a20f9) Fix windows installer script, should handle `dash:` uri correctly now (#1550)
+- [`4df8a20f9`](https://github.com/dashpay/dash/commit/4df8a20f9) Fix windows installer script, should handle `pigeon:` uri correctly now (#1550)
 - [`8b7dffbb6`](https://github.com/dashpay/dash/commit/8b7dffbb6) Update startup shortcuts (#1551)
 - [`6ff7b7aa5`](https://github.com/dashpay/dash/commit/6ff7b7aa5) fix TrafficGraphData bandwidth calculation (#1618)
 - [`026ad8421`](https://github.com/dashpay/dash/commit/026ad8421) Fix empty tooltip during sync under specific conditions (#1637)

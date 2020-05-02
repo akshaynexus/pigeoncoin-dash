@@ -1,7 +1,7 @@
 # /etc/conf.d/pigeond: config file for /etc/init.d/pigeond
 
 # Config file location
-#BITCOIND_CONFIGFILE="/etc/dashcore/pigeon.conf"
+#BITCOIND_CONFIGFILE="/etc/pigeoncore/pigeon.conf"
 
 # What directory to write pidfile to?  (created and owned by $BITCOIND_USER)
 #BITCOIND_PIDDIR="/var/run/pigeond"
@@ -13,8 +13,8 @@
 #BITCOIND_DATADIR="/var/lib/pigeond"
 
 # User and group to own pigeond process
-#BITCOIND_USER="dashcore"
-#BITCOIND_GROUP="dashcore"
+#BITCOIND_USER="pigeoncore"
+#BITCOIND_GROUP="pigeoncore"
 
 # Path to pigeond executable
 #BITCOIND_BIN="/usr/bin/pigeond"

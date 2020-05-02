@@ -169,7 +169,7 @@ UniValue gobject_prepare(const JSONRPCRequest& request)
 
     // This command is dangerous because it consumes 5 PGN irreversibly.
     // If params are lost, it's very hard to bruteforce them and yet
-    // users ignore all instructions on dashcentral etc. and do not save them...
+    // users ignore all instructions on pigeoncentral etc. and do not save them...
     // Let's log them here and hope users do not mess with debug.log
     LogPrintf("gobject_prepare -- params: %s %s %s %s, data: %s, hash: %s\n",
                 request.params[1].get_str(), request.params[2].get_str(),

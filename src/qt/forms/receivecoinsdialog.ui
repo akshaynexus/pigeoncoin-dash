@@ -298,7 +298,7 @@
   <tabstop>removeRequestButton</tabstop>
  </tabstops>
  <resources>
-  <include location="../dash.qrc"/>
+  <include location="../pigeon.qrc"/>
  </resources>
  <connections/>
 </ui>
