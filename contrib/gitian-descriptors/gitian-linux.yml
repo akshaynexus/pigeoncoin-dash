@@ -1,5 +1,5 @@
 ---
-name: "dash-linux-0.16"
+name: "pigeon-linux-0.15"
 enable_cache: true
 suites:
 - "bionic"
@@ -33,7 +33,7 @@ packages:
 - "ccache"
 remotes:
 - "url": "https://github.com/Pigeoncoin/pigeoncoin.git"
-  "dir": "dash"
+  "dir": "pigeon"
 files: []
 script: |
 
@@ -143,7 +143,7 @@ script: |
   touch -d "${REFERENCE_DATETIME}" ${WRAP_DIR}/${prog}
   done
 
-  cd dash
+  cd pigeon
   BASEPREFIX=`pwd`/depends
   # Build dependencies for each host
   for i in $HOSTS; do

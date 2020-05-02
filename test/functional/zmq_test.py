@@ -9,15 +9,15 @@ import struct
 
 from codecs import encode
 
-from test_framework.mininode import dashhash
+from test_framework.mininode import pigeonhash
 from test_framework.test_framework import BitcoinTestFramework, SkipTest
 from test_framework.util import (assert_equal,
                                  bytes_to_hex_str,
                                  hash256,
                                 )
 
-def dashhash_helper(b):
-    return encode(dashhash(b)[::-1], 'hex_codec').decode('ascii')
+def pigeonhash_helper(b):
+    return encode(pigeonhash(b)[::-1], 'hex_codec').decode('ascii')
 
 class ZMQSubscriber:
     def __init__(self, socket, topic):
@@ -56,7 +56,7 @@ class ZMQTest (BitcoinTestFramework):
         config.read_file(open(self.options.configfile))
 
         if not config["components"].getboolean("ENABLE_ZMQ"):
-            raise SkipTest("dashd has not been built with zmq enabled.")
+            raise SkipTest("pigeond has not been built with zmq enabled.")
 
         # Initialize ZMQ context and socket.
         # All messages are received in the same socket which means

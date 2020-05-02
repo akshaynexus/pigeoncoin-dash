@@ -3,13 +3,13 @@ Description=Dash's distributed currency daemon
 After=network.target
 
 [Service]
-User=dashcore
-Group=dashcore
+User=pigeoncore
+Group=pigeoncore
 
 Type=forking
 PIDFile=/var/lib/pigeond/pigeond.pid
 ExecStart=/usr/bin/pigeond -daemon -pid=/var/lib/pigeond/pigeond.pid \
--conf=/etc/dashcore/pigeon.conf -datadir=/var/lib/pigeond -disablewallet
+-conf=/etc/pigeoncore/pigeon.conf -datadir=/var/lib/pigeond -disablewallet
 
 Restart=always
 PrivateTmp=true

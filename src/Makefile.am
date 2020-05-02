@@ -108,7 +108,7 @@ if BUILD_BITCOIN_UTILS
 endif
 
 .PHONY: FORCE check-symbols check-security
-# dash core #
+# pigeon core #
 BITCOIN_CORE_H = \
   addrdb.h \
   addressindex.h \
@@ -272,7 +272,7 @@ obj/build.h: FORCE
 	  "$(abs_top_srcdir)"
 libpigeon_util_a-clientversion.$(OBJEXT): obj/build.h
 
-# server: shared between dashd and dash-qt
+# server: shared between pigeond and pigeon-qt
 libpigeon_server_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
 libpigeon_server_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libpigeon_server_a_SOURCES = \
@@ -510,7 +510,7 @@ libpigeon_consensus_a_SOURCES = \
   primitives/transaction.h \
   pubkey.cpp \
   pubkey.h \
-  script/dashconsensus.cpp \
+  script/pigeonconsensus.cpp \
   script/interpreter.cpp \
   script/interpreter.h \
   script/script.cpp \
@@ -663,9 +663,9 @@ pigeon_tx_LDADD = \
 pigeon_tx_LDADD += $(BACKTRACE_LIB) $(BOOST_LIBS) $(CRYPTO_LIBS) $(BLS_LIBS)
 #
 
-# dashconsensus library #
+# pigeonconsensus library #
 if BUILD_BITCOIN_LIBS
-include_HEADERS = script/dashconsensus.h
+include_HEADERS = script/pigeonconsensus.h
 libpigeonconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libpigeon_crypto_base_a_SOURCES) $(libpigeon_consensus_a_SOURCES)
 
 if GLIBC_BACK_COMPAT
