@@ -4507,10 +4507,10 @@ bool LoadExternalBlockFile(const CChainParams& chainparams, FILE* fileIn, CDiskB
             try {
                 // locate a header
                 unsigned char buf[CMessageHeader::MESSAGE_START_SIZE];
-                blkdat.FindByte(chainparams.MessageStart(chainActive.Height())[0]);
+                blkdat.FindByte(chainparams.MessageStart()[0]);
                 nRewind = blkdat.GetPos()+1;
                 blkdat >> FLATDATA(buf);
-                if (memcmp(buf, chainparams.MessageStart(chainActive.Height()), CMessageHeader::MESSAGE_START_SIZE))
+                if (memcmp(buf, chainparams.MessageStart(), CMessageHeader::MESSAGE_START_SIZE))
                     continue;
                 // read size
                 blkdat >> nSize;
