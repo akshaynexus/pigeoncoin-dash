@@ -2109,7 +2109,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
     int64_t nTime5_3 = GetTimeMicros(); nTimeValueValid += nTime5_3 - nTime5_2;
     LogPrint(BCLog::BENCHMARK, "      - IsBlockValueValid: %.2fms [%.2fs]\n", 0.001 * (nTime5_3 - nTime5_2), nTimeValueValid * 0.000001);
 
-    if (!IsBlockPayeeValid(*block.vtx[0], pindex->nHeight, blockReward)) {
+    if (pindex->nHeight > Params().GetConsensus().nMasternodePaymentsStartBlock &&  !IsBlockPayeeValid(*block.vtx[0], pindex->nHeight, blockReward)) {
         return state.DoS(0, error("ConnectBlock(PGN): couldn't find masternode or superblock payments"),
                                 REJECT_INVALID, "bad-cb-payee");
     }
@@ -2140,7 +2140,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
             CDiskBlockPos _pos;
             if (!FindUndoPos(state, pindex->nFile, _pos, ::GetSerializeSize(blockundo, SER_DISK, CLIENT_VERSION) + 40))
                 return error("ConnectBlock(): FindUndoPos failed");
-            if (!UndoWriteToDisk(blockundo, _pos, pindex->pprev->GetBlockHash(), chainparams.MessageStart()))
+            if (!UndoWriteToDisk(blockundo, _pos, pindex->pprev->GetBlockHash(), chainparams.MessageStart(chainActive.Height())))
                 return AbortNode(state, "Failed to write undo data");
 
             // update nUndoPos in block index
@@ -3518,7 +3518,7 @@ static bool AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CValidation
         if (!FindBlockPos(state, blockPos, nBlockSize+8, nHeight, block.GetBlockTime(), dbp != nullptr))
             return error("AcceptBlock(): FindBlockPos failed");
         if (dbp == nullptr)
-            if (!WriteBlockToDisk(block, blockPos, chainparams.MessageStart()))
+            if (!WriteBlockToDisk(block, blockPos, chainparams.MessageStart(chainActive.Height())))
                 AbortNode(state, "Failed to write block");
         if (!ReceivedBlockTransactions(block, state, pindex, blockPos))
             return error("AcceptBlock(): ReceivedBlockTransactions failed");
@@ -4231,7 +4231,7 @@ static bool AddGenesisBlock(const CChainParams& chainparams, const CBlock& block
     CDiskBlockPos blockPos;
     if (!FindBlockPos(state, blockPos, nBlockSize+8, 0, block.GetBlockTime()))
         return error("%s: FindBlockPos failed", __func__);
-    if (!WriteBlockToDisk(block, blockPos, chainparams.MessageStart()))
+    if (!WriteBlockToDisk(block, blockPos, chainparams.MessageStart(chainActive.Height())))
         return error("%s: writing genesis block to disk failed", __func__);
     CBlockIndex *pindex = AddToBlockIndex(block);
     if (!ReceivedBlockTransactions(block, state, pindex, blockPos))
@@ -4294,10 +4294,10 @@ bool LoadExternalBlockFile(const CChainParams& chainparams, FILE* fileIn, CDiskB
             try {
                 // locate a header
                 unsigned char buf[CMessageHeader::MESSAGE_START_SIZE];
-                blkdat.FindByte(chainparams.MessageStart()[0]);
+                blkdat.FindByte(chainparams.MessageStart(chainActive.Height())[0]);
                 nRewind = blkdat.GetPos()+1;
                 blkdat >> FLATDATA(buf);
-                if (memcmp(buf, chainparams.MessageStart(), CMessageHeader::MESSAGE_START_SIZE))
+                if (memcmp(buf, chainparams.MessageStart(chainActive.Height()), CMessageHeader::MESSAGE_START_SIZE))
                     continue;
                 // read size
                 blkdat >> nSize;
