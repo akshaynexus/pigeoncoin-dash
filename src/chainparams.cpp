@@ -396,6 +396,7 @@ public:
 	    											"rLzD7RxVS1QMZ5yYrmoUvfnTNuzgUqJVVK", 738178);
 
         consensus.masternodeCollateral = 1000000; //1,000,000 PGN Servicenode collateral
+        consensus.nMagicChangeHeight = 999999999;//TODO akshaynexus set this when we go on mainnet
         /**
          * The message start string is designed to be unlikely to occur in normal data.
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -575,10 +576,19 @@ public:
 		consensus.nFounderPayment = FounderPayment(rewardStructures, 3000, "n6yjcgyB6VUJipV9p361QTSCDs3gf8izEh",
 													"nLphepxwA1bNxLDuwB3SLYPXjed6jMwFw4", 4000);
         consensus.masternodeCollateral = 1000000; //1,000,000 PGN Servicenode collateral
+        consensus.nMagicChangeHeight = 2;
+
         pchMessageStart[0] = 0x53;
         pchMessageStart[1] = 0x5a;
         pchMessageStart[2] = 0x4d;
         pchMessageStart[3] = 0x5a;
+
+        //New message start after hf
+        pchMessageStartNew[0] = 0x2a;
+        pchMessageStartNew[1] = 0x5d;
+        pchMessageStartNew[2] = 0x2c;
+        pchMessageStartNew[3] = 0x1a;
+
         nDefaultPort = 18765;
         nPruneAfterHeight = 1000;
         /*
@@ -621,6 +631,7 @@ public:
         std::cout << "\n";
         return;*/
         genesis = CreateGenesisBlock(1543578342, 453532, 0x1e0ffff0, 4, 5000 * COIN);
+        consensus.hashGenesisBlock = genesis.GetHash();
         assert(consensus.hashGenesisBlock == uint256S("0x000006da310a93a3feaa9c5d0dce878e31644c616d4e7d8a17db5d848757b79a"));
 		assert(genesis.hashMerkleRoot == uint256S("0xf0cc5f92b11a6655a4939fc239e8bf960cd0453b87b5a0820ab36904279341a5"));
 
@@ -907,8 +918,17 @@ public:
         pchMessageStart[1] = 0xc1;
         pchMessageStart[2] = 0xb7;
         pchMessageStart[3] = 0xdc;
+
+        //New message start after hf
+        pchMessageStartNew[0] = 0x2c;
+        pchMessageStartNew[1] = 0x5a;
+        pchMessageStartNew[2] = 0x2d;
+        pchMessageStartNew[3] = 0x1a;
+
         nDefaultPort = 19899;
         nPruneAfterHeight = 1000;
+
+        consensus.nMagicChangeHeight = 2;
 
         genesis = CreateGenesisBlock(1588377010, 1, 0x207fffff, 3, 50 * COIN);
 

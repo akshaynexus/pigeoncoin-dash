@@ -179,6 +179,7 @@ struct Params {
     FounderPayment nFounderPayment;
     int64_t nPowTargetTimespanShort;
     int masternodeCollateral,nAfterExploitHeight;
+    int nMagicChangeHeight;
     //We need to return the correct values after we adjust the dificulty retarget
     int64_t DifficultyAdjustmentIntervalAtHeight(unsigned nHeight) const { 
         if(nHeight <= nPowDifficultyRetargetHeight) {
