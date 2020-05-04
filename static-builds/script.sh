@@ -27,7 +27,7 @@ apt install -y curl g++-aarch64-linux-gnu g++-7-aarch64-linux-gnu gcc-7-aarch64-
 cd ~/
 
 # Removes any existing builds and starts clean WARNING
-rm -rf ~/pigeoncoin-dash ~/sign ~/release
+rm -rf ~/sign ~/release
 
 git clone https://github.com/akshaynexus/pigeoncoin-dash
 cd ~/pigeoncoin-dash
@@ -84,112 +84,112 @@ make clean
 export PATH=$PATH_orig
 
 
-echo @@@
-echo @@@"Building linux 32 binaries"
-echo @@@
+# echo @@@
+# echo @@@"Building linux 32 binaries"
+# echo @@@
 
-cd ~/
-mkdir -p ~/wrapped/extra_includes/i686-pc-linux-gnu
-ln -s /usr/include/x86_64-linux-gnu/asm ~/wrapped/extra_includes/i686-pc-linux-gnu/asm
+# cd ~/
+# mkdir -p ~/wrapped/extra_includes/i686-pc-linux-gnu
+# ln -s /usr/include/x86_64-linux-gnu/asm ~/wrapped/extra_includes/i686-pc-linux-gnu/asm
 
-for prog in gcc g++; do
-rm -f ~/wrapped/${prog}
-cat << EOF > ~/wrapped/${prog}
-#!/usr/bin/env bash
-REAL="`which -a ${prog} | grep -v $PWD/wrapped/${prog} | head -1`"
-for var in "\$@"
-do
-  if [ "\$var" = "-m32" ]; then
-    export C_INCLUDE_PATH="$PWD/wrapped/extra_includes/i686-pc-linux-gnu"
-    export CPLUS_INCLUDE_PATH="$PWD/wrapped/extra_includes/i686-pc-linux-gnu"
-    break
-  fi
-done
-\$REAL \$@
-EOF
-chmod +x ~/wrapped/${prog}
-done
+# for prog in gcc g++; do
+# rm -f ~/wrapped/${prog}
+# cat << EOF > ~/wrapped/${prog}
+# #!/usr/bin/env bash
+# REAL="`which -a ${prog} | grep -v $PWD/wrapped/${prog} | head -1`"
+# for var in "\$@"
+# do
+#   if [ "\$var" = "-m32" ]; then
+#     export C_INCLUDE_PATH="$PWD/wrapped/extra_includes/i686-pc-linux-gnu"
+#     export CPLUS_INCLUDE_PATH="$PWD/wrapped/extra_includes/i686-pc-linux-gnu"
+#     break
+#   fi
+# done
+# \$REAL \$@
+# EOF
+# chmod +x ~/wrapped/${prog}
+# done
 
-export PATH=$PWD/wrapped:$PATH
-export HOST_ID_SALT="$PWD/wrapped/extra_includes/i386-linux-gnu"
-cd ~/pigeoncoin-dash/depends
-make HOST=i686-pc-linux-gnu $MAKEOPTS
-unset HOST_ID_SALT
-cd ~/pigeoncoin-dash
-export PATH=$PWD/depends/i686-pc-linux-gnu/native/bin:$PATH
-./autogen.sh
-CONFIG_SITE=$PWD/depends/i686-pc-linux-gnu/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-glibc-back-compat --enable-reduce-exports --disable-bench --disable-gui-tests CFLAGS="-O2 -g" CXXFLAGS="-O2 -g" LDFLAGS="-static-libstdc++"
-make $MAKEOPTS 
-make -C src check-security
-make -C src check-symbols 
-mkdir -p ~/linux32
-make install DESTDIR=~/linux32/$DISTNAME
-cd ~/linux32
-find . -name "lib*.la" -delete
-find . -name "lib*.a" -delete
-rm -rf $DISTNAME/lib/pkgconfig
-find ${DISTNAME}/bin -type f -executable -exec ../pigeoncoin-dash/contrib/devtools/split-debug.sh {} {} {}.dbg \;
-find ${DISTNAME}/lib -type f -exec ../pigeoncoin-dash/contrib/devtools/split-debug.sh {} {} {}.dbg \;
-find $DISTNAME/ -not -name "*.dbg" | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ~/release/$DISTNAME-i686-pc-linux-gnu.tar.gz
-cd ~/pigeoncoin-dash
-rm -rf ~/linux32
-rm -rf ~/wrapped
-make clean
-export PATH=$PATH_orig
-
-
-echo @@@
-echo @@@ "Building linux ARM binaries"
-echo @@@
-
-cd ~/pigeoncoin-dash/depends
-make HOST=arm-linux-gnueabihf $MAKEOPTS
-cd ~/pigeoncoin-dash
-export PATH=$PWD/depends/arm-linux-gnueabihf/native/bin:$PATH
-./autogen.sh
-CONFIG_SITE=$PWD/depends/arm-linux-gnueabihf/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-glibc-back-compat --enable-reduce-exports --disable-bench --disable-gui-tests CFLAGS="-O2 -g" CXXFLAGS="-O2 -g" LDFLAGS="-static-libstdc++"
-make $MAKEOPTS 
-make -C src check-security
-mkdir -p ~/linuxARM
-make install DESTDIR=~/linuxARM/$DISTNAME
-cd ~/linuxARM
-find . -name "lib*.la" -delete
-find . -name "lib*.a" -delete
-rm -rf $DISTNAME/lib/pkgconfig
-find ${DISTNAME}/bin -type f -executable -exec ../pigeoncoin-dash/contrib/devtools/split-debug.sh {} {} {}.dbg \;
-find ${DISTNAME}/lib -type f -exec ../pigeoncoin-dash/contrib/devtools/split-debug.sh {} {} {}.dbg \;
-find $DISTNAME/ -not -name "*.dbg" | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ~/release/$DISTNAME-arm-linux-gnueabihf.tar.gz
-cd ~/pigeoncoin-dash
-rm -rf ~/linuxARM
-make clean
-export PATH=$PATH_orig
+# export PATH=$PWD/wrapped:$PATH
+# export HOST_ID_SALT="$PWD/wrapped/extra_includes/i386-linux-gnu"
+# cd ~/pigeoncoin-dash/depends
+# make HOST=i686-pc-linux-gnu $MAKEOPTS
+# unset HOST_ID_SALT
+# cd ~/pigeoncoin-dash
+# export PATH=$PWD/depends/i686-pc-linux-gnu/native/bin:$PATH
+# ./autogen.sh
+# CONFIG_SITE=$PWD/depends/i686-pc-linux-gnu/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-glibc-back-compat --enable-reduce-exports --disable-bench --disable-gui-tests CFLAGS="-O2 -g" CXXFLAGS="-O2 -g" LDFLAGS="-static-libstdc++"
+# make $MAKEOPTS 
+# make -C src check-security
+# make -C src check-symbols 
+# mkdir -p ~/linux32
+# make install DESTDIR=~/linux32/$DISTNAME
+# cd ~/linux32
+# find . -name "lib*.la" -delete
+# find . -name "lib*.a" -delete
+# rm -rf $DISTNAME/lib/pkgconfig
+# find ${DISTNAME}/bin -type f -executable -exec ../pigeoncoin-dash/contrib/devtools/split-debug.sh {} {} {}.dbg \;
+# find ${DISTNAME}/lib -type f -exec ../pigeoncoin-dash/contrib/devtools/split-debug.sh {} {} {}.dbg \;
+# find $DISTNAME/ -not -name "*.dbg" | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ~/release/$DISTNAME-i686-pc-linux-gnu.tar.gz
+# cd ~/pigeoncoin-dash
+# rm -rf ~/linux32
+# rm -rf ~/wrapped
+# make clean
+# export PATH=$PATH_orig
 
 
-echo @@@
-echo @@@ "Building linux aarch64 binaries"
-echo @@@
+# echo @@@
+# echo @@@ "Building linux ARM binaries"
+# echo @@@
 
-cd ~/pigeoncoin-dash/depends
-make HOST=aarch64-linux-gnu $MAKEOPTS
-cd ~/pigeoncoin-dash
-export PATH=$PWD/depends/aarch64-linux-gnu/native/bin:$PATH
-./autogen.sh
-CONFIG_SITE=$PWD/depends/aarch64-linux-gnu/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-glibc-back-compat --enable-reduce-exports --disable-bench --disable-gui-tests CFLAGS="-O2 -g" CXXFLAGS="-O2 -g" LDFLAGS="-static-libstdc++"
-make $MAKEOPTS 
-make -C src check-security
-mkdir -p ~/linuxaarch64
-make install DESTDIR=~/linuxaarch64/$DISTNAME
-cd ~/linuxaarch64
-find . -name "lib*.la" -delete
-find . -name "lib*.a" -delete
-rm -rf $DISTNAME/lib/pkgconfig
-find ${DISTNAME}/bin -type f -executable -exec ../pigeoncoin-dash/contrib/devtools/split-debug.sh {} {} {}.dbg \;
-find ${DISTNAME}/lib -type f -exec ../pigeoncoin-dash/contrib/devtools/split-debug.sh {} {} {}.dbg \;
-find $DISTNAME/ -not -name "*.dbg" | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ~/release/$DISTNAME-aarch64-linux-gnu.tar.gz
-cd ~/pigeoncoin-dash
-rm -rf ~/linuxaarch64
-make clean
-export PATH=$PATH_orig
+# cd ~/pigeoncoin-dash/depends
+# make HOST=arm-linux-gnueabihf $MAKEOPTS
+# cd ~/pigeoncoin-dash
+# export PATH=$PWD/depends/arm-linux-gnueabihf/native/bin:$PATH
+# ./autogen.sh
+# CONFIG_SITE=$PWD/depends/arm-linux-gnueabihf/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-glibc-back-compat --enable-reduce-exports --disable-bench --disable-gui-tests CFLAGS="-O2 -g" CXXFLAGS="-O2 -g" LDFLAGS="-static-libstdc++"
+# make $MAKEOPTS 
+# make -C src check-security
+# mkdir -p ~/linuxARM
+# make install DESTDIR=~/linuxARM/$DISTNAME
+# cd ~/linuxARM
+# find . -name "lib*.la" -delete
+# find . -name "lib*.a" -delete
+# rm -rf $DISTNAME/lib/pkgconfig
+# find ${DISTNAME}/bin -type f -executable -exec ../pigeoncoin-dash/contrib/devtools/split-debug.sh {} {} {}.dbg \;
+# find ${DISTNAME}/lib -type f -exec ../pigeoncoin-dash/contrib/devtools/split-debug.sh {} {} {}.dbg \;
+# find $DISTNAME/ -not -name "*.dbg" | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ~/release/$DISTNAME-arm-linux-gnueabihf.tar.gz
+# cd ~/pigeoncoin-dash
+# rm -rf ~/linuxARM
+# make clean
+# export PATH=$PATH_orig
+
+
+# echo @@@
+# echo @@@ "Building linux aarch64 binaries"
+# echo @@@
+
+# cd ~/pigeoncoin-dash/depends
+# make HOST=aarch64-linux-gnu $MAKEOPTS
+# cd ~/pigeoncoin-dash
+# export PATH=$PWD/depends/aarch64-linux-gnu/native/bin:$PATH
+# ./autogen.sh
+# CONFIG_SITE=$PWD/depends/aarch64-linux-gnu/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-glibc-back-compat --enable-reduce-exports --disable-bench --disable-gui-tests CFLAGS="-O2 -g" CXXFLAGS="-O2 -g" LDFLAGS="-static-libstdc++"
+# make $MAKEOPTS 
+# make -C src check-security
+# mkdir -p ~/linuxaarch64
+# make install DESTDIR=~/linuxaarch64/$DISTNAME
+# cd ~/linuxaarch64
+# find . -name "lib*.la" -delete
+# find . -name "lib*.a" -delete
+# rm -rf $DISTNAME/lib/pkgconfig
+# find ${DISTNAME}/bin -type f -executable -exec ../pigeoncoin-dash/contrib/devtools/split-debug.sh {} {} {}.dbg \;
+# find ${DISTNAME}/lib -type f -exec ../pigeoncoin-dash/contrib/devtools/split-debug.sh {} {} {}.dbg \;
+# find $DISTNAME/ -not -name "*.dbg" | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ~/release/$DISTNAME-aarch64-linux-gnu.tar.gz
+# cd ~/pigeoncoin-dash
+# rm -rf ~/linuxaarch64
+# make clean
+# export PATH=$PATH_orig
 
 
 echo @@@
