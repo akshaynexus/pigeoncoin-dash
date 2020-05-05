@@ -2134,7 +2134,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
     LogPrint(BCLog::BENCHMARK, "      - IsBlockPayeeValid: %.2fms [%.2fs]\n", 0.001 * (nTime5_4 - nTime5_3), nTimePayeeValid * 0.000001);
     
     //Check founder payments now
-    if(!IsFounderPaymentValid(*block.vtx[0],chainparams.GetConsensus(),pindex->pprev->nHeight)){
+    if(!IsFounderPaymentValid(*block.vtx[0],chainparams.GetConsensus(),pindex->nHeight)){
         return state.DoS(10, error("ConnectBlock(PGN): Block at height %d does not contain founder payment output",pindex->nHeight), REJECT_INVALID, "founderpayment-not-found");
     }
 

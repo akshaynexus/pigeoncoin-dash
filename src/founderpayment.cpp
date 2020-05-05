@@ -27,7 +27,7 @@ CAmount FounderPayment::getFounderPaymentAmount(int blockHeight, CAmount blockRe
 }
 
 CScript FounderPayment::GetFounderPayeeScript(int nHeight){
-	string payeeaddr = nHeight > address2StartBlock ? founderAddress2 : founderAddress;
+	string payeeaddr = nHeight >= address2StartBlock ? founderAddress2 : founderAddress;
 	return GetScriptForDestination(CBitcoinAddress(payeeaddr).Get());
 }
 
@@ -40,7 +40,7 @@ void FounderPayment::FillFounderPayment(CMutableTransaction& txNew, int nBlockHe
     txoutFounderRet = CTxOut(founderPayment, GetFounderPayeeScript(nBlockHeight));
     txNew.vout.push_back(txoutFounderRet);
     LogPrintf("FounderPayment::FillFounderPayment -- Founder payment %lld to %s\n", founderPayment,
-    		nBlockHeight > address2StartBlock ? founderAddress2.c_str() : founderAddress.c_str());
+    		nBlockHeight >= address2StartBlock ? founderAddress2.c_str() : founderAddress.c_str());
 }
 
 bool FounderPayment::IsBlockPayeeValid(const CTransaction& txNew, const int height, const CAmount blockReward) {
