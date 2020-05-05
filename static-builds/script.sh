@@ -3,6 +3,7 @@
 DISTNAME=pigeoncoin-0.17.1
 MAKEOPTS="-j32"
 BRANCH=master
+export SKIP_AUTO_DEPS=true
 clear
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run with sudo"
@@ -23,15 +24,17 @@ echo @@@
 echo @@@"Installing Dependecies"
 echo @@@
 
-apt install -y curl g++-aarch64-linux-gnu g++-7-aarch64-linux-gnu gcc-7-aarch64-linux-gnu binutils-aarch64-linux-gnu g++-arm-linux-gnueabihf g++-7-arm-linux-gnueabihf gcc-7-arm-linux-gnueabihf binutils-arm-linux-gnueabihf g++-7-multilib gcc-7-multilib binutils-gold git pkg-config autoconf libtool automake bsdmainutils ca-certificates python g++ mingw-w64 g++-mingw-w64 nsis zip rename librsvg2-bin libtiff-tools cmake imagemagick libcap-dev libz-dev libbz2-dev python-dev python-setuptools fonts-tuffy
+apt install -y curl gcc-mingw-w64-i686 gcc-mingw-w64-base  imagemagick librsvg2-bin g++-mingw-w64-x86-64 nsis bc  binutils-arm-linux-gnueabihf g++-7-multilib gcc-7-multilib binutils-gold git pkg-config autoconf libtool automake bsdmainutils ca-certificates python g++ mingw-w64 g++-mingw-w64 nsis zip rename librsvg2-bin libtiff-tools cmake imagemagick libcap-dev libz-dev libbz2-dev python-dev python-setuptools fonts-tuffy
+sudo apt-get install g++-mingw-w64-i686
 cd ~/
 
 # Removes any existing builds and starts clean WARNING
-rm -rf ~/sign ~/release
+# rm -rf ~/sign ~/release
 
 git clone https://github.com/akshaynexus/pigeoncoin-dash
 cd ~/pigeoncoin-dash
 git checkout $BRANCH
+git pull
 
 
 echo @@@
@@ -76,7 +79,7 @@ SOURCEDIST=`echo pigeoncoin-*.tar.gz`
 mkdir -p ~/pigeoncoin-dash/temp
 cd ~/pigeoncoin-dash/temp
 tar xf ../$SOURCEDIST
-find pigeon-* | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ../$SOURCEDIST
+find pigeoncoin-* | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ../$SOURCEDIST
 cd ~/pigeoncoin-dash
 mv $SOURCEDIST ~/release
 rm -rf temp
@@ -210,7 +213,7 @@ make $MAKEOPTS
 make -C src check-security
 make deploy
 rename 's/-setup\.exe$/-setup-unsigned.exe/' *-setup.exe
-cp -f pigeon-*setup*.exe ~/release/unsigned/
+cp -f pigeoncoin-*setup*.exe ~/release/unsigned/
 mkdir -p ~/win64
 make install DESTDIR=~/win64/$DISTNAME
 cd ~/win64
@@ -226,7 +229,7 @@ rm -rf win64
 cp -rf pigeoncoin-dash/contrib/windeploy ~/sign/win64
 cd ~/sign/win64/windeploy
 mkdir -p unsigned
-mv ~/pigeoncoin-dash/pigeon-*setup-unsigned.exe unsigned/
+mv ~/pigeoncoin-dash/pigeoncoin-*setup-unsigned.exe unsigned/
 find . | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ~/sign/$DISTNAME-win64-unsigned.tar.gz
 cd ~/sign
 rm -rf win64
@@ -236,47 +239,47 @@ make clean
 export PATH=$PATH_orig
 
 
-echo @@@
-echo @@@ "Building windows 32 binaries"
-echo @@@
+# echo @@@
+# echo @@@ "Building windows 32 binaries"
+# echo @@@
 
-update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix 
-mkdir -p ~/sign/win32
-PATH=$(echo "$PATH" | sed -e 's/:\/mnt.*//g') 
-cd ~/pigeoncoin-dash/depends
-make HOST=i686-w64-mingw32 $MAKEOPTS
-cd ~/pigeoncoin-dash
-export PATH=$PWD/depends/i686-w64-mingw32/native/bin:$PATH
-./autogen.sh
-CONFIG_SITE=$PWD/depends/i686-w64-mingw32/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --disable-gui-tests CFLAGS="-O2 -g" CXXFLAGS="-O2 -g"
-make $MAKEOPTS 
-make -C src check-security
-make deploy
-rename 's/-setup\.exe$/-setup-unsigned.exe/' *-setup.exe
-cp -f pigeon-*setup*.exe ~/release/unsigned/
-mkdir -p ~/win32
-make install DESTDIR=~/win32/$DISTNAME
-cd ~/win32
-mv ~/win32/$DISTNAME/bin/*.dll ~/win32/$DISTNAME/lib/
-find . -name "lib*.la" -delete
-find . -name "lib*.a" -delete
-rm -rf $DISTNAME/lib/pkgconfig
-find $DISTNAME/bin -type f -executable -exec i686-w64-mingw32-objcopy --only-keep-debug {} {}.dbg \; -exec i686-w64-mingw32-strip -s {} \; -exec i686-w64-mingw32-objcopy --add-gnu-debuglink={}.dbg {} \;
-find ./$DISTNAME -not -name "*.dbg"  -type f | sort | zip -X@ ./$DISTNAME-i686-w64-mingw32.zip
-mv ./$DISTNAME-i686-w64-*.zip ~/release/$DISTNAME-win32.zip
-cd ~/
-rm -rf win32
-cp -rf pigeoncoin-dash/contrib/windeploy ~/sign/win32
-cd ~/sign/win32/windeploy
-mkdir -p unsigned
-mv ~/pigeoncoin-dash/pigeon-*setup-unsigned.exe unsigned/
-find . | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ~/sign/$DISTNAME-win32-unsigned.tar.gz
-cd ~/sign
-rm -rf win32
-cd ~/pigeoncoin-dash
-rm -rf release
-make clean
-export PATH=$PATH_orig
+# update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix 
+# mkdir -p ~/sign/win32
+# PATH=$(echo "$PATH" | sed -e 's/:\/mnt.*//g') 
+# cd ~/pigeoncoin-dash/depends
+# make HOST=i686-w64-mingw32 $MAKEOPTS
+# cd ~/pigeoncoin-dash
+# export PATH=$PWD/depends/i686-w64-mingw32/native/bin:$PATH
+# ./autogen.sh
+# CONFIG_SITE=$PWD/depends/i686-w64-mingw32/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-reduce-exports --disable-bench --disable-gui-tests CFLAGS="-O2 -g" CXXFLAGS="-O2 -g"
+# make $MAKEOPTS 
+# make -C src check-security
+# make deploy
+# rename 's/-setup\.exe$/-setup-unsigned.exe/' *-setup.exe
+# cp -f pigeoncoin-*setup*.exe ~/release/unsigned/
+# mkdir -p ~/win32
+# make install DESTDIR=~/win32/$DISTNAME
+# cd ~/win32
+# mv ~/win32/$DISTNAME/bin/*.dll ~/win32/$DISTNAME/lib/
+# find . -name "lib*.la" -delete
+# find . -name "lib*.a" -delete
+# rm -rf $DISTNAME/lib/pkgconfig
+# find $DISTNAME/bin -type f -executable -exec i686-w64-mingw32-objcopy --only-keep-debug {} {}.dbg \; -exec i686-w64-mingw32-strip -s {} \; -exec i686-w64-mingw32-objcopy --add-gnu-debuglink={}.dbg {} \;
+# find ./$DISTNAME -not -name "*.dbg"  -type f | sort | zip -X@ ./$DISTNAME-i686-w64-mingw32.zip
+# mv ./$DISTNAME-i686-w64-*.zip ~/release/$DISTNAME-win32.zip
+# cd ~/
+# rm -rf win32
+# cp -rf pigeoncoin-dash/contrib/windeploy ~/sign/win32
+# cd ~/sign/win32/windeploy
+# mkdir -p unsigned
+# mv ~/pigeoncoin-dash/pigeoncoin-*setup-unsigned.exe unsigned/
+# find . | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ~/sign/$DISTNAME-win32-unsigned.tar.gz
+# cd ~/sign
+# rm -rf win32
+# cd ~/pigeoncoin-dash
+# rm -rf release
+# make clean
+# export PATH=$PATH_orig
 
 
 echo @@@
@@ -309,8 +312,8 @@ mv dist unsigned-app-$DISTNAME
 cd unsigned-app-$DISTNAME
 find . | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ~/sign/$DISTNAME-osx-unsigned.tar.gz
 cd ~/pigeoncoin-dash
-make deploy
-$PWD/depends/x86_64-apple-darwin14/native/bin/dmg dmg "Raven-Core.dmg" ~/release/unsigned/$DISTNAME-osx-unsigned.dmg
+make deploy -j32
+$PWD/depends/x86_64-apple-darwin14/native/bin/dmg dmg "Pigeon-Core.dmg" ~/release/unsigned/$DISTNAME-osx-unsigned.dmg
 rm -rf unsigned-app-$DISTNAME dist osx_volname dpi36.background.tiff dpi72.background.tiff
 cd ~/OSX
 find . -name "lib*.la" -delete
