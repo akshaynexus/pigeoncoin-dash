@@ -258,12 +258,12 @@
 <context>
     <name>BitcoinGUI</name>
     <message>
-        <source>A fatal error occurred. Dash Core can no longer continue safely and will quit.</source>
-        <translation>Có lỗi nghiêm trọng xảy ra. Dash Core không thể tiếp tục một cách an toàn được nên phải thoát ra.</translation>
+        <source>A fatal error occurred. Pigeon Core can no longer continue safely and will quit.</source>
+        <translation>Có lỗi nghiêm trọng xảy ra. Pigeon Core không thể tiếp tục một cách an toàn được nên phải thoát ra.</translation>
     </message>
     <message>
-        <source>Dash Core</source>
-        <translation>Dash Core</translation>
+        <source>Pigeon Core</source>
+        <translation>Pigeon Core</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -322,8 +322,8 @@
         <translation>Thoát ứng dụng</translation>
     </message>
     <message>
-        <source>Show information about Dash Core</source>
-        <translation>Hiển thị thông tin về Dash Core</translation>
+        <source>Show information about Pigeon Core</source>
+        <translation>Hiển thị thông tin về Pigeon Core</translation>
     </message>
     <message>
         <source>About &amp;Qt</source>
@@ -1331,8 +1331,8 @@
         <translation>Số dư đích cho PrivateSend</translation>
     </message>
     <message>
-        <source>Automatically open the Dash Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Tự động mở cổng cho phần mềm Dash Core trên rounter. Điều này chỉ hoạt động được khi rounter của bạn hỗ trợ UpnP và tính năng đó được bật lên.</translation>
+        <source>Automatically open the Pigeon Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Tự động mở cổng cho phần mềm Pigeon Core trên rounter. Điều này chỉ hoạt động được khi rounter của bạn hỗ trợ UpnP và tính năng đó được bật lên.</translation>
     </message>
     <message>
         <source>Connect to the Dash network through a SOCKS5 proxy.</source>
@@ -4839,8 +4839,8 @@ https://www.transifex.com/projects/p/pigeon/</translation>
         <translation>Tuỳ chọn cho RPC server</translation>
     </message>
     <message>
-        <source>Dash Core</source>
-        <translation>Dash Core</translation>
+        <source>Pigeon Core</source>
+        <translation>Pigeon Core</translation>
     </message>
     <message>
         <source>The %s developers</source>

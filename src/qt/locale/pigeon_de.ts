@@ -258,12 +258,12 @@
 <context>
     <name>BitcoinGUI</name>
     <message>
-        <source>A fatal error occurred. Dash Core can no longer continue safely and will quit.</source>
-        <translation>Ein kritischer Fehler ist aufgetreten. Dash Core kann nicht mehr ausgeführt werden und wird nun beendet.</translation>
+        <source>A fatal error occurred. Pigeon Core can no longer continue safely and will quit.</source>
+        <translation>Ein kritischer Fehler ist aufgetreten. Pigeon Core kann nicht mehr ausgeführt werden und wird nun beendet.</translation>
     </message>
     <message>
-        <source>Dash Core</source>
-        <translation>Dash Core</translation>
+        <source>Pigeon Core</source>
+        <translation>Pigeon Core</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -322,8 +322,8 @@
         <translation>Anwendung beenden</translation>
     </message>
     <message>
-        <source>Show information about Dash Core</source>
-        <translation>Informationen über Dash Core anzeigen</translation>
+        <source>Show information about Pigeon Core</source>
+        <translation>Informationen über Pigeon Core anzeigen</translation>
     </message>
     <message>
         <source>About &amp;Qt</source>
@@ -1332,8 +1332,8 @@ Der Mixing-Prozeß läuft nach dem Start vollständig im Hintergrund, d.h. es is
         <translation>PrivateSend-Guthaben auswählen</translation>
     </message>
     <message>
-        <source>Automatically open the Dash Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Automatisch den Dash Core Clientport auf dem Router öffnen. Dies funktioniert nur, wenn Ihr Router UPnP unterstützt und dies aktiviert ist.</translation>
+        <source>Automatically open the Pigeon Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Automatisch den Pigeon Core Clientport auf dem Router öffnen. Dies funktioniert nur, wenn Ihr Router UPnP unterstützt und dies aktiviert ist.</translation>
     </message>
     <message>
         <source>Connect to the Dash network through a SOCKS5 proxy.</source>
@@ -4837,8 +4837,8 @@ https://www.transifex.com/projects/p/pigeon/</translation>
         <translation>RPC-Serveroptionen:</translation>
     </message>
     <message>
-        <source>Dash Core</source>
-        <translation>Dash Core</translation>
+        <source>Pigeon Core</source>
+        <translation>Pigeon Core</translation>
     </message>
     <message>
         <source>The %s developers</source>

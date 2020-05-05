@@ -258,12 +258,12 @@
 <context>
     <name>BitcoinGUI</name>
     <message>
-        <source>A fatal error occurred. Dash Core can no longer continue safely and will quit.</source>
-        <translation>Došlo k závažnej chybe. Dash Core už nemôže bezpečne pokračovať a bude ukončený.</translation>
+        <source>A fatal error occurred. Pigeon Core can no longer continue safely and will quit.</source>
+        <translation>Došlo k závažnej chybe. Pigeon Core už nemôže bezpečne pokračovať a bude ukončený.</translation>
     </message>
     <message>
-        <source>Dash Core</source>
-        <translation>Dash Core</translation>
+        <source>Pigeon Core</source>
+        <translation>Pigeon Core</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -322,8 +322,8 @@
         <translation>Ukončiť program</translation>
     </message>
     <message>
-        <source>Show information about Dash Core</source>
-        <translation>Zobraziť informácie o Dash Core</translation>
+        <source>Show information about Pigeon Core</source>
+        <translation>Zobraziť informácie o Pigeon Core</translation>
     </message>
     <message>
         <source>About &amp;Qt</source>
@@ -1331,8 +1331,8 @@
         <translation>Cieľový PrivateSend zostatok</translation>
     </message>
     <message>
-        <source>Automatically open the Dash Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Automaticky otvoriť na smerovači port pre Dash Core klient. Toto funguje iba ak váš smerovač  podporuje UPnP a je povolené</translation>
+        <source>Automatically open the Pigeon Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Automaticky otvoriť na smerovači port pre Pigeon Core klient. Toto funguje iba ak váš smerovač  podporuje UPnP a je povolené</translation>
     </message>
     <message>
         <source>Connect to the Dash network through a SOCKS5 proxy.</source>
@@ -4840,8 +4840,8 @@ https://www.transifex.com/projects/p/pigeon/</translation>
         <translation>Možnosti servra RPC:</translation>
     </message>
     <message>
-        <source>Dash Core</source>
-        <translation>Dash Core</translation>
+        <source>Pigeon Core</source>
+        <translation>Pigeon Core</translation>
     </message>
     <message>
         <source>The %s developers</source>
