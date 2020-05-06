@@ -333,13 +333,13 @@
     <name>BitcoinGUI</name>
     <message>
         <location filename="../pigeon.cpp" line="+567"/>
-        <source>A fatal error occurred. Dash Core can no longer continue safely and will quit.</source>
-        <translation>A fatal error occurred. Dash Core can no longer continue safely and will quit.</translation>
+        <source>A fatal error occurred. Pigeon Core can no longer continue safely and will quit.</source>
+        <translation>A fatal error occurred. Pigeon Core can no longer continue safely and will quit.</translation>
     </message>
     <message>
         <location filename="../bitcoingui.cpp" line="+1164"/>
-        <source>Dash Core</source>
-        <translation>Dash Core</translation>
+        <source>Pigeon Core</source>
+        <translation>Pigeon Core</translation>
     </message>
     <message>
         <location line="-1016"/>
@@ -413,8 +413,8 @@
     </message>
     <message>
         <location line="+4"/>
-        <source>Show information about Dash Core</source>
-        <translation>Show information about Dash Core</translation>
+        <source>Show information about Pigeon Core</source>
+        <translation>Show information about Pigeon Core</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -1679,8 +1679,8 @@
     </message>
     <message>
         <location line="+45"/>
-        <source>Automatically open the Dash Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Automatically open the Dash Core client port on the router. This only works when your router supports UPnP and it is enabled.</translation>
+        <source>Automatically open the Pigeon Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Automatically open the Pigeon Core client port on the router. This only works when your router supports UPnP and it is enabled.</translation>
     </message>
     <message>
         <location line="+20"/>
@@ -6209,8 +6209,8 @@ https://www.transifex.com/projects/p/pigeon/</translation>
     </message>
     <message>
         <location line="-497"/>
-        <source>Dash Core</source>
-        <translation>Dash Core</translation>
+        <source>Pigeon Core</source>
+        <translation>Pigeon Core</translation>
     </message>
     <message>
         <location line="+1"/>
