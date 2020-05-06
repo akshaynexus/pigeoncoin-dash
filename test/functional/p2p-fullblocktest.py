@@ -11,17 +11,8 @@ We use the testing framework in which we expect a particular answer from
 each test.
 """
 
-from test_framework.test_framework import ComparisonTestFramework
-from test_framework.util import *
-from test_framework.comptool import TestManager, TestInstance, RejectResult
-from test_framework.blocktools import *
-from test_framework.key import CECKey
-from test_framework.script import *
-from test_framework.mininode import network_thread_start
-import struct
-
-class PreviousSpendableOutput(object):
-    def __init__(self, tx = CTransaction(), n = -1):
+class PreviousSpendableOutput():
+    def __init__(self, tx=CTransaction(), n=-1):
         self.tx = tx
         self.n = n  # the output we're spending
 
