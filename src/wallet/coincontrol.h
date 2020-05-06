@@ -16,7 +16,7 @@ enum class CoinType
     ALL_COINS,
     ONLY_DENOMINATED,
     ONLY_NONDENOMINATED,
-    ONLY_1000, // find masternode outputs including locked ones (use with caution)
+    ONLY_MN_COLLATERAL,// find masternode outputs including locked ones (use with caution)
     ONLY_PRIVATESEND_COLLATERAL,
 };
 
