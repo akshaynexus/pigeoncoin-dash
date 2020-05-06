@@ -311,7 +311,7 @@ public:
     CMainParams() {
         strNetworkID = "main";
         consensus.nSubsidyHalvingInterval = 2100000; //~ 4 yrs at 1 min block time
-        consensus.nMasternodePaymentsStartBlock = 941801;
+        consensus.nMasternodePaymentsStartBlock = 999999999;//TODO akshaynexus decide this when we fork on mainnet
         consensus.nMasternodePaymentsIncreaseBlock = 158000; // actual historical value
         consensus.nMasternodePaymentsIncreasePeriod = 576*30; // 17280 - actual historical value
         consensus.nInstantSendConfirmationsRequired = 6;
@@ -330,7 +330,7 @@ public:
         consensus.BIP65Height = 1;
         consensus.BIP66Height = 1; 
         consensus.DIP0001Height = 999999999;//TODO akshaynexus decide this when we fork on mainnet
-        consensus.DIP0003Height = 1028160;
+        consensus.DIP0003Height = 999999999;//TODO akshaynexus decide this when we fork on mainnet
         consensus.DIP0003EnforcementHeight = 999999999;//TODO akshaynexus decide this when we fork on mainnet
         consensus.DIP0003EnforcementHash = uint256();//TODO akshaynexus  Put dip3 hash of blockheight when we fork and we do a update afterwards
         consensus.nAfterExploitHeight = 186803; 
