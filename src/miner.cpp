@@ -226,7 +226,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
         FillBlockPayments(coinbaseTx, nHeight, blockReward, pblocktemplate->voutMasternodePayments, pblocktemplate->voutSuperblockPayments);
     //Fill founder payment
     FounderPayment founderPayment = Params().GetConsensus().nFounderPayment;
-    founderPayment.FillFounderPayment(coinbaseTx, nHeight - 1, blockReward, pblock->txoutFounder);
+    founderPayment.FillFounderPayment(coinbaseTx, nHeight, blockReward, pblock->txoutFounder);
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
     pblocktemplate->vTxFees[0] = -nFees;
 

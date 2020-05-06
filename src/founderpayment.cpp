@@ -6,13 +6,17 @@
  * founderpayment.cpp
  *
  *  Created on: Jun 24, 2018
+ *  Modified on: March 6, 2020
  *      Author: Tri Nguyen
+ *      Modifed by: Akshay CM
  */
 
 #include "founderpayment.h"
 #include "util.h"
 #include "chainparams.h"
 #include "base58.h"
+#include "validation.h"
+
 CAmount FounderPayment::getFounderPaymentAmount(int blockHeight, CAmount blockReward) {
 	 if (blockHeight <= startBlock){
 		 return 0;
@@ -30,6 +34,32 @@ CScript FounderPayment::GetFounderPayeeScript(int nHeight){
 	string payeeaddr = nHeight >= address2StartBlock ? founderAddress2 : founderAddress;
 	return GetScriptForDestination(CBitcoinAddress(payeeaddr).Get());
 }
+//Start Extra helper functions
+
+std::string FounderPayment::GetFounderPayeeAddr(int nHeight){
+	return nHeight >= address2StartBlock ? founderAddress2 : founderAddress;
+}
+
+bool FounderPayment::isPossibleFounderReward(CAmount nValPaid,CAmount nFounderRequiredAmount,int nHeight,int blockReward){
+	return nValPaid >= nFounderRequiredAmount && nValPaid < GetMasternodePayment(nHeight,blockReward);
+}
+
+void FounderPayment::LogFounderDebug(const CTxOut& out,int height,CAmount founderReward,CAmount blockReward){
+	CTxDestination addressCurr;
+	std::string addrCurr,addrExpected;
+	addrExpected = GetFounderPayeeAddr(height);
+	if(isPossibleFounderReward(out.nValue,founderReward,height,blockReward)){
+		//Check if the address is convertable to a addr
+		if (ExtractDestination(out.scriptPubKey, addressCurr)){
+			addrCurr = CBitcoinAddress(addressCurr).ToString();
+			//Log this only if addrs doesnt match for founder payment
+			if(addrCurr != addrExpected)
+				LogPrintf("Amount paid %d,Current Addr %s,Expected Addr %s\n",out.nValue / COIN,addrCurr,addrExpected);
+		}
+	}
+}
+
+//End Extra helper functions
 
 void FounderPayment::FillFounderPayment(CMutableTransaction& txNew, int nBlockHeight, CAmount blockReward, CTxOut& txoutFounderRet) {
     // GET FOUNDER PAYMENT VARIABLES SETUP
@@ -40,21 +70,19 @@ void FounderPayment::FillFounderPayment(CMutableTransaction& txNew, int nBlockHe
     txoutFounderRet = CTxOut(founderPayment, GetFounderPayeeScript(nBlockHeight));
     txNew.vout.push_back(txoutFounderRet);
     LogPrintf("FounderPayment::FillFounderPayment -- Founder payment %lld to %s\n", founderPayment,
-    		nBlockHeight >= address2StartBlock ? founderAddress2.c_str() : founderAddress.c_str());
+    		GetFounderPayeeAddr(nBlockHeight));
 }
 
 bool FounderPayment::IsBlockPayeeValid(const CTransaction& txNew, const int height, const CAmount blockReward) {
 	const CAmount founderReward = getFounderPaymentAmount(height, blockReward);
 	CScript payee = GetFounderPayeeScript(height);
-	bool fPayedFounder = false;
+
 	for(const CTxOut& out : txNew.vout) {
+		LogFounderDebug(out,height,founderReward,blockReward);
 		if(out.scriptPubKey == payee && out.nValue >= founderReward) {
-			fPayedFounder =  true;
-			break;
+			return true;
 		}
 	}
-	return fPayedFounder;
+
+	return false;
 }
-
-
-

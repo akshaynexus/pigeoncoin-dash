@@ -38,6 +38,9 @@ public:
 	CAmount getFounderPaymentAmount(int blockHeight, CAmount blockReward);
 	void FillFounderPayment(CMutableTransaction& txNew, int nBlockHeight, CAmount blockReward, CTxOut& txoutFounderRet);
 	bool IsBlockPayeeValid(const CTransaction& txNew, const int height, const CAmount blockReward);
+	std::string GetFounderPayeeAddr(int nHeight);
+	void LogFounderDebug(const CTxOut& out,int height,CAmount founderReward,CAmount blockReward);
+	bool isPossibleFounderReward(CAmount nValPaid,CAmount nFounderRequiredAmount,int nHeight,int blockReward);
 	int getStartBlock() {return this->startBlock;};
 	int getAddress2StartBlock() {return this->address2StartBlock;};
 	CScript GetFounderPayeeScript(int nHeight);

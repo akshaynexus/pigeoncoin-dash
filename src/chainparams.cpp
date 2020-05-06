@@ -478,7 +478,7 @@ public:
         consensus.nPowTargetSpacing = 1 * 60; // Dash: 2.5 minutes
         consensus.nPowDifficultyRetargetHeight = 2017; // blockheight to switch to 360 block retarget rules
         consensus.nPowTargetTimespanShort = 360 * 60; //~6 hours
-        consensus.zawyLWMAHeight = 2222; // blockheight to switch to LWMA retarget rules
+        consensus.zawyLWMAHeight = 50; // blockheight to switch to LWMA retarget rules
         consensus.nAfterExploitHeight = 0; 
 
         consensus.fPowAllowMinDifficultyBlocks = true;
@@ -535,10 +535,10 @@ public:
         consensus.masternodeCollateral = 1000000; //1,000,000 PGN Servicenode collateral
         consensus.nMagicChangeHeight = 2;
 
-        pchMessageStart[0] = 0x53;
-        pchMessageStart[1] = 0x5a;
-        pchMessageStart[2] = 0x4d;
-        pchMessageStart[3] = 0x5a;
+        pchMessageStart[0] = 0x5d;
+        pchMessageStart[1] = 0x6a;
+        pchMessageStart[2] = 0x4c;
+        pchMessageStart[3] = 0x5d;
 
         //New message start after hf
         pchMessageStartNew[0] = 0x2a;
@@ -598,6 +598,7 @@ public:
         vSeeds.clear();
         // nodes with support for servicebits filtering should be at the top
         vSeeds.push_back(CDNSSeedData("mineit.io",  "mineit.io"));
+        vSeeds.push_back(CDNSSeedData("pgntseeder.mineit.io",  "pgntseeder.mineit.io"));
 
         // Testnet Pigeon Addresses start with 'n'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,112);
@@ -941,6 +942,12 @@ public:
         nFulfilledRequestExpireTime = 5*60; // fulfilled requests expire in 5 minutes
         nPoolMinParticipants = 3;
         nPoolMaxParticipants = 5;
+        vector<FounderRewardStrcuture> rewardStructures = {  
+                                                            {500000, 5},
+															{1000000, 2}
+                                                          };
+		consensus.nFounderPayment = FounderPayment(rewardStructures, 100, "yfWuvSNP3Eh2DsBkkkNiJSChTdPZRFA6NX",
+													"yfWuvSNP3Eh2DsBkkkNiJSChTdPZRFA6NX", 170);
 
         // privKey: cP4EKFyJsHT39LDqgdcB43Y3YXjNyjb5Fuas1GQSeAtjnZWmZEQK
         vSporkAddresses = {"yj949n1UH6fDhw6HtVE5VMj2iSTaSWBMcW"};
