@@ -258,11 +258,11 @@
 <context>
     <name>BitcoinGUI</name>
     <message>
-        <source>A fatal error occurred. Dash Core can no longer continue safely and will quit.</source>
-        <translation>Възникна фатална грешка. Dash Core не може да продължи безопасно и ще се изключи.</translation>
+        <source>A fatal error occurred. Pigeon Core can no longer continue safely and will quit.</source>
+        <translation>Възникна фатална грешка. Pigeon Core не може да продължи безопасно и ще се изключи.</translation>
     </message>
     <message>
-        <source>Dash Core</source>
+        <source>Pigeon Core</source>
         <translation>Dash Ядро</translation>
     </message>
     <message>
@@ -322,8 +322,8 @@
         <translation>Изход от приложението</translation>
     </message>
     <message>
-        <source>Show information about Dash Core</source>
-        <translation>Покаци информация за Dash Core</translation>
+        <source>Show information about Pigeon Core</source>
+        <translation>Покаци информация за Pigeon Core</translation>
     </message>
     <message>
         <source>About &amp;Qt</source>
@@ -1331,8 +1331,8 @@
         <translation>Желан PrivateSend баланс</translation>
     </message>
     <message>
-        <source>Automatically open the Dash Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Автоматично отваря порта за Dash Core клиента в маршрутизатора. Това работи само когато вашият маршрутизатор поддържа UPnP и той е разрешен.</translation>
+        <source>Automatically open the Pigeon Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Автоматично отваря порта за Pigeon Core клиента в маршрутизатора. Това работи само когато вашият маршрутизатор поддържа UPnP и той е разрешен.</translation>
     </message>
     <message>
         <source>Connect to the Dash network through a SOCKS5 proxy.</source>
@@ -4823,8 +4823,8 @@ https://www.transifex.com/projects/p/pigeon/</translation>
         <translation>Опции на RPC сървъра:</translation>
     </message>
     <message>
-        <source>Dash Core</source>
-        <translation>Dash Core</translation>
+        <source>Pigeon Core</source>
+        <translation>Pigeon Core</translation>
     </message>
     <message>
         <source>The %s developers</source>

@@ -258,12 +258,12 @@
 <context>
     <name>BitcoinGUI</name>
     <message>
-        <source>A fatal error occurred. Dash Core can no longer continue safely and will quit.</source>
-        <translation>Произошла критическая ошибка. Дальнейшая безопасная работа Dash Core невозможна, программа будет закрыта.</translation>
+        <source>A fatal error occurred. Pigeon Core can no longer continue safely and will quit.</source>
+        <translation>Произошла критическая ошибка. Дальнейшая безопасная работа Pigeon Core невозможна, программа будет закрыта.</translation>
     </message>
     <message>
-        <source>Dash Core</source>
-        <translation>Dash Core</translation>
+        <source>Pigeon Core</source>
+        <translation>Pigeon Core</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -322,8 +322,8 @@
         <translation>Закрыть приложение</translation>
     </message>
     <message>
-        <source>Show information about Dash Core</source>
-        <translation>Показать информацию о Dash Core</translation>
+        <source>Show information about Pigeon Core</source>
+        <translation>Показать информацию о Pigeon Core</translation>
     </message>
     <message>
         <source>About &amp;Qt</source>
@@ -1331,8 +1331,8 @@
         <translation>Целевой баланс PrivateSend</translation>
     </message>
     <message>
-        <source>Automatically open the Dash Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Автоматически открыть порт для Dash Core на роутере. Работает только в том случае, если Ваш роутер поддерживает UPnP и данная функция включена.</translation>
+        <source>Automatically open the Pigeon Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Автоматически открыть порт для Pigeon Core на роутере. Работает только в том случае, если Ваш роутер поддерживает UPnP и данная функция включена.</translation>
     </message>
     <message>
         <source>Connect to the Dash network through a SOCKS5 proxy.</source>
@@ -4839,8 +4839,8 @@ https://www.transifex.com/projects/p/pigeon/</translation>
         <translation>Параметры сервера RPC:</translation>
     </message>
     <message>
-        <source>Dash Core</source>
-        <translation>Dash Core</translation>
+        <source>Pigeon Core</source>
+        <translation>Pigeon Core</translation>
     </message>
     <message>
         <source>The %s developers</source>

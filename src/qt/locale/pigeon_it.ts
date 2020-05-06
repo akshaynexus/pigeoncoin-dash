@@ -258,12 +258,12 @@
 <context>
     <name>BitcoinGUI</name>
     <message>
-        <source>A fatal error occurred. Dash Core can no longer continue safely and will quit.</source>
-        <translation>Si è verificato un errore irreversibile. Dash Core non può più continuare in sicurezza e terminerà le operazioni.</translation>
+        <source>A fatal error occurred. Pigeon Core can no longer continue safely and will quit.</source>
+        <translation>Si è verificato un errore irreversibile. Pigeon Core non può più continuare in sicurezza e terminerà le operazioni.</translation>
     </message>
     <message>
-        <source>Dash Core</source>
-        <translation>Dash Core</translation>
+        <source>Pigeon Core</source>
+        <translation>Pigeon Core</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -322,8 +322,8 @@
         <translation>Chiudi applicazione</translation>
     </message>
     <message>
-        <source>Show information about Dash Core</source>
-        <translation>Mostra le informazioni su Dash Core</translation>
+        <source>Show information about Pigeon Core</source>
+        <translation>Mostra le informazioni su Pigeon Core</translation>
     </message>
     <message>
         <source>About &amp;Qt</source>
@@ -1331,8 +1331,8 @@
         <translation>Saldo target PrivateSend</translation>
     </message>
     <message>
-        <source>Automatically open the Dash Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Apri automaticamente la porta utilizzata dal client Dash Core nel router. Funziona solo se il router supporta UPnP ed è attivato.</translation>
+        <source>Automatically open the Pigeon Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Apri automaticamente la porta utilizzata dal client Pigeon Core nel router. Funziona solo se il router supporta UPnP ed è attivato.</translation>
     </message>
     <message>
         <source>Connect to the Dash network through a SOCKS5 proxy.</source>
@@ -4841,8 +4841,8 @@ Non è possibile avviare un masternode in modalità lite</translation>
         <translation>Opzioni server RPC:</translation>
     </message>
     <message>
-        <source>Dash Core</source>
-        <translation>Dash Core</translation>
+        <source>Pigeon Core</source>
+        <translation>Pigeon Core</translation>
     </message>
     <message>
         <source>The %s developers</source>
