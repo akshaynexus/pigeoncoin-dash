@@ -139,6 +139,10 @@ BASE_SCRIPTS= [
     'minchainwork.py',
     'p2p-acceptblock.py', # NOTE: needs x21s_hash to pass
     'feature_shutdown.py',
+    'privatesend.py',
+    'uacomment.py',
+    'feature_logging.py',
+    'node_network_limited.py',
 ]
 
 EXTENDED_SCRIPTS = [
