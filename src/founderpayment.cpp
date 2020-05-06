@@ -23,7 +23,7 @@ CAmount FounderPayment::getFounderPaymentAmount(int blockHeight, CAmount blockRe
 	 }
 	 for(int i = 0; i < rewardStructures.size(); i++) {
 		 FounderRewardStrcuture rewardStructure = rewardStructures[i];
-		 if(blockHeight <= rewardStructure.blockHeight) {
+		 if(blockHeight <= rewardStructure.founderFeeEndHeight) {
 			 return blockReward * rewardStructure.rewardPercentage / 100;
 		 }
 	 }
