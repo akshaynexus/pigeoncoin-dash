@@ -181,14 +181,26 @@ UniValue getrawtransaction(const JSONRPCRequest& request)
     // Accept either a bool (true) or a num (>=1) to indicate verbose output.
     bool fVerbose = false;
     if (!request.params[1].isNull()) {
-        if (request.params[1].isNum()) {
-            if (request.params[1].get_int() != 0) {
-                fVerbose = true;
-            }
+        fVerbose = request.params[1].isNum() ? (request.params[1].get_int() != 0) : request.params[1].get_bool();
+    }
+
+    if (!request.params[2].isNull()) {
+        uint256 blockhash = ParseHashV(request.params[2], "parameter 3");
+        BlockMap::iterator it = mapBlockIndex.find(blockhash);
+        if (it == mapBlockIndex.end()) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Block hash not found");
         }
-        else if(request.params[1].isBool()) {
-            if(request.params[1].isTrue()) {
-                fVerbose = true;
+        blockindex = it->second;
+        in_active_chain = chainActive.Contains(blockindex);
+    }
+
+    CTransactionRef tx;
+    uint256 hash_block;
+    if (!GetTransaction(hash, tx, Params().GetConsensus(), hash_block, true, blockindex)) {
+        std::string errmsg;
+        if (blockindex) {
+            if (!(blockindex->nStatus & BLOCK_HAVE_DATA)) {
+                throw JSONRPCError(RPC_MISC_ERROR, "Block not available");
             }
         }
         else {
