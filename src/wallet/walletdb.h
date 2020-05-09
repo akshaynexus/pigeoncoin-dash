@@ -10,7 +10,7 @@
 #include "wallet/db.h"
 #include "hdchain.h"
 #include "key.h"
-
+#include "hdchainlegacy.h"
 #include <list>
 #include <stdint.h>
 #include <string>
@@ -59,9 +59,13 @@ enum DBErrors
 class CKeyMetadata
 {
 public:
-    static const int CURRENT_VERSION=1;
+    static const int VERSION_BASIC=1;
+    static const int VERSION_WITH_HDDATA=10;
+    static const int CURRENT_VERSION=VERSION_WITH_HDDATA;
     int nVersion;
     int64_t nCreateTime; // 0 means unknown
+    std::string hdKeypathLegacy; //optional HD/bip32 keypath
+    CKeyID hdMasterKeyIDLegacy; //id of the HD masterkey used to derive this key
 
     CKeyMetadata()
     {
@@ -79,12 +83,19 @@ public:
     inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(this->nVersion);
         READWRITE(nCreateTime);
+        if (this->nVersion >= VERSION_WITH_HDDATA)
+        {
+            READWRITE(hdKeypathLegacy);
+            READWRITE(hdMasterKeyIDLegacy);
+        }
     }
 
     void SetNull()
     {
         nVersion = CKeyMetadata::CURRENT_VERSION;
         nCreateTime = 0;
+        hdKeypathLegacy.clear();
+        hdMasterKeyIDLegacy.SetNull();
     }
 };
 
@@ -187,6 +198,7 @@ public:
 
     //! write the hdchain model (external chain child index counter)
     bool WriteHDChain(const CHDChain& chain);
+    bool WriteHDChainLegacy(const CHDChainLegacy& chain);
     bool WriteCryptedHDChain(const CHDChain& chain);
     bool WriteHDPubKey(const CHDPubKey& hdPubKey, const CKeyMetadata& keyMeta);
 

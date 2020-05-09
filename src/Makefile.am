@@ -164,6 +164,7 @@ BITCOIN_CORE_H = \
   governance/governance-votedb.h \
   flat-database.h \
   hdchain.h \
+  hdchainlegacy.h \
   fs.h \
   httprpc.h \
   httpserver.h \
