@@ -503,8 +503,14 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             ssValue >> chain;
             if (!pwallet->SetHDChainSingle(chain, true))
             {
+                //Try falling back to CHDChainLegacy
+                CHDChainLegacy chainlegacy;
+                ssValue >> chain;
+                if (!pwallet->SetHDChainLegacy(chainlegacy, true))
+                {
                 strErr = "Error reading wallet database: SetHDChain failed";
                 return false;
+                }
             }
         }
         else if (strType == "chdchain")
@@ -833,7 +839,7 @@ bool WalletBatch::RecoverKeysOnlyFilter(void *callbackData, CDataStream ssKey, C
         fReadOK = ReadKeyValue(dummyWallet, ssKey, ssValue,
                                dummyWss, strType, strErr);
     }
-    if (!IsKeyType(strType) && strType != "hdpubkey")
+    if (!IsKeyType(strType) && (strType != "hdpubkey" || strType != "hdchain"))
         return false;
     if (!fReadOK)
     {
@@ -869,7 +875,12 @@ bool WalletBatch::WriteHDChain(const CHDChain& chain)
     return WriteIC(std::string("hdchain"), chain);
 }
 
-bool WalletBatch::WriteCryptedHDChain(const CHDChain& chain)
+bool CWalletDB::WriteHDChainLegacy(const CHDChainLegacy& chain)
+{
+    return WriteIC(std::string("hdchain"), chain);
+}
+
+bool CWalletDB::WriteCryptedHDChain(const CHDChain& chain)
 {
     if (!WriteIC(std::string("chdchain"), chain))
         return false;

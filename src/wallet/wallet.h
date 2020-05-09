@@ -100,6 +100,7 @@ enum WalletFeature
     FEATURE_COMPRPUBKEY = 60000, // compressed public keys
     FEATURE_HD = 120200,    // Hierarchical key derivation after BIP32 (HD Wallet), BIP44 (multi-coin), BIP39 (mnemonic)
                             // which uses on-the-fly private key derivation
+    FEATURE_HD_SPLIT = 10000, // Wallet with HD chain split (change outputs will use m/0'/1'/k)
 
     FEATURE_LATEST = 61000
 };
@@ -758,9 +759,13 @@ private:
      * Should be called with pindexBlock and posInBlock if this is for a transaction that is included in a block. */
     void SyncTransaction(const CTransactionRef& tx, const CBlockIndex *pindex = nullptr, int posInBlock = 0);
 
+    /* the HD chain data model (external chain counters) */
+    CHDChainLegacy hdChainLegacy;
+
     /* HD derive new child key (on internal or external chain) */
     void DeriveNewChildKey(WalletBatch &batch, const CKeyMetadata& metadata, CKey& secretRet, uint32_t nAccountIndex, bool fInternal /*= false*/);
-
+    /* HD derive new child key (on internal or external chain) */
+    void DeriveNewChildKeyLegacy(CWalletDB &walletdb, CKeyMetadata& metadata, CKey& secret, bool internal = false);
     std::set<int64_t> setInternalKeyPool;
     std::set<int64_t> setExternalKeyPool;
     int64_t m_max_keypool_index;
@@ -1233,11 +1238,20 @@ public:
 
     /* Returns true if HD is enabled */
     bool IsHDEnabled() const;
+    bool IsHDEnabledLegacy() const;
     /* Generates a new HD chain */
     void GenerateNewHDChain();
     /* Set the HD chain model (chain child index counters) */
     bool SetHDChain(WalletBatch &batch, const CHDChain& chain, bool memonly);
+    bool SetHDChainLegacy(const CHDChainLegacy& chain, bool memonly);
     bool SetCryptedHDChain(WalletBatch &batch, const CHDChain& chain, bool memonly);
+    /* Set the current HD master key (will reset the chain child index counters)
+       Sets the master key's version based on the current wallet version (so the
+       caller must ensure the current wallet version is correct before calling
+       this function). */
+    bool SetHDMasterKeyLegacy(const CPubKey& key);
+    /* Generates a new HD master key (will not be activated) */
+    CPubKey GenerateNewHDMasterKey();
     /**
      * Set the HD chain model (chain child index counters) using temporary wallet db object
      * which causes db flush every time these methods are used
