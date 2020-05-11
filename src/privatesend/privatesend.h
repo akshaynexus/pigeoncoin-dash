@@ -453,7 +453,7 @@ public:
     /// If the collateral is valid given by a client
     static bool IsCollateralValid(const CTransaction& txCollateral);
     static CAmount GetCollateralAmount() { return GetSmallestDenomination() / 10; }
-    static CAmount GetMaxCollateralAmount() { return GetCollateralAmount() * 4; }
+    static CAmount GetMaxCollateralAmount() { return vecStandardDenominations.front(); }
 
     static bool IsCollateralAmount(CAmount nInputAmount);
 
