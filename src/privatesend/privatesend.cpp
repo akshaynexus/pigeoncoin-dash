@@ -335,6 +335,9 @@ void CPrivateSend::InitStandardDenominations()
     vecStandardDenominations.push_back((.1 * COIN) + 100);
     vecStandardDenominations.push_back((.01 * COIN) + 10);
     vecStandardDenominations.push_back((.001 * COIN) + 1);
+    LogPrintf("PRIVATESEND DEBUG Smallest allowed denom is %d",GetSmallestDenomination());
+    LogPrintf("PRIVATESEND DEBUG Largest allowed collateral is %d",GetMaxCollateralAmount());
+
 }
 
 // check to make sure the collateral provided by the client is valid
