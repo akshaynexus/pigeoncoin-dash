@@ -22,7 +22,7 @@
 #include <ui_interface.h>
 #include <utilstrencodings.h>
 #include <validation.h>
-
+#include <spork.h>
 #include <masternode/masternode-meta.h>
 #include <masternode/masternode-sync.h>
 #include <privatesend/privatesend.h>
@@ -3470,7 +3470,7 @@ void CConnman::RelayTransaction(const CTransaction& tx)
     }
 }
 
-void CConnman::RelayInv(CInv &inv, const int minProtoVersion, bool fAllowMasternodeConnections) {
+void CConnman::RelayInv(CInv &inv, int minProtoVersion, bool fAllowMasternodeConnections) {
     LOCK(cs_vNodes);
     for (const auto& pnode : vNodes) {
         if (pnode->nVersion < minProtoVersion || (pnode->fMasternode && !fAllowMasternodeConnections))
@@ -3479,10 +3479,10 @@ void CConnman::RelayInv(CInv &inv, const int minProtoVersion, bool fAllowMastern
     }
 }
 
-void CConnman::RelayInvFiltered(CInv &inv, const CTransaction& relatedTx, const int minProtoVersion, bool fAllowMasternodeConnections)
+void CConnman::RelayInvFiltered(CInv &inv, const CTransaction& relatedTx, int minProtoVersion, bool fAllowMasternodeConnections)
 {
     LOCK(cs_vNodes);
-    minProtoVersion = sporkManager.GetSporkValue(SPORK_21_MIN_PEER_PROTOCOL_VERSION);
+    minProtoVersion = sporkManager.GetSporkValue(SPORK_22_MIN_PEER_PROTOCOL_VERSION);
     for (const auto& pnode : vNodes) {
         if (pnode->nVersion < minProtoVersion || (pnode->fMasternode && !fAllowMasternodeConnections))
             continue;
@@ -3495,10 +3495,10 @@ void CConnman::RelayInvFiltered(CInv &inv, const CTransaction& relatedTx, const 
     }
 }
 
-void CConnman::RelayInvFiltered(CInv &inv, const uint256& relatedTxHash, const int minProtoVersion, bool fAllowMasternodeConnections)
+void CConnman::RelayInvFiltered(CInv &inv, const uint256& relatedTxHash, int minProtoVersion, bool fAllowMasternodeConnections)
 {
     LOCK(cs_vNodes);
-    minProtoVersion = sporkManager.GetSporkValue(SPORK_21_MIN_PEER_PROTOCOL_VERSION);
+    minProtoVersion = sporkManager.GetSporkValue(SPORK_22_MIN_PEER_PROTOCOL_VERSION);
     for (const auto& pnode : vNodes) {
         if (pnode->nVersion < minProtoVersion || (pnode->fMasternode && !fAllowMasternodeConnections))
             continue;

@@ -48,8 +48,8 @@ class TestNode(P2PInterface):
 
 class LLMQ_IS_CL_Conflicts(DashTestFramework):
     def set_test_params(self):
-        self.set_dash_test_params(4, 3, fast_dip3_enforcement=True)
-        self.set_dash_dip8_activation(10)
+        self.set_pigeon_test_params(4, 3, fast_dip3_enforcement=True)
+        self.set_pigeon_dip8_activation(10)
         #disable_mocktime()
 
     def run_test(self):

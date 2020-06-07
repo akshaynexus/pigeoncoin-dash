@@ -16,7 +16,7 @@
 #include <validation.h>
 
 #include <evo/deterministicmns.h>
-#include "FounderPayment.h"
+#include "founderpayment.h"
 
 #include <string>
 

@@ -218,42 +218,6 @@ static Consensus::LLMQParams llmq50_60 = {
         .recoveryMembers = 25,
 };
 
-static Consensus::LLMQParams llmq5_10 = {
-        .type = Consensus::LLMQ_5_10,
-        .name = "llmq_5_10",
-        .size = 5,
-        .minSize = 4,
-        .threshold = 5,
-
-        .dkgInterval = 24, // one DKG per hour
-        .dkgPhaseBlocks = 2,
-        .dkgMiningWindowStart = 10, // dkgPhaseBlocks * 5 = after finalization
-        .dkgMiningWindowEnd = 18,
-        .dkgBadVotesThreshold = 40,
-
-        .signingActiveQuorumCount = 24, // a full day worth of LLMQs
-
-        .keepOldConnections = 25,
-};
-
-static Consensus::LLMQParams llmq4_1 = {
-        .type = Consensus::LLMQ_4_1,
-        .name = "llmq_4_1",
-        .size = 4,
-        .minSize = 2,
-        .threshold = 1,
-
-        .dkgInterval = 24, // one DKG per hour
-        .dkgPhaseBlocks = 2,
-        .dkgMiningWindowStart = 10, // dkgPhaseBlocks * 5 = after finalization
-        .dkgMiningWindowEnd = 18,
-        .dkgBadVotesThreshold = 40,
-
-        .signingActiveQuorumCount = 12, // half a day  worth of LLMQs
-
-        .keepOldConnections = 5,
-};
-
 static Consensus::LLMQParams llmq400_60 = {
         .type = Consensus::LLMQ_400_60,
         .name = "llmq_400_60",
@@ -425,14 +389,14 @@ public:
         vSeeds.emplace_back("dnsseed.pigeondot.io", true);
 
 	    /// Official DNS Seeds
-        vSeeds.push_back(CDNSSeedData("seed.pigeoncoin.org", "seed.pigeoncoin.org"));
-        vSeeds.push_back(CDNSSeedData("seed2.pigeoncoin.org", "seed2.pigeoncoin.org"));
-        vSeeds.push_back(CDNSSeedData("seed3.pigeoncoin.org", "seed3.pigeoncoin.org"));
-        vSeeds.push_back(CDNSSeedData("seed4.pigeoncoin.org", "seed4.pigeoncoin.org"));
-        vSeeds.push_back(CDNSSeedData("157.230.41.76", "157.230.41.76"));
+        vSeeds.emplace_back("seed.pigeoncoin.org",true);
+        vSeeds.emplace_back("seed2.pigeoncoin.org",true);
+        vSeeds.emplace_back("seed3.pigeoncoin.org",true);
+        vSeeds.emplace_back("seed4.pigeoncoin.org",true);
+        vSeeds.emplace_back("157.230.41.76",true);
 
 	    /// Community DNS Seeds
-        vSeeds.push_back(CDNSSeedData("seed.pigeoncoin.xyz", "seed.pigeoncoin.xyz"));
+        vSeeds.emplace_back("seed.pigeoncoin.xyz", true);
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,55); // changed 60 to 55
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,122); // changed 122 to 123
@@ -637,8 +601,8 @@ public:
 
         vSeeds.clear();
         // nodes with support for servicebits filtering should be at the top
-        vSeeds.push_back(CDNSSeedData("mineit.io",  "mineit.io"));
-        vSeeds.push_back(CDNSSeedData("pgntseeder.mineit.io",  "pgntseeder.mineit.io"));
+        vSeeds.emplace_back("mineit.io",true);
+        vSeeds.emplace_back("pgntseeder.mineit.io", true);
 
         // Testnet Pigeon Addresses start with 'n'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,112);
@@ -653,12 +617,11 @@ public:
         nExtCoinType = 1;
 
         // long living quorum params
-        consensus.llmqs[Consensus::LLMQ_4_1] = llmq4_1;
         consensus.llmqs[Consensus::LLMQ_50_60] = llmq50_60;
         consensus.llmqs[Consensus::LLMQ_400_60] = llmq400_60;
         consensus.llmqs[Consensus::LLMQ_400_85] = llmq400_85;
-        consensus.llmqTypeChainLocks = Consensus::LLMQ_4_1;
-        consensus.llmqTypeInstantSend = Consensus::LLMQ_4_1;
+        consensus.llmqTypeChainLocks = Consensus::LLMQ_50_60;
+        consensus.llmqTypeInstantSend = Consensus::LLMQ_50_60;
 
         fDefaultConsistencyChecks = false;
         fRequireStandard = false;
@@ -791,7 +754,7 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        //vSeeds.push_back(CDNSSeedData("pigeonevo.org",  "devnet-seed.pigeonevo.org"));
+        //vSeeds.emplace_back("pigeonevo.org",  "devnet-seed.pigeonevo.org"));
 
         // Testnet Pigeon Addresses start with 'y'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,140);

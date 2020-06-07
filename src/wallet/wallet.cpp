@@ -202,7 +202,7 @@ CPubKey CWallet::GenerateNewKey(WalletBatch &batch, uint32_t nAccountIndex, bool
         pubkey = secret.GetPubKey();
     }
     else if (IsHDEnabledLegacy()){
-        DeriveNewChildKeyLegacy(walletdb, metadata, secret, (CanSupportFeature(FEATURE_HD_SPLIT) ? fInternal : false));
+        DeriveNewChildKeyLegacy(batch, metadata, secret, (CanSupportFeature(FEATURE_HD_SPLIT) ? fInternal : false));
         pubkey = secret.GetPubKey();
     } else {
         secret.MakeNewKey(fCompressed);
@@ -226,7 +226,7 @@ CPubKey CWallet::GenerateNewKey(WalletBatch &batch, uint32_t nAccountIndex, bool
     return pubkey;
 }
 
-void CWallet::DeriveNewChildKeyLegacy(CWalletDB &walletdb, CKeyMetadata& metadata, CKey& secret, bool internal)
+void CWallet::DeriveNewChildKeyLegacy(WalletBatch &walletdb, CKeyMetadata& metadata, CKey& secret, bool internal)
 {
     // for now we use a fixed keypath scheme of m/0'/0'/k
     CKey key;                      //master key seed (256bit)
@@ -271,7 +271,7 @@ void CWallet::DeriveNewChildKeyLegacy(CWalletDB &walletdb, CKeyMetadata& metadat
     if (!walletdb.WriteHDChainLegacy(hdChainLegacy))
         throw std::runtime_error(std::string(__func__) + ": Writing HD chain model failed");
 }
-void CWallet::DeriveNewChildKey(CWalletDB &walletdb, const CKeyMetadata& metadata, CKey& secretRet, uint32_t nAccountIndex, bool fInternal)
+void CWallet::DeriveNewChildKey(WalletBatch &batch, const CKeyMetadata& metadata, CKey& secretRet, uint32_t nAccountIndex, bool fInternal)
 {
     CHDChain hdChainTmp;
     if (!GetHDChain(hdChainTmp)) {
@@ -1931,7 +1931,7 @@ bool CWallet::SetHDMasterKeyLegacy(const CPubKey& pubkey)
 bool CWallet::SetHDChainLegacy(const CHDChainLegacy& chain, bool memonly)
 {
     LOCK(cs_wallet);
-    if (!memonly && !CWalletDB(*dbw).WriteHDChainLegacy(chain))
+    if (!memonly && !WalletBatch(*database).WriteHDChainLegacy(chain))
         throw std::runtime_error(std::string(__func__) + ": writing chain failed");
 
     hdChainLegacy = chain;

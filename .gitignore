@@ -83,7 +83,7 @@ libconftest.dylib*
 *.qm
 Makefile
 pigeon-qt
-Dash-Qt.app
+Pigeon-Qt.app
 background.tiff*
 !/depends/Makefile
 

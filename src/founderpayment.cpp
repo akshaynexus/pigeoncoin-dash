@@ -32,7 +32,7 @@ CAmount FounderPayment::getFounderPaymentAmount(int blockHeight, CAmount blockRe
 
 CScript FounderPayment::GetFounderPayeeScript(int nHeight){
 	string payeeaddr = nHeight >= address2StartBlock ? founderAddress2 : founderAddress;
-	return GetScriptForDestination(CBitcoinAddress(payeeaddr).Get());
+	return GetScriptForDestination(DecodeDestination(payeeaddr));
 }
 //Start Extra helper functions
 
@@ -51,7 +51,7 @@ void FounderPayment::LogFounderDebug(const CTxOut& out,int height,CAmount founde
 	if(isPossibleFounderReward(out.nValue,founderReward,height,blockReward)){
 		//Check if the address is convertable to a addr
 		if (ExtractDestination(out.scriptPubKey, addressCurr)){
-			addrCurr = CBitcoinAddress(addressCurr).ToString();
+			addrCurr = EncodeDestination(addressCurr);
 			//Log this only if addrs doesnt match for founder payment
 			if(addrCurr != addrExpected)
 				LogPrintf("Amount paid %d,Current Addr %s,Expected Addr %s\n",out.nValue / COIN,addrCurr,addrExpected);
