@@ -3682,10 +3682,6 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     }
     if (fNewBlock) *fNewBlock = true;
     
-    //Check founder payments now
-    if(!IsFounderPaymentValid(*block.vtx[0],chainparams.GetConsensus(),pindex->nHeight)){
-        return state.DoS(10, error("ConnectBlock(PGN): Block at height %d does not contain founder payment output",pindex->nHeight), REJECT_INVALID, "founderpayment-not-found");
-    }
     if (!CheckBlock(block, state, chainparams.GetConsensus()) ||
         !ContextualCheckBlock(block, state, chainparams.GetConsensus(), pindex->pprev)) {
         if (state.IsInvalid() && !state.CorruptionPossible()) {
