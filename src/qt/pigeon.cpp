@@ -305,7 +305,7 @@ void BitcoinCore::initialize()
     try
     {
         qDebug() << __func__ << ": Running initialization in thread";
-        bool rv = AppInitMain(threadGroup, scheduler);
+        bool rv = AppInitMain();
         Q_EMIT initializeResult(rv);
     } catch (...) {
         handleRunawayException(std::current_exception());
@@ -321,8 +321,7 @@ void BitcoinCore::restart(QStringList args)
         try
         {
             qDebug() << __func__ << ": Running Restart in thread";
-            Interrupt(threadGroup);
-            threadGroup.join_all();
+            Interrupt();
             StartRestart();
             PrepareShutdown();
             qDebug() << __func__ << ": Shutdown finished";
@@ -342,8 +341,7 @@ void BitcoinCore::shutdown()
     try
     {
         qDebug() << __func__ << ": Running Shutdown in thread";
-        Interrupt(threadGroup);
-        threadGroup.join_all();
+        Interrupt();
         Shutdown();
         qDebug() << __func__ << ": Shutdown finished";
         Q_EMIT shutdownResult();
@@ -518,9 +516,9 @@ void BitcoinApplication::initializeResult(bool success)
 
 #ifdef ENABLE_WALLET
         // TODO: Expose secondary wallets
-        if (!vpwallets.empty())
+        if (HasWallets())
         {
-            walletModel = new WalletModel(platformStyle, vpwallets[0], optionsModel);
+            walletModel = new WalletModel(platformStyle, GetWallets()[0], optionsModel);
 
             window->addWallet(BitcoinGUI::DEFAULT_WALLET, walletModel);
             window->setCurrentWallet(BitcoinGUI::DEFAULT_WALLET);
@@ -679,7 +677,7 @@ int main(int argc, char *argv[])
 
     // Check for -testnet or -regtest parameter (Params() calls are only valid after this clause)
     try {
-        SelectParams(ChainNameFromCommandLine());
+        SelectParams(gArgs.GetChainName());
     } catch(std::exception &e) {
         QMessageBox::critical(0, QObject::tr(PACKAGE_NAME), QObject::tr("Error: %1").arg(e.what()));
         return EXIT_FAILURE;

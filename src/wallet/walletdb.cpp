@@ -875,12 +875,12 @@ bool WalletBatch::WriteHDChain(const CHDChain& chain)
     return WriteIC(std::string("hdchain"), chain);
 }
 
-bool CWalletDB::WriteHDChainLegacy(const CHDChainLegacy& chain)
+bool WalletBatch::WriteHDChainLegacy(const CHDChainLegacy& chain)
 {
     return WriteIC(std::string("hdchain"), chain);
 }
 
-bool CWalletDB::WriteCryptedHDChain(const CHDChain& chain)
+bool WalletBatch::WriteCryptedHDChain(const CHDChain& chain)
 {
     if (!WriteIC(std::string("chdchain"), chain))
         return false;

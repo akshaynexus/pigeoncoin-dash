@@ -74,6 +74,7 @@ static const bool DEFAULT_WALLET_REJECT_LONG_CHAINS = false;
 static const unsigned int DEFAULT_TX_CONFIRM_TARGET = 6;
 static const bool DEFAULT_WALLETBROADCAST = true;
 static const bool DEFAULT_DISABLE_WALLET = false;
+const uint32_t BIP32_HARDENED_KEY_LIMIT = 0x80000000;
 
 static const int64_t TIMESTAMP_MIN = 0;
 
@@ -765,7 +766,7 @@ private:
     /* HD derive new child key (on internal or external chain) */
     void DeriveNewChildKey(WalletBatch &batch, const CKeyMetadata& metadata, CKey& secretRet, uint32_t nAccountIndex, bool fInternal /*= false*/);
     /* HD derive new child key (on internal or external chain) */
-    void DeriveNewChildKeyLegacy(CWalletDB &walletdb, CKeyMetadata& metadata, CKey& secret, bool internal = false);
+    void DeriveNewChildKeyLegacy(WalletBatch &walletdb, CKeyMetadata& metadata, CKey& secret, bool internal = false);
     std::set<int64_t> setInternalKeyPool;
     std::set<int64_t> setExternalKeyPool;
     int64_t m_max_keypool_index;

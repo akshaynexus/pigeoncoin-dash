@@ -218,42 +218,6 @@ static Consensus::LLMQParams llmq50_60 = {
         .recoveryMembers = 25,
 };
 
-static Consensus::LLMQParams llmq5_10 = {
-        .type = Consensus::LLMQ_5_10,
-        .name = "llmq_5_10",
-        .size = 5,
-        .minSize = 4,
-        .threshold = 5,
-
-        .dkgInterval = 24, // one DKG per hour
-        .dkgPhaseBlocks = 2,
-        .dkgMiningWindowStart = 10, // dkgPhaseBlocks * 5 = after finalization
-        .dkgMiningWindowEnd = 18,
-        .dkgBadVotesThreshold = 40,
-
-        .signingActiveQuorumCount = 24, // a full day worth of LLMQs
-
-        .keepOldConnections = 25,
-};
-
-static Consensus::LLMQParams llmq4_1 = {
-        .type = Consensus::LLMQ_4_1,
-        .name = "llmq_4_1",
-        .size = 4,
-        .minSize = 2,
-        .threshold = 1,
-
-        .dkgInterval = 24, // one DKG per hour
-        .dkgPhaseBlocks = 2,
-        .dkgMiningWindowStart = 10, // dkgPhaseBlocks * 5 = after finalization
-        .dkgMiningWindowEnd = 18,
-        .dkgBadVotesThreshold = 40,
-
-        .signingActiveQuorumCount = 12, // half a day  worth of LLMQs
-
-        .keepOldConnections = 5,
-};
-
 static Consensus::LLMQParams llmq400_60 = {
         .type = Consensus::LLMQ_400_60,
         .name = "llmq_400_60",
@@ -312,8 +276,6 @@ public:
         strNetworkID = "main";
         consensus.nSubsidyHalvingInterval = 2100000; //~ 4 yrs at 1 min block time
         consensus.nMasternodePaymentsStartBlock = 999999999;//TODO akshaynexus decide this when we fork on mainnet
-        consensus.nMasternodePaymentsIncreaseBlock = 158000; // actual historical value
-        consensus.nMasternodePaymentsIncreasePeriod = 576*30; // 17280 - actual historical value
         consensus.nInstantSendConfirmationsRequired = 6;
         consensus.nInstantSendKeepLock = 24;
         consensus.nBudgetPaymentsStartBlock = 328008; // actual historical value
@@ -427,14 +389,14 @@ public:
         vSeeds.emplace_back("dnsseed.pigeondot.io", true);
 
 	    /// Official DNS Seeds
-        vSeeds.push_back(CDNSSeedData("seed.pigeoncoin.org", "seed.pigeoncoin.org"));
-        vSeeds.push_back(CDNSSeedData("seed2.pigeoncoin.org", "seed2.pigeoncoin.org"));
-        vSeeds.push_back(CDNSSeedData("seed3.pigeoncoin.org", "seed3.pigeoncoin.org"));
-        vSeeds.push_back(CDNSSeedData("seed4.pigeoncoin.org", "seed4.pigeoncoin.org"));
-        vSeeds.push_back(CDNSSeedData("157.230.41.76", "157.230.41.76"));
+        vSeeds.emplace_back("seed.pigeoncoin.org",true);
+        vSeeds.emplace_back("seed2.pigeoncoin.org",true);
+        vSeeds.emplace_back("seed3.pigeoncoin.org",true);
+        vSeeds.emplace_back("seed4.pigeoncoin.org",true);
+        vSeeds.emplace_back("157.230.41.76",true);
 
 	    /// Community DNS Seeds
-        vSeeds.push_back(CDNSSeedData("seed.pigeoncoin.xyz", "seed.pigeoncoin.xyz"));
+        vSeeds.emplace_back("seed.pigeoncoin.xyz", true);
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,55); // changed 60 to 55
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,122); // changed 122 to 123
@@ -494,9 +456,7 @@ public:
     CTestNetParams() {
         strNetworkID = "test";
         consensus.nSubsidyHalvingInterval = 2100000;  //~ 4 yrs at 1 min block time
-        consensus.nMasternodePaymentsStartBlock = 800; //  true, but it's ok as long as it's less then nMasternodePaymentsIncreaseBlock
-        consensus.nMasternodePaymentsIncreaseBlock = 4030;
-        consensus.nMasternodePaymentsIncreasePeriod = 10;
+        consensus.nMasternodePaymentsStartBlock = 800; 
         consensus.nInstantSendConfirmationsRequired = 2;
         consensus.nInstantSendKeepLock = 6;
         consensus.nBudgetPaymentsStartBlock = 4100;
@@ -593,7 +553,7 @@ public:
         nPruneAfterHeight = 1000;
         /*
         // Build Genesis Block:
-        uint32_t nGenesisTime = 1543578342;
+        uint32_t nGenesisTime = GetTime();
         arith_uint256 test;
         bool fNegative;
         bool fOverflow;
@@ -625,14 +585,15 @@ public:
         std::cout << "\n";
         std::cout << "\n";
         std::cout << "\n";
+        std::cout << "Time  to " << nGenesisTime << std::endl;
         std::cout << "hashGenesisBlock to 0x" << BestBlockHash.GetHex() << std::endl;
         std::cout << "Genesis Nonce to " << genesisNonce << std::endl;
         std::cout << "Genesis Merkle " << genesis.hashMerkleRoot.GetHex() << std::endl;
         std::cout << "\n";
-        return;*/
-        genesis = CreateGenesisBlock(1543578342, 453532, 0x1e0ffff0, 4, 5000 * COIN);
+        std::exit(0);*/
+        genesis = CreateGenesisBlock(1591550485, 424062, 0x1e0ffff0, 4, 5000 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x000006da310a93a3feaa9c5d0dce878e31644c616d4e7d8a17db5d848757b79a"));
+        assert(consensus.hashGenesisBlock == uint256S("0x000004af7394525c5d24cc9dcebbe5d01cc21047e4b2c6c2e4637bc36d238c28"));
 		assert(genesis.hashMerkleRoot == uint256S("0xf0cc5f92b11a6655a4939fc239e8bf960cd0453b87b5a0820ab36904279341a5"));
 
         vFixedSeeds.clear();
@@ -640,8 +601,8 @@ public:
 
         vSeeds.clear();
         // nodes with support for servicebits filtering should be at the top
-        vSeeds.push_back(CDNSSeedData("mineit.io",  "mineit.io"));
-        vSeeds.push_back(CDNSSeedData("pgntseeder.mineit.io",  "pgntseeder.mineit.io"));
+        vSeeds.emplace_back("mineit.io",true);
+        vSeeds.emplace_back("pgntseeder.mineit.io", true);
 
         // Testnet Pigeon Addresses start with 'n'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,112);
@@ -656,12 +617,11 @@ public:
         nExtCoinType = 1;
 
         // long living quorum params
-        consensus.llmqs[Consensus::LLMQ_4_1] = llmq4_1;
         consensus.llmqs[Consensus::LLMQ_50_60] = llmq50_60;
         consensus.llmqs[Consensus::LLMQ_400_60] = llmq400_60;
         consensus.llmqs[Consensus::LLMQ_400_85] = llmq400_85;
-        consensus.llmqTypeChainLocks = Consensus::LLMQ_4_1;
-        consensus.llmqTypeInstantSend = Consensus::LLMQ_4_1;
+        consensus.llmqTypeChainLocks = Consensus::LLMQ_50_60;
+        consensus.llmqTypeInstantSend = Consensus::LLMQ_50_60;
 
         fDefaultConsistencyChecks = false;
         fRequireStandard = false;
@@ -704,9 +664,7 @@ public:
     CDevNetParams() {
         strNetworkID = "dev";
         consensus.nSubsidyHalvingInterval = 210240;
-        consensus.nMasternodePaymentsStartBlock = 4010; // not true, but it's ok as long as it's less then nMasternodePaymentsIncreaseBlock
-        consensus.nMasternodePaymentsIncreaseBlock = 4030;
-        consensus.nMasternodePaymentsIncreasePeriod = 10;
+        consensus.nMasternodePaymentsStartBlock = 4010;
         consensus.nInstantSendConfirmationsRequired = 2;
         consensus.nInstantSendKeepLock = 6;
         consensus.nBudgetPaymentsStartBlock = 4100;
@@ -796,7 +754,7 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        //vSeeds.push_back(CDNSSeedData("pigeonevo.org",  "devnet-seed.pigeonevo.org"));
+        //vSeeds.emplace_back("pigeonevo.org",  "devnet-seed.pigeonevo.org"));
 
         // Testnet Pigeon Addresses start with 'y'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,140);
@@ -861,8 +819,6 @@ public:
         strNetworkID = "regtest";
         consensus.nSubsidyHalvingInterval = 150;
         consensus.nMasternodePaymentsStartBlock = 240;
-        consensus.nMasternodePaymentsIncreaseBlock = 350;
-        consensus.nMasternodePaymentsIncreasePeriod = 10;
         consensus.nInstantSendConfirmationsRequired = 2;
         consensus.nInstantSendKeepLock = 6;
         consensus.nBudgetPaymentsStartBlock = 1000;
