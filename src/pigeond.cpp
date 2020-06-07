@@ -42,20 +42,13 @@
  * Use the buttons <code>Namespaces</code>, <code>Classes</code> or <code>Files</code> at the top of the page to start navigating the code.
  */
 
-void WaitForShutdown(boost::thread_group* threadGroup)
+void WaitForShutdown()
 {
-    bool fShutdown = ShutdownRequested();
-    // Tell the main threads to shutdown.
-    while (!fShutdown)
+    while (!ShutdownRequested())
     {
         MilliSleep(200);
-        fShutdown = ShutdownRequested();
     }
-    if (threadGroup)
-    {
-        Interrupt(*threadGroup);
-        threadGroup->join_all();
-    }
+    Interrupt();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -123,7 +116,7 @@ bool AppInit(int argc, char* argv[])
         }
         // Check for -testnet or -regtest parameter (Params() calls are only valid after this clause)
         try {
-            SelectParams(ChainNameFromCommandLine());
+            SelectParams(gArgs.GetChainName());
         } catch (const std::exception& e) {
             fprintf(stderr, "Error: %s\n", e.what());
             return false;
@@ -176,19 +169,19 @@ bool AppInit(int argc, char* argv[])
         if (!AppInitLockDataDirectory())
         {
             // If locking the data directory failed, exit immediately
-            exit(EXIT_FAILURE);
+            return false;
         }
-        fRet = AppInitMain(threadGroup, scheduler);
+        fRet = AppInitMain();
     } catch (...) {
         PrintExceptionContinue(std::current_exception(), "AppInit()");
     }
 
     if (!fRet)
     {
-        Interrupt(threadGroup);
+        Interrupt();
         threadGroup.join_all();
     } else {
-        WaitForShutdown(&threadGroup);
+        WaitForShutdown();
     }
     Shutdown();
 

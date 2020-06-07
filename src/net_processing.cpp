@@ -2123,7 +2123,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             return false;
         }
 
-        if (nVersion < sporkManager.GetSporkValue(SPORK_21_MIN_PEER_PROTOCOL_VERSION))
+        if (nVersion < sporkManager.GetSporkValue(SPORK_22_MIN_PEER_PROTOCOL_VERSION))
         {
             // disconnect from peers older than this proto version
             LogPrint(BCLog::NET, "peer=%d using obsolete version %i; disconnecting\n", pfrom->GetId(), nVersion);

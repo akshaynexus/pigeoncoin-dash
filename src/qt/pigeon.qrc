@@ -96,9 +96,9 @@
         <file alias="checkbox_partly_checked_hover">res/images/checkbox_partly_checked_hover.png</file>
         <file alias="checkbox_partly_checked_pressed">res/images/checkbox_partly_checked_pressed.png</file>
         <file alias="checkbox_partly_checked_disabled">res/images/checkbox_partly_checked_disabled.png</file>
-        <file alias="dash_logo_horizontal">res/images/dash_logo_horizontal.png</file>
-        <file alias="dash_logo_toolbar">res/images/dash_logo_toolbar.png</file>
-        <file alias="dash_logo_toolbar_blue">res/images/dash_logo_toolbar_blue.png</file>
+        <file alias="pigeon_logo_horizontal">res/images/pigeon_logo_horizontal.png</file>
+        <file alias="pigeon_logo_toolbar">res/images/pigeon_logo_toolbar.png</file>
+        <file alias="pigeon_logo_toolbar_blue">res/images/pigeon_logo_toolbar_blue.png</file>
         <file alias="radio_normal">res/images/radio_normal.png</file>
         <file alias="radio_normal_hover">res/images/radio_normal_hover.png</file>
         <file alias="radio_normal_pressed">res/images/radio_normal_pressed.png</file>

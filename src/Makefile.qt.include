@@ -335,9 +335,9 @@ RES_IMAGES = \
   qt/res/images/checkbox_partly_checked_hover.png \
   qt/res/images/checkbox_partly_checked_pressed.png \
   qt/res/images/checkbox_partly_checked_disabled.png \
-  qt/res/images/dash_logo_horizontal.png \
-  qt/res/images/dash_logo_toolbar.png \
-  qt/res/images/dash_logo_toolbar_blue.png \
+  qt/res/images/pigeon_logo_horizontal.png \
+  qt/res/images/pigeon_logo_toolbar.png \
+  qt/res/images/pigeon_logo_toolbar_blue.png \
   qt/res/images/radio_normal.png \
   qt/res/images/radio_normal_hover.png \
   qt/res/images/radio_normal_pressed.png \
@@ -435,7 +435,7 @@ $(QT_QRC_CPP): $(QT_QRC) $(QT_FORMS_H) $(RES_ICONS) $(RES_IMAGES) $(RES_CSS) $(R
 	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(RCC) $(RCCFLAGS) -name pigeon $< | \
 	  $(SED) -e '/^\*\*.*Created:/d' -e '/^\*\*.*by:/d' > $@
 
-CLEAN_QT = $(nodist_qt_libpigeonqt_a_SOURCES) $(QT_QM) $(QT_FORMS_H) qt/*.gcda qt/*.gcno qt/temp_dash_locale.qrc
+CLEAN_QT = $(nodist_qt_libpigeonqt_a_SOURCES) $(QT_QM) $(QT_FORMS_H) qt/*.gcda qt/*.gcno qt/temp_pigeon_locale.qrc
 
 CLEANFILES += $(CLEAN_QT)
 

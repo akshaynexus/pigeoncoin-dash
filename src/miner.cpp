@@ -33,7 +33,7 @@
 #include <evo/cbtx.h>
 #include <evo/simplifiedmns.h>
 #include <evo/deterministicmns.h>
-#include "FounderPayment.h"
+#include "founderpayment.h"
 
 #include <llmq/quorums_blockprocessor.h>
 #include <llmq/quorums_chainlocks.h>
