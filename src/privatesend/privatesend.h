@@ -26,7 +26,7 @@ static const int PRIVATESEND_SIGNING_TIMEOUT = 15;
 //! minimum peer version accepted by mixing pool
 static const int MIN_PRIVATESEND_PEER_PROTO_VERSION = 70213;
 
-static const size_t PRIVATESEND_ENTRY_MAX_SIZE = 9;
+static const size_t PRIVATESEND_ENTRY_MAX_SIZE = 10;
 
 // pool responses
 enum PoolMessage : int32_t {
@@ -453,7 +453,7 @@ public:
     /// If the collateral is valid given by a client
     static bool IsCollateralValid(const CTransaction& txCollateral);
     static CAmount GetCollateralAmount() { return GetSmallestDenomination() / 10; }
-    static CAmount GetMaxCollateralAmount() { return vecStandardDenominations.front(); }
+    static CAmount GetMaxCollateralAmount() { return GetCollateralAmount() * 5; }
 
     static bool IsCollateralAmount(CAmount nInputAmount);
 
