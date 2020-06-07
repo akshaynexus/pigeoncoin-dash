@@ -85,7 +85,7 @@ CChainLockSig CChainLocksHandler::GetBestChainLock()
 
 void CChainLocksHandler::ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, CConnman& connman)
 {
-    if (!sporkManager.IsSporkActive(SPORK_19_CHAINLOCKS_ENABLED)) {
+    if (!isEnforced) {
         return;
     }
 
@@ -268,7 +268,7 @@ void CChainLocksHandler::TrySignChainTip()
     {
         LOCK(cs);
 
-        if (!isSporkActive) {
+        if (!isEnforced) {
             return;
         }
 
@@ -464,7 +464,7 @@ bool CChainLocksHandler::IsTxSafeForMining(const uint256& txid)
     int64_t txAge = 0;
     {
         LOCK(cs);
-        if (!isSporkActive) {
+        if (!isEnforced) {
             return true;
         }
         auto it = txFirstSeenTime.find(txid);
@@ -560,7 +560,7 @@ void CChainLocksHandler::HandleNewRecoveredSig(const llmq::CRecoveredSig& recove
     {
         LOCK(cs);
 
-        if (!isSporkActive) {
+        if (!isEnforced) {
             return;
         }
 
