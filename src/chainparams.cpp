@@ -593,7 +593,7 @@ public:
         nPruneAfterHeight = 1000;
         /*
         // Build Genesis Block:
-        uint32_t nGenesisTime = 1543578342;
+        uint32_t nGenesisTime = GetTime();
         arith_uint256 test;
         bool fNegative;
         bool fOverflow;
@@ -625,14 +625,15 @@ public:
         std::cout << "\n";
         std::cout << "\n";
         std::cout << "\n";
+        std::cout << "Time  to " << nGenesisTime << std::endl;
         std::cout << "hashGenesisBlock to 0x" << BestBlockHash.GetHex() << std::endl;
         std::cout << "Genesis Nonce to " << genesisNonce << std::endl;
         std::cout << "Genesis Merkle " << genesis.hashMerkleRoot.GetHex() << std::endl;
         std::cout << "\n";
-        return;*/
-        genesis = CreateGenesisBlock(1543578342, 453532, 0x1e0ffff0, 4, 5000 * COIN);
+        std::exit(0);*/
+        genesis = CreateGenesisBlock(1591550485, 424062, 0x1e0ffff0, 4, 5000 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x000006da310a93a3feaa9c5d0dce878e31644c616d4e7d8a17db5d848757b79a"));
+        assert(consensus.hashGenesisBlock == uint256S("0x000004af7394525c5d24cc9dcebbe5d01cc21047e4b2c6c2e4637bc36d238c28"));
 		assert(genesis.hashMerkleRoot == uint256S("0xf0cc5f92b11a6655a4939fc239e8bf960cd0453b87b5a0820ab36904279341a5"));
 
         vFixedSeeds.clear();
