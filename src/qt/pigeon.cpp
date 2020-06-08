@@ -266,7 +266,7 @@ private:
     void startThread();
 };
 
-#include "pigeon.moc"
+#include <qt/pigeon.moc>
 
 BitcoinCore::BitcoinCore():
     QObject()
