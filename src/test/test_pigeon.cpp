@@ -2,30 +2,25 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "test_pigeon.h"
+#include <test/test_pigeon.h>
 
-#include "chainparams.h"
-#include "consensus/consensus.h"
-#include "consensus/validation.h"
-#include "crypto/sha256.h"
-#include "fs.h"
-#include "key.h"
-#include "validation.h"
-#include "miner.h"
-#include "net_processing.h"
-#include "pubkey.h"
-#include "random.h"
-#include "txdb.h"
-#include "txmempool.h"
-#include "ui_interface.h"
-#include "rpc/server.h"
-#include "rpc/register.h"
-#include "script/sigcache.h"
+#include <chainparams.h>
+#include <consensus/consensus.h>
+#include <consensus/validation.h>
+#include <crypto/sha256.h>
+#include <validation.h>
+#include <miner.h>
+#include <net_processing.h>
+#include <ui_interface.h>
+#include <streams.h>
+#include <rpc/server.h>
+#include <rpc/register.h>
+#include <script/sigcache.h>
 
-#include "evo/specialtx.h"
-#include "evo/deterministicmns.h"
-#include "evo/cbtx.h"
-#include "llmq/quorums_init.h"
+#include <evo/specialtx.h>
+#include <evo/deterministicmns.h>
+#include <evo/cbtx.h>
+#include <llmq/quorums_init.h>
 #include <privatesend/privatesend.h>
 
 #include <memory>
@@ -34,12 +29,19 @@ void CConnmanTest::AddNode(CNode& node)
 {
     LOCK(g_connman->cs_vNodes);
     g_connman->vNodes.push_back(&node);
+    g_connman->mapSocketToNode.emplace(node.hSocket, &node);
 }
 
 void CConnmanTest::ClearNodes()
 {
     LOCK(g_connman->cs_vNodes);
     g_connman->vNodes.clear();
+    g_connman->mapSocketToNode.clear();
+
+    g_connman->mapReceivableNodes.clear();
+    g_connman->mapSendableNodes.clear();
+    LOCK(g_connman->cs_mapNodesWithDataToSend);
+    g_connman->mapNodesWithDataToSend.clear();
 }
 
 uint256 insecure_rand_seed = GetRandHash();
@@ -206,7 +208,10 @@ CBlock TestChainSetup::CreateBlock(const std::vector<CMutableTransaction>& txns,
 
     // IncrementExtraNonce creates a valid coinbase and merkleRoot
     unsigned int extraNonce = 0;
-    IncrementExtraNonce(&block, chainActive.Tip(), extraNonce);
+    {
+        LOCK(cs_main);
+        IncrementExtraNonce(&block, chainActive.Tip(), extraNonce);
+    }
 
     while (!CheckProofOfWork(block.GetHash(), block.nBits, chainparams.GetConsensus())) ++block.nNonce;
 
@@ -234,6 +239,7 @@ CTxMemPoolEntry TestMemPoolEntryHelper::FromTx(const CTransaction &txn) {
     return CTxMemPoolEntry(MakeTransactionRef(txn), nFee, nTime, nHeight,
                            spendsCoinbase, sigOpCount, lp);
 }
+
 /**
  * @returns a real block (0000000000013b8ab2cd513b0261a14096412195a72a0c4827d229dcc7e0f7af)
  *      with 9 txs.
