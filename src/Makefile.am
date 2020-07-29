@@ -5,8 +5,8 @@
 
 DIST_SUBDIRS = secp256k1 univalue
 
-AM_LDFLAGS = $(PTHREAD_CFLAGS) $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS)
-AM_CXXFLAGS = $(HARDENED_CXXFLAGS) $(ERROR_CXXFLAGS)
+AM_LDFLAGS = $(PTHREAD_CFLAGS) $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS) $(GPROF_LDFLAGS)
+AM_CXXFLAGS = $(HARDENED_CXXFLAGS) $(ERROR_CXXFLAGS) $(GPROF_CXXFLAGS)
 AM_CPPFLAGS = $(HARDENED_CPPFLAGS)
 EXTRA_LIBRARIES =
 
@@ -77,7 +77,7 @@ LIBBITCOIN_CRYPTO_SHANI = crypto/libpigeon_crypto_shani.a
 LIBBITCOIN_CRYPTO += $(LIBBITCOIN_CRYPTO_SHANI)
 endif
 
-$(LIBSECP256K1): $(wildcard secp256k1/src/*) $(wildcard secp256k1/include/*)
+$(LIBSECP256K1): $(wildcard secp256k1/src/*.h) $(wildcard secp256k1/src/*.c) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
 
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
@@ -122,6 +122,7 @@ BITCOIN_CORE_H = \
   bloom.h \
   cachemap.h \
   cachemultimap.h \
+  blockfilter.h \
   chain.h \
   chainparams.h \
   chainparamsbase.h \
@@ -187,6 +188,7 @@ BITCOIN_CORE_H = \
   llmq/quorums_signing.h \
   llmq/quorums_signing_shares.h \
   llmq/quorums_utils.h \
+  logging.h \
   masternode/activemasternode.h \
   masternode/masternode-meta.h \
   masternode/masternode-payments.h \
@@ -215,7 +217,6 @@ BITCOIN_CORE_H = \
   rpc/client.h \
   rpc/mining.h \
   rpc/protocol.h \
-  rpc/safemode.h \
   rpc/server.h \
   rpc/register.h \
   rpc/util.h \
@@ -246,6 +247,7 @@ BITCOIN_CORE_H = \
   undo.h \
   unordered_lru_cache.h \
   util.h \
+  utilmemory.h \
   utilmoneystr.h \
   utiltime.h \
   validation.h \
@@ -264,7 +266,8 @@ BITCOIN_CORE_H = \
   zmq/zmqabstractnotifier.h \
   zmq/zmqconfig.h\
   zmq/zmqnotificationinterface.h \
-  zmq/zmqpublishnotifier.h
+  zmq/zmqpublishnotifier.h \
+  zmq/zmqrpc.h
 
 
 obj/build.h: FORCE
@@ -282,6 +285,7 @@ libpigeon_server_a_SOURCES = \
   batchedlogger.cpp \
   bloom.cpp \
   blockencodings.cpp \
+  blockfilter.cpp \
   chain.cpp \
   checkpoints.cpp \
   consensus/tx_verify.cpp \
@@ -343,9 +347,9 @@ libpigeon_server_a_SOURCES = \
   rpc/rawtransaction.cpp \
   rpc/rpcevo.cpp \
   rpc/rpcquorums.cpp \
-  rpc/safemode.cpp \
   rpc/server.cpp \
   rpc/privatesend.cpp \
+  rpc/util.cpp \
   script/sigcache.cpp \
   script/ismine.cpp \
   spork.cpp \
@@ -365,7 +369,8 @@ libpigeon_zmq_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libpigeon_zmq_a_SOURCES = \
   zmq/zmqabstractnotifier.cpp \
   zmq/zmqnotificationinterface.cpp \
-  zmq/zmqpublishnotifier.cpp
+  zmq/zmqpublishnotifier.cpp \
+  zmq/zmqrpc.cpp
 endif
 
 
@@ -571,9 +576,9 @@ libpigeon_util_a_SOURCES = \
   compat/glibcxx_sanity.cpp \
   compat/strnlen.cpp \
   fs.cpp \
+  logging.cpp \
   random.cpp \
   rpc/protocol.cpp \
-  rpc/util.cpp \
   stacktraces.cpp \
   support/cleanse.cpp \
   sync.cpp \

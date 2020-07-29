@@ -5,7 +5,6 @@
 
 #include <qt/transactionrecord.h>
 
-#include <base58.h>
 #include <consensus/consensus.h>
 #include <validation.h>
 #include <timedata.h>
@@ -380,7 +379,7 @@ bool TransactionRecord::statusUpdateNeeded(int chainLockHeight) const
         || (!status.lockedByChainLocks && status.cachedChainLockHeight != chainLockHeight);
 }
 
-QString TransactionRecord::getTxID() const
+QString TransactionRecord::getTxHash() const
 {
     return QString::fromStdString(hash.ToString());
 }

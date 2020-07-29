@@ -21,12 +21,13 @@ bench_bench_pigeon_SOURCES = \
   bench/checkblock.cpp \
   bench/checkqueue.cpp \
   bench/ecdsa.cpp \
-  bench/Examples.cpp \
+  bench/examples.cpp \
   bench/rollingbloom.cpp \
   bench/chacha20.cpp \
   bench/chacha_poly_aead.cpp \
   bench/crypto_hash.cpp \
   bench/ccoins_caching.cpp \
+  bench/gcs_filter.cpp \
   bench/merkle_root.cpp \
   bench/mempool_eviction.cpp \
   bench/util_time.cpp \

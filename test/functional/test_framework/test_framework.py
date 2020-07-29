@@ -4,8 +4,9 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Base class for RPC testing."""
+
+import configparser
 import copy
-from collections import deque
 from enum import Enum
 import logging
 import optparse
@@ -15,7 +16,6 @@ import shutil
 import sys
 import tempfile
 import time
-import traceback
 from concurrent.futures import ThreadPoolExecutor
 
 from .authproxy import JSONRPCException
@@ -35,6 +35,7 @@ from .util import (
     initialize_datadir,
     p2p_port,
     set_node_times,
+    set_timeout_scale,
     satoshi_round,
     sync_blocks,
     sync_mempools,
@@ -74,6 +75,7 @@ class BitcoinTestFramework():
         self.nodes = []
         self.mocktime = 0
         self.supports_cli = False
+        self.bind_to_localhost_only = True
         self.extra_args_from_options = []
         self.set_test_params()
 
@@ -86,11 +88,11 @@ class BitcoinTestFramework():
         parser.add_option("--nocleanup", dest="nocleanup", default=False, action="store_true",
                           help="Leave pigeonds and test.* datadir on exit or error")
         parser.add_option("--noshutdown", dest="noshutdown", default=False, action="store_true",
-                          help="Don't stop pigeonds after the test execution")
-        parser.add_option("--srcdir", dest="srcdir", default=os.path.normpath(os.path.dirname(os.path.realpath(__file__)) + "/../../../src"),
-                          help="Source directory containing pigeond/pigeon-cli (default: %default)")
-        parser.add_option("--cachedir", dest="cachedir", default=os.path.normpath(os.path.dirname(os.path.realpath(__file__)) + "/../../cache"),
-                          help="Directory for caching pregenerated datadirs")
+                          help="Don't stop dashds after the test execution")
+        parser.add_option("--srcdir", dest="srcdir", default=os.path.abspath(os.path.dirname(os.path.realpath(__file__)) + "/../../../src"),
+                          help="Source directory containing dashd/dash-cli (default: %default)")
+        parser.add_option("--cachedir", dest="cachedir", default=os.path.abspath(os.path.dirname(os.path.realpath(__file__)) + "/../../cache"),
+                          help="Directory for caching pregenerated datadirs (default: %default)")
         parser.add_option("--tmpdir", dest="tmpdir", help="Root directory for datadirs")
         parser.add_option("-l", "--loglevel", dest="loglevel", default="INFO",
                           help="log events at this level and higher to the console. Can be set to DEBUG, INFO, WARNING, ERROR or CRITICAL. Passing --loglevel DEBUG will output all logs to console. Note that logs at all levels are always written to the test_framework.log file in the temporary test directory.")
@@ -101,23 +103,38 @@ class BitcoinTestFramework():
         parser.add_option("--coveragedir", dest="coveragedir",
                           help="Write tested RPC commands into this directory")
         parser.add_option("--configfile", dest="configfile",
-                          help="Location of the test framework config file")
+                          default=os.path.abspath(os.path.dirname(os.path.realpath(__file__)) + "/../../config.ini"),
+                          help="Location of the test framework config file (default: %default)")
         parser.add_option("--pdbonfailure", dest="pdbonfailure", default=False, action="store_true",
                           help="Attach a python debugger if test fails")
         parser.add_option("--usecli", dest="usecli", default=False, action="store_true",
                           help="use dash-cli instead of RPC for all commands")
         parser.add_option("--dashd-arg", dest="dashd_extra_args", default=[], type='string', action='append',
                           help="Pass extra args to all dashd instances")
+        parser.add_option("--timeoutscale", dest="timeout_scale", default=1, type='int' ,
+                          help="Scale the test timeouts by multiplying them with the here provided value (defaul: 1)")
         self.add_options(parser)
         (self.options, self.args) = parser.parse_args()
 
+        if self.options.timeout_scale < 1:
+            raise RuntimeError("--timeoutscale can't be less than 1")
+
+        set_timeout_scale(self.options.timeout_scale)
+
         PortSeed.n = self.options.port_seed
 
-        os.environ['PATH'] = self.options.srcdir + ":" + self.options.srcdir + "/qt:" + os.environ['PATH']
+        os.environ['PATH'] = self.options.srcdir + os.pathsep + \
+                             self.options.srcdir + os.path.sep + "qt" + os.pathsep + \
+                             os.environ['PATH']
 
         check_json_precision()
 
         self.options.cachedir = os.path.abspath(self.options.cachedir)
+
+        config = configparser.ConfigParser()
+        config.read_file(open(self.options.configfile))
+        self.options.bitcoind = os.getenv("BITCOIND", default=config["environment"]["BUILDDIR"] + '/src/dashd' + config["environment"]["EXEEXT"])
+        self.options.bitcoincli = os.getenv("BITCOINCLI", default=config["environment"]["BUILDDIR"] + '/src/dash-cli' + config["environment"]["EXEEXT"])
 
         self.extra_args_from_options = self.options.dashd_extra_args
 
@@ -170,36 +187,26 @@ class BitcoinTestFramework():
             self.log.info("Note: dashds were not stopped and may still be running")
 
         if not self.options.nocleanup and not self.options.noshutdown and success != TestStatus.FAILED:
-            self.log.info("Cleaning up")
-            shutil.rmtree(self.options.tmpdir)
+            self.log.info("Cleaning up {} on exit".format(self.options.tmpdir))
+            cleanup_tree_on_exit = True
         else:
             self.log.warning("Not cleaning up dir %s" % self.options.tmpdir)
-            if os.getenv("PYTHON_DEBUG", ""):
-                # Dump the end of the debug logs, to aid in debugging rare
-                # travis failures.
-                import glob
-                filenames = [self.options.tmpdir + "/test_framework.log"]
-                filenames += glob.glob(self.options.tmpdir + "/node*/regtest/debug.log")
-                MAX_LINES_TO_PRINT = 1000
-                for fn in filenames:
-                    try:
-                        with open(fn, 'r') as f:
-                            print("From", fn, ":")
-                            print("".join(deque(f, MAX_LINES_TO_PRINT)))
-                    except OSError:
-                        print("Opening file %s failed." % fn)
-                        traceback.print_exc()
+            cleanup_tree_on_exit = False
 
         if success == TestStatus.PASSED:
             self.log.info("Tests successful")
-            sys.exit(TEST_EXIT_PASSED)
+            exit_code = TEST_EXIT_PASSED
         elif success == TestStatus.SKIPPED:
             self.log.info("Test skipped")
-            sys.exit(TEST_EXIT_SKIPPED)
+            exit_code = TEST_EXIT_SKIPPED
         else:
             self.log.error("Test failed. Test logging available at %s/test_framework.log", self.options.tmpdir)
-            logging.shutdown()
-            sys.exit(TEST_EXIT_FAILED)
+            self.log.error("Hint: Call {} '{}' to consolidate all logs".format(os.path.normpath(os.path.dirname(os.path.realpath(__file__)) + "/../combine_logs.py"), self.options.tmpdir))
+            exit_code = TEST_EXIT_FAILED
+        logging.shutdown()
+        if cleanup_tree_on_exit:
+            shutil.rmtree(self.options.tmpdir)
+        sys.exit(exit_code)
 
     # Methods to override in subclass test scripts.
     def set_test_params(self):
@@ -250,16 +257,20 @@ class BitcoinTestFramework():
 
     def add_nodes(self, num_nodes, extra_args=None, rpchost=None, timewait=None, binary=None, stderr=None):
         """Instantiate TestNode objects"""
-
+        if self.bind_to_localhost_only:
+            extra_confs = [["bind=127.0.0.1"]] * num_nodes
+        else:
+            extra_confs = [[]] * num_nodes
         if extra_args is None:
             extra_args = [[]] * num_nodes
         if binary is None:
-            binary = [None] * num_nodes
+            binary = [self.options.bitcoind] * num_nodes
+        assert_equal(len(extra_confs), num_nodes)
         assert_equal(len(extra_args), num_nodes)
         assert_equal(len(binary), num_nodes)
         old_num_nodes = len(self.nodes)
         for i in range(num_nodes):
-            self.nodes.append(TestNode(old_num_nodes + i, self.options.tmpdir, extra_args[i], self.extra_args_from_options, rpchost, timewait=timewait, binary=binary[i], stderr=stderr, mocktime=self.mocktime, coverage_dir=self.options.coveragedir, use_cli=self.options.usecli))
+            self.nodes.append(TestNode(old_num_nodes + i, self.options.tmpdir, self.extra_args_from_options, rpchost=rpchost, timewait=timewait, bitcoind=binary[i], bitcoin_cli=self.options.bitcoincli, stderr=stderr, mocktime=self.mocktime, coverage_dir=self.options.coveragedir, extra_conf=extra_confs[i], extra_args=extra_args[i], use_cli=self.options.usecli))
 
     def start_node(self, i, *args, **kwargs):
         """Start a dashd"""
@@ -398,7 +409,7 @@ class BitcoinTestFramework():
         self.log = logging.getLogger('TestFramework')
         self.log.setLevel(logging.DEBUG)
         # Create file handler to log all messages
-        fh = logging.FileHandler(self.options.tmpdir + '/test_framework.log')
+        fh = logging.FileHandler(self.options.tmpdir + '/test_framework.log', encoding='utf-8')
         fh.setLevel(logging.DEBUG)
         # Create console handler to log messages to stderr. By default this logs only error messages, but can be configured with --loglevel.
         ch = logging.StreamHandler(sys.stdout)
@@ -446,12 +457,12 @@ class BitcoinTestFramework():
             self.set_genesis_mocktime()
             for i in range(MAX_NODES):
                 datadir = initialize_datadir(self.options.cachedir, i)
-                args = [os.getenv("DASHD", "pigeond"), "-server", "-keypool=1", "-datadir=" + datadir, "-discover=0", "-mocktime="+str(GENESISTIME)]
+                args = [self.options.bitcoind, "-server", "-keypool=1", "-datadir=" + datadir, "-discover=0", "-mocktime="+str(GENESISTIME)]
                 if i > 0:
                     args.append("-connect=127.0.0.1:" + str(p2p_port(0)))
                 if extra_args is not None:
                     args.extend(extra_args)
-                self.nodes.append(TestNode(i, self.options.cachedir, extra_args=[], extra_args_from_options=self.extra_args_from_options, rpchost=None, timewait=None, binary=None, stderr=stderr, mocktime=self.mocktime, coverage_dir=None))
+                self.nodes.append(TestNode(i, self.options.cachedir, extra_conf=["bind=127.0.0.1"], extra_args=[],extra_args_from_options=self.extra_args_from_options, rpchost=None, timewait=None, bitcoind=self.options.bitcoind, bitcoin_cli=self.options.bitcoincli, stderr=stderr, mocktime=self.mocktime, coverage_dir=None))
                 self.nodes[i].args = args
                 self.start_node(i)
 

@@ -11,7 +11,6 @@
 #include <validation.h>
 #include <policy/policy.h>
 #include <policy/fees.h>
-#include <random.h>
 #include <reverse_iterator.h>
 #include <streams.h>
 #include <timedata.h>
@@ -71,12 +70,12 @@ void CTxMemPool::UpdateForDescendants(txiter updateIt, cacheMap &cachedDescendan
         setAllDescendants.insert(cit);
         stageEntries.erase(cit);
         const setEntries &setChildren = GetMemPoolChildren(cit);
-        for (const txiter childEntry : setChildren) {
+        for (txiter childEntry : setChildren) {
             cacheMap::iterator cacheIt = cachedDescendants.find(childEntry);
             if (cacheIt != cachedDescendants.end()) {
                 // We've already calculated this one, just add the entries for this set
                 // but don't traverse again.
-                for (const txiter cacheEntry : cacheIt->second) {
+                for (txiter cacheEntry : cacheIt->second) {
                     setAllDescendants.insert(cacheEntry);
                 }
             } else if (!setAllDescendants.count(childEntry)) {
@@ -1012,6 +1011,7 @@ static void CheckInputsAndUpdateCoins(const CTransaction& tx, CCoinsViewCache& m
 
 void CTxMemPool::check(const CCoinsViewCache *pcoins) const
 {
+    LOCK(cs);
     if (nCheckFrequency == 0)
         return;
 
@@ -1026,7 +1026,6 @@ void CTxMemPool::check(const CCoinsViewCache *pcoins) const
     CCoinsViewCache mempoolDuplicate(const_cast<CCoinsViewCache*>(pcoins));
     const int64_t spendheight = GetSpendHeight(mempoolDuplicate);
 
-    LOCK(cs);
     std::list<const CTxMemPoolEntry*> waitingOnDependants;
     for (indexed_transaction_set::const_iterator it = mapTx.begin(); it != mapTx.end(); it++) {
         unsigned int i = 0;

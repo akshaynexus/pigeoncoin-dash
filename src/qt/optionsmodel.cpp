@@ -52,8 +52,6 @@ void OptionsModel::Init(bool resetSettings)
 
     checkAndMigrate();
 
-    this->resetSettings = resetSettings;
-
     QSettings settings;
 
     // Ensure restart flag is unset on client startup
@@ -84,8 +82,27 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("strThirdPartyTxUrls", "");
     strThirdPartyTxUrls = settings.value("strThirdPartyTxUrls", "").toString();
 
+    // Appearance
     if (!settings.contains("theme"))
-        settings.setValue("theme", "");
+        settings.setValue("theme", GUIUtil::getDefaultTheme());
+
+    if (!settings.contains("fontFamily"))
+        settings.setValue("fontFamily", GUIUtil::fontFamilyToString(GUIUtil::getFontFamilyDefault()));
+
+    if (!settings.contains("fontScale"))
+        settings.setValue("fontScale", GUIUtil::getFontScaleDefault());
+    if (!gArgs.SoftSetArg("-font-scale", settings.value("fontScale").toString().toStdString()))
+        addOverriddenOption("-font-scale");
+
+    if (!settings.contains("fontWeightNormal"))
+        settings.setValue("fontWeightNormal", GUIUtil::weightToArg(GUIUtil::getFontWeightNormalDefault()));
+    if (!gArgs.SoftSetArg("-font-weight-normal", settings.value("fontWeightNormal").toString().toStdString()))
+        addOverriddenOption("-font-weight-normal");
+
+    if (!settings.contains("fontWeightBold"))
+        settings.setValue("fontWeightBold", GUIUtil::weightToArg(GUIUtil::getFontWeightBoldDefault()));
+    if (!gArgs.SoftSetArg("-font-weight-bold", settings.value("fontWeightBold").toString().toStdString()))
+        addOverriddenOption("-font-weight-bold");
 
 #ifdef ENABLE_WALLET
     if (!settings.contains("fCoinControlFeatures"))
@@ -138,7 +155,7 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("nPrivateSendRounds", DEFAULT_PRIVATESEND_ROUNDS);
     if (!gArgs.SoftSetArg("-privatesendrounds", settings.value("nPrivateSendRounds").toString().toStdString()))
         addOverriddenOption("-privatesendrounds");
-    privateSendClient.nPrivateSendRounds = settings.value("nPrivateSendRounds").toInt();
+    CPrivateSendClientOptions::SetRounds(settings.value("nPrivateSendRounds").toInt());
 
     if (!settings.contains("nPrivateSendAmount")) {
         // for migration from old settings
@@ -149,13 +166,13 @@ void OptionsModel::Init(bool resetSettings)
     }
     if (!gArgs.SoftSetArg("-privatesendamount", settings.value("nPrivateSendAmount").toString().toStdString()))
         addOverriddenOption("-privatesendamount");
-    privateSendClient.nPrivateSendAmount = settings.value("nPrivateSendAmount").toInt();
+    CPrivateSendClientOptions::SetAmount(settings.value("nPrivateSendAmount").toInt());
 
     if (!settings.contains("fPrivateSendMultiSession"))
         settings.setValue("fPrivateSendMultiSession", DEFAULT_PRIVATESEND_MULTISESSION);
     if (!gArgs.SoftSetBoolArg("-privatesendmultisession", settings.value("fPrivateSendMultiSession").toBool()))
         addOverriddenOption("-privatesendmultisession");
-    privateSendClient.fPrivateSendMultiSession = settings.value("fPrivateSendMultiSession").toBool();
+    CPrivateSendClientOptions::SetMultiSessionEnabled(settings.value("fPrivateSendMultiSession").toBool());
 #endif
 
     // Network
@@ -226,7 +243,6 @@ void OptionsModel::Reset()
 
     // Remove all entries from our QSettings object
     settings.clear();
-    resetSettings = true; // Needed in pigeon.cpp during shotdown to also remove the window positions
 
     // default setting for OptionsModel::StartAtStartup - disabled
     if (GUIUtil::GetStartOnSystemStartup())
@@ -337,6 +353,20 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
 #endif // ENABLE_WALLET
         case Theme:
             return settings.value("theme");
+        case FontFamily:
+            return settings.value("fontFamily");
+        case FontScale:
+            return settings.value("fontScale");
+        case FontWeightNormal: {
+            QFont::Weight weight;
+            GUIUtil::weightFromArg(settings.value("fontWeightNormal").toInt(), weight);
+            return GUIUtil::supportedWeightToIndex(weight);
+        }
+        case FontWeightBold: {
+            QFont::Weight weight;
+            GUIUtil::weightFromArg(settings.value("fontWeightBold").toInt(), weight);
+            return GUIUtil::supportedWeightToIndex(weight);
+        }
         case Language:
             return settings.value("language");
 #ifdef ENABLE_WALLET
@@ -379,7 +409,12 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             break;
         case MapPortUPnP: // core option - can be changed on-the-fly
             settings.setValue("fUseUPnP", value.toBool());
-            MapPort(value.toBool());
+            if (value.toBool()) {
+                StartMapPort();
+            } else {
+                InterruptMapPort();
+                StopMapPort();
+            }
             break;
         case MinimizeOnClose:
             fMinimizeOnClose = value.toBool();
@@ -465,24 +500,24 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
         case PrivateSendRounds:
             if (settings.value("nPrivateSendRounds") != value)
             {
-                privateSendClient.nPrivateSendRounds = value.toInt();
-                settings.setValue("nPrivateSendRounds", privateSendClient.nPrivateSendRounds);
+                CPrivateSendClientOptions::SetRounds(value.toInt());
+                settings.setValue("nPrivateSendRounds", CPrivateSendClientOptions::GetRounds());
                 Q_EMIT privateSendRoundsChanged();
             }
             break;
         case PrivateSendAmount:
             if (settings.value("nPrivateSendAmount") != value)
             {
-                privateSendClient.nPrivateSendAmount = value.toInt();
-                settings.setValue("nPrivateSendAmount", privateSendClient.nPrivateSendAmount);
+                CPrivateSendClientOptions::SetAmount(value.toInt());
+                settings.setValue("nPrivateSendAmount", CPrivateSendClientOptions::GetAmount());
                 Q_EMIT privateSentAmountChanged();
             }
             break;
         case PrivateSendMultiSession:
             if (settings.value("fPrivateSendMultiSession") != value)
             {
-                privateSendClient.fPrivateSendMultiSession = value.toBool();
-                settings.setValue("fPrivateSendMultiSession", privateSendClient.fPrivateSendMultiSession);
+                CPrivateSendClientOptions::SetMultiSessionEnabled(value.toBool());
+                settings.setValue("fPrivateSendMultiSession", CPrivateSendClientOptions::IsMultiSessionEnabled());
             }
             break;
 #endif
@@ -505,11 +540,33 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             break;
 #endif // ENABLE_WALLET
         case Theme:
-            if (settings.value("theme") != value) {
-                settings.setValue("theme", value);
-                setRestartRequired(true);
+            // Set in AppearanceWidget::updateTheme slot now
+            // to allow instant theme changes.
+            break;
+        case FontFamily:
+            if (settings.value("fontFamily") != value) {
+                settings.setValue("fontFamily", value);
             }
             break;
+        case FontScale:
+            if (settings.value("fontScale") != value) {
+                settings.setValue("fontScale", value);
+            }
+            break;
+        case FontWeightNormal: {
+            int nWeight = GUIUtil::weightToArg(GUIUtil::supportedWeightFromIndex(value.toInt()));
+            if (settings.value("fontWeightNormal") != nWeight) {
+                settings.setValue("fontWeightNormal", nWeight);
+            }
+            break;
+        }
+        case FontWeightBold: {
+            int nWeight = GUIUtil::weightToArg(GUIUtil::supportedWeightFromIndex(value.toInt()));
+            if (settings.value("fontWeightBold") != nWeight) {
+                settings.setValue("fontWeightBold", nWeight);
+            }
+            break;
+        }
         case Language:
             if (settings.value("language") != value) {
                 settings.setValue("language", value);

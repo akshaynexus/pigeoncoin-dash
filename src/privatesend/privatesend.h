@@ -2,8 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef PRIVATESEND_H
-#define PRIVATESEND_H
+#ifndef BITCOIN_PRIVATESEND_PRIVATESEND_H
+#define BITCOIN_PRIVATESEND_PRIVATESEND_H
 
 #include <bls/bls.h>
 #include <chain.h>
@@ -11,6 +11,7 @@
 #include <primitives/transaction.h>
 #include <pubkey.h>
 #include <sync.h>
+#include <spork.h>
 #include <timedata.h>
 #include <tinyformat.h>
 
@@ -445,8 +446,12 @@ public:
     static std::string GetMessageByID(PoolMessage nMessageID);
 
     /// Get the minimum/maximum number of participants for the pool
-    static int GetMinPoolParticipants() { return Params().PoolMinParticipants(); }
-    static int GetMaxPoolParticipants() { return Params().PoolMaxParticipants(); }
+    static int GetMinPoolParticipants() { return sporkManager.IsSporkActive(SPORK_23_PS_MORE_PARTICIPANTS) ?
+                                                 Params().PoolNewMinParticipants() :
+                                                 Params().PoolMinParticipants(); }
+    static int GetMaxPoolParticipants() { return sporkManager.IsSporkActive(SPORK_23_PS_MORE_PARTICIPANTS) ?
+                                                 Params().PoolNewMaxParticipants() :
+                                                 Params().PoolMaxParticipants(); }
 
     static CAmount GetMaxPoolAmount() { return vecStandardDenominations.empty() ? 0 : PRIVATESEND_ENTRY_MAX_SIZE * vecStandardDenominations.front(); }
 
@@ -470,4 +475,4 @@ public:
 
 };
 
-#endif
+#endif // BITCOIN_PRIVATESEND_PRIVATESEND_H

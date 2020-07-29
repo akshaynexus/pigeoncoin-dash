@@ -88,7 +88,7 @@ AC_PATH_TOOL(STRIP, strip)
 AC_PATH_TOOL(GCOV, gcov)
 AC_PATH_PROG(LCOV, lcov)
 dnl Python 3.x is supported from 3.4 on (see https://github.com/bitcoin/bitcoin/issues/7893)
-AC_PATH_PROGS([PYTHON], [python3.6 python3.5 python3.4 python3 python2.7 python2 python])
+AC_PATH_PROGS([PYTHON], [python3.7 python3.6 python3.5 python3.4 python3 python])
 AC_PATH_PROG(GENHTML, genhtml)
 AC_PATH_PROG([GIT], [git])
 AC_PATH_PROG(CCACHE,ccache)
@@ -98,6 +98,11 @@ AC_PATH_TOOL(READELF, readelf)
 AC_PATH_TOOL(CPPFILT, c++filt)
 AC_PATH_TOOL(OBJCOPY, objcopy)
 AC_PATH_TOOL(DSYMUTIL, dsymutil)
+AC_PATH_PROG(DOXYGEN, doxygen)
+if test -z "$DOXYGEN"; then
+   AC_MSG_WARN([Doxygen not found])
+fi
+AM_CONDITIONAL([HAVE_DOXYGEN], [test -n "$DOXYGEN"])
 
 AC_ARG_VAR(PYTHONPATH, Augments the default search path for python module files)
 
@@ -148,9 +153,9 @@ AC_ARG_WITH([qrencode],
 
 AC_ARG_ENABLE([hardening],
   [AS_HELP_STRING([--disable-hardening],
-  [do not attempt to harden the resulting executables (default is to harden)])],
+  [do not attempt to harden the resulting executables (default is to harden when possible)])],
   [use_hardening=$enableval],
-  [use_hardening=yes])
+  [use_hardening=auto])
 
 AC_ARG_ENABLE([reduce-exports],
   [AS_HELP_STRING([--enable-reduce-exports],
@@ -169,7 +174,7 @@ AC_ARG_ENABLE([lcov],
   [enable lcov testing (default is no)])],
   [use_lcov=$enableval],
   [use_lcov=no])
-  
+
 AC_ARG_ENABLE([lcov-branch-coverage],
   [AS_HELP_STRING([--enable-lcov-branch-coverage],
   [enable lcov testing branch coverage (default is no)])],
@@ -237,6 +242,13 @@ if test "x$enable_miner" = xyes; then
     AC_DEFINE(ENABLE_MINER, 1, [Define this symbol if in-wallet miner should be enabled])
 fi
 
+# Enable gprof profiling
+AC_ARG_ENABLE([gprof],
+    [AS_HELP_STRING([--enable-gprof],
+                    [use gprof profiling compiler flags (default is no)])],
+    [enable_gprof=$enableval],
+    [enable_gprof=no])
+
 # Turn warnings into errors
 AC_ARG_ENABLE([werror],
     [AS_HELP_STRING([--enable-werror],
@@ -299,6 +311,7 @@ if test "x$CXXFLAGS_overridden" = "xno"; then
   AX_CHECK_COMPILE_FLAG([-Wvla],[CXXFLAGS="$CXXFLAGS -Wvla"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wformat-security],[CXXFLAGS="$CXXFLAGS -Wformat-security"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wthread-safety-analysis],[CXXFLAGS="$CXXFLAGS -Wthread-safety-analysis"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Wrange-loop-analysis],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wrange-loop-analysis"],,[[$CXXFLAG_WERROR]])
 
   ## Some compilers (gcc) ignore unknown -Wno-* options, but warn about all
   ## unknown options if any other warning is produced. Test the -Wfoo case, and
@@ -424,25 +437,25 @@ case $host in
      use_pkgconfig=no
 
      TARGET_OS=windows
-     AC_CHECK_LIB([mingwthrd],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([kernel32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([user32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([gdi32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([comdlg32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([winspool],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([winmm],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([shell32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([comctl32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([ole32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([oleaut32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([uuid],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([rpcrt4],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([advapi32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([ws2_32],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([mswsock],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([shlwapi],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([iphlpapi],      [main],, AC_MSG_ERROR(lib missing))
-     AC_CHECK_LIB([crypt32],      [main],, AC_MSG_ERROR(lib missing))
+     AC_CHECK_LIB([mingwthrd],      [main],, AC_MSG_ERROR(libmingwthrd missing))
+     AC_CHECK_LIB([kernel32],      [main],, AC_MSG_ERROR(libkernel32 missing))
+     AC_CHECK_LIB([user32],      [main],, AC_MSG_ERROR(libuser32 missing))
+     AC_CHECK_LIB([gdi32],      [main],, AC_MSG_ERROR(libgdi32 missing))
+     AC_CHECK_LIB([comdlg32],      [main],, AC_MSG_ERROR(libcomdlg32 missing))
+     AC_CHECK_LIB([winspool],      [main],, AC_MSG_ERROR(libwinspool missing))
+     AC_CHECK_LIB([winmm],      [main],, AC_MSG_ERROR(libwinmm missing))
+     AC_CHECK_LIB([shell32],      [main],, AC_MSG_ERROR(libshell32 missing))
+     AC_CHECK_LIB([comctl32],      [main],, AC_MSG_ERROR(libcomctl32 missing))
+     AC_CHECK_LIB([ole32],      [main],, AC_MSG_ERROR(libole32 missing))
+     AC_CHECK_LIB([oleaut32],      [main],, AC_MSG_ERROR(liboleaut32 missing))
+     AC_CHECK_LIB([uuid],      [main],, AC_MSG_ERROR(libuuid missing))
+     AC_CHECK_LIB([rpcrt4],      [main],, AC_MSG_ERROR(librpcrt4 missing))
+     AC_CHECK_LIB([advapi32],      [main],, AC_MSG_ERROR(libadvapi32 missing))
+     AC_CHECK_LIB([ws2_32],      [main],, AC_MSG_ERROR(libws2_32 missing))
+     AC_CHECK_LIB([mswsock],      [main],, AC_MSG_ERROR(libmswsock missing))
+     AC_CHECK_LIB([shlwapi],      [main],, AC_MSG_ERROR(libshlwapi missing))
+     AC_CHECK_LIB([iphlpapi],      [main],, AC_MSG_ERROR(libiphlpapi missing))
+     AC_CHECK_LIB([crypt32],      [main],, AC_MSG_ERROR(libcrypt32 missing))
 
      # -static is interpreted by libtool, where it has a different meaning.
      # In libtool-speak, it's -all-static.
@@ -546,9 +559,16 @@ case $host in
      CPPFLAGS="$CPPFLAGS -DMAC_OSX -DOBJC_OLD_DISPATCH_PROTOTYPES=0"
      OBJCXXFLAGS="$CXXFLAGS"
      ;;
+   *android*)
+     dnl make sure android stays above linux for hosts like *linux-android*
+     LEVELDB_TARGET_FLAGS="-DOS_ANDROID"
+     ;;
    *linux*)
      TARGET_OS=linux
      LEVELDB_TARGET_FLAGS="-DOS_LINUX"
+     ;;
+   *kfreebsd*)
+     LEVELDB_TARGET_FLAGS="-DOS_KFREEBSD"
      ;;
    *freebsd*)
      LEVELDB_TARGET_FLAGS="-DOS_FREEBSD"
@@ -556,10 +576,17 @@ case $host in
    *openbsd*)
      LEVELDB_TARGET_FLAGS="-DOS_OPENBSD"
      ;;
+   *dragonfly*)
+     LEVELDB_TARGET_FLAGS="-DOS_DRAGONFLYBSD"
+     ;;
+   *solaris*)
+     LEVELDB_TARGET_FLAGS="-DOS_SOLARIS"
+     ;;
+   *hpux*)
+     LEVELDB_TARGET_FLAGS="-DOS_HPUX"
+     ;;
    *)
-     OTHER_OS=`echo ${host_os} | awk '{print toupper($0)}'`
-     AC_MSG_WARN([Guessing LevelDB OS as OS_${OTHER_OS}, please check whether this is correct, if not add an entry to configure.ac.])
-     LEVELDB_TARGET_FLAGS="-DOS_${OTHER_OS}"
+     AC_MSG_ERROR(Cannot build leveldb for $host. Please file a bug report.)
      ;;
 esac
 
@@ -638,7 +665,7 @@ if test x$use_glibc_compat != xno; then
 
   #glibc absorbed clock_gettime in 2.17. librt (its previous location) is safe to link
   #in anyway for back-compat.
-  AC_CHECK_LIB([rt],[clock_gettime],, AC_MSG_ERROR(lib missing))
+  AC_CHECK_LIB([rt],[clock_gettime],, AC_MSG_ERROR(librt missing))
 
   #__fdelt_chk's params and return type have changed from long unsigned int to long int.
   # See which one is present here.
@@ -657,12 +684,30 @@ else
   AC_SEARCH_LIBS([clock_gettime],[rt])
 fi
 
+if test "x$enable_gprof" = xyes; then
+    dnl -pg is incompatible with -pie. Since hardening and profiling together doesn't make sense,
+    dnl we simply make them mutually exclusive here. Additionally, hardened toolchains may force
+    dnl -pie by default, in which case it needs to be turned off with -no-pie.
+
+    if test x$use_hardening = xyes; then
+        AC_MSG_ERROR(gprof profiling is not compatible with hardening. Reconfigure with --disable-hardening or --disable-gprof)
+    fi
+    use_hardening=no
+    AX_CHECK_COMPILE_FLAG([-pg],[GPROF_CXXFLAGS="-pg"],
+        [AC_MSG_ERROR(gprof profiling requested but not available)], [[$CXXFLAG_WERROR]])
+
+    AX_CHECK_LINK_FLAG([[-no-pie]], [GPROF_LDFLAGS="-no-pie"])
+    AX_CHECK_LINK_FLAG([[-pg]],[GPROF_LDFLAGS="$GPROF_LDFLAGS -pg"],
+        [AC_MSG_ERROR(gprof profiling requested but not available)], [[$GPROF_LDFLAGS]])
+fi
+
 if test x$TARGET_OS != xwindows; then
   # All windows code is PIC, forcing it on just adds useless compile warnings
   AX_CHECK_COMPILE_FLAG([-fPIC],[PIC_FLAGS="-fPIC"])
 fi
 
 if test x$use_hardening != xno; then
+  use_hardening=yes
   AX_CHECK_COMPILE_FLAG([-Wstack-protector],[HARDENED_CXXFLAGS="$HARDENED_CXXFLAGS -Wstack-protector"])
   AX_CHECK_COMPILE_FLAG([-fstack-protector-all],[HARDENED_CXXFLAGS="$HARDENED_CXXFLAGS -fstack-protector-all"])
 
@@ -678,15 +723,11 @@ if test x$use_hardening != xno; then
   AX_CHECK_LINK_FLAG([[-Wl,--high-entropy-va]], [HARDENED_LDFLAGS="$HARDENED_LDFLAGS -Wl,--high-entropy-va"])
   AX_CHECK_LINK_FLAG([[-Wl,-z,relro]], [HARDENED_LDFLAGS="$HARDENED_LDFLAGS -Wl,-z,relro"])
   AX_CHECK_LINK_FLAG([[-Wl,-z,now]], [HARDENED_LDFLAGS="$HARDENED_LDFLAGS -Wl,-z,now"])
-
-  if test x$TARGET_OS != xwindows; then
-    AX_CHECK_COMPILE_FLAG([-fPIE],[PIE_FLAGS="-fPIE"])
-    AX_CHECK_LINK_FLAG([[-pie]], [HARDENED_LDFLAGS="$HARDENED_LDFLAGS -pie"])
-  fi
+  AX_CHECK_LINK_FLAG([[-fPIE -pie]], [PIE_FLAGS="-fPIE"; HARDENED_LDFLAGS="$HARDENED_LDFLAGS -pie"],, [[$CXXFLAG_WERROR]])
 
   case $host in
     *mingw*)
-       AC_CHECK_LIB([ssp],      [main],, AC_MSG_ERROR(lib missing))
+       AC_CHECK_LIB([ssp],      [main],, AC_MSG_ERROR(libssp missing))
     ;;
   esac
 fi
@@ -822,6 +863,14 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>
  [ AC_MSG_RESULT(no)]
 )
 
+AC_MSG_CHECKING(for if type char equals int8_t)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <stdint.h>
+  #include <type_traits>]],
+ [[ static_assert(std::is_same<int8_t, char>::value, ""); ]])],
+ [ AC_MSG_RESULT(yes); AC_DEFINE(CHAR_EQUALS_INT8, 1,[Define this symbol if type char equals int8_t]) ],
+ [ AC_MSG_RESULT(no)]
+)
+
 # ensure backtrace() is found, check -lexecinfo if necessary
 if test x$TARGET_OS != xwindows; then
   AC_SEARCH_LIBS([backtrace], [execinfo], [], [
@@ -860,7 +909,7 @@ fi
 BITCOIN_QT_INIT
 
 dnl sets $bitcoin_enable_qt, $bitcoin_enable_qt_test, $bitcoin_enable_qt_dbus
-BITCOIN_QT_CONFIGURE([$use_pkgconfig], [qt5])
+BITCOIN_QT_CONFIGURE([$use_pkgconfig])
 
 if test x$build_bitcoin_utils$build_bitcoind$bitcoin_enable_qt$use_tests$use_bench = xnonononono; then
     use_boost=no
@@ -1136,7 +1185,7 @@ if test x$system_univalue != xno ; then
     m4_ifdef(
       [PKG_CHECK_MODULES],
       [
-        PKG_CHECK_MODULES([UNIVALUE],[libunivalue],[found_univalue=yes],[true])
+        PKG_CHECK_MODULES([UNIVALUE],[libunivalue >= 1.0.4],[found_univalue=yes],[true])
       ]
     )
   else
@@ -1363,6 +1412,8 @@ AC_SUBST(BITCOIN_TX_NAME)
 
 AC_SUBST(RELDFLAGS)
 AC_SUBST(ERROR_CXXFLAGS)
+AC_SUBST(GPROF_CXXFLAGS)
+AC_SUBST(GPROF_LDFLAGS)
 AC_SUBST(HARDENED_CXXFLAGS)
 AC_SUBST(HARDENED_CPPFLAGS)
 AC_SUBST(HARDENED_LDFLAGS)
@@ -1390,10 +1441,11 @@ AC_SUBST(QR_LIBS)
 AC_SUBST(DSYMUTIL_FLAT)
 AC_CONFIG_FILES([Makefile src/Makefile doc/man/Makefile share/setup.nsi share/qt/Info.plist test/config.ini])
 AC_CONFIG_FILES([contrib/devtools/split-debug.sh],[chmod +x contrib/devtools/split-debug.sh])
-AC_CONFIG_FILES([doc/Doxyfile])
+AM_COND_IF([HAVE_DOXYGEN], [AC_CONFIG_FILES([doc/Doxyfile])])
 AC_CONFIG_LINKS([contrib/filter-lcov.py:contrib/filter-lcov.py])
 AC_CONFIG_LINKS([test/functional/test_runner.py:test/functional/test_runner.py])
 AC_CONFIG_LINKS([test/util/bitcoin-util-test.py:test/util/bitcoin-util-test.py])
+AC_CONFIG_LINKS([test/util/rpcauth-test.py:test/util/rpcauth-test.py])
 
 dnl boost's m4 checks do something really nasty: they export these vars. As a
 dnl result, they leak into secp256k1's configure and crazy things happen.
@@ -1446,12 +1498,11 @@ case ${OS} in
    ;;
 esac
 
-echo 
+echo
 echo "Options used to compile and link:"
 echo "  with wallet         = $enable_wallet"
 echo "  with gui / qt       = $bitcoin_enable_qt"
 if test x$bitcoin_enable_qt != xno; then
-    echo "    qt version        = $bitcoin_qt_got_major_vers"
     echo "    with qr           = $use_qr"
 fi
 echo "  with zmq            = $use_zmq"
@@ -1462,8 +1513,9 @@ echo "  use asm             = $use_asm"
 echo "  debug enabled       = $enable_debug"
 echo "  crash hooks enabled = $enable_crashhooks"
 echo "  miner enabled       = $enable_miner"
+echo "  gprof enabled       = $enable_gprof"
 echo "  werror              = $enable_werror"
-echo 
+echo
 echo "  target os           = $TARGET_OS"
 echo "  build os            = $BUILD_OS"
 echo
@@ -1474,4 +1526,4 @@ echo "  CXX                 = $CXX"
 echo "  CXXFLAGS            = $CXXFLAGS"
 echo "  LDFLAGS             = $LDFLAGS"
 echo "  ARFLAGS             = $ARFLAGS"
-echo 
+echo

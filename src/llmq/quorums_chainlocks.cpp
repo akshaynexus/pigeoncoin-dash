@@ -2,10 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <llmq/quorums.h>
 #include <llmq/quorums_chainlocks.h>
 #include <llmq/quorums_instantsend.h>
-#include <llmq/quorums_signing.h>
 #include <llmq/quorums_utils.h>
 
 #include <chain.h>
@@ -227,7 +225,7 @@ void CChainLocksHandler::CheckActiveState()
     bool fDIP0008Active;
     {
         LOCK(cs_main);
-        fDIP0008Active = chainActive.Tip() && VersionBitsState(chainActive.Tip()->pprev, Params().GetConsensus(), Consensus::DEPLOYMENT_DIP0008, versionbitscache) == THRESHOLD_ACTIVE;
+        fDIP0008Active = chainActive.Tip() && VersionBitsState(chainActive.Tip()->pprev, Params().GetConsensus(), Consensus::DEPLOYMENT_DIP0008, versionbitscache) == ThresholdState::ACTIVE;
     }
 
     LOCK(cs);

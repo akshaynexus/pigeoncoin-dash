@@ -10,7 +10,6 @@
 #include <QAbstractTableModel>
 #include <QStringList>
 
-class PlatformStyle;
 class TransactionRecord;
 class TransactionTablePriv;
 class WalletModel;
@@ -24,7 +23,7 @@ class TransactionTableModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    explicit TransactionTableModel(const PlatformStyle *platformStyle, CWallet* wallet, WalletModel *parent = 0);
+    explicit TransactionTableModel(CWallet* wallet, WalletModel* parent = 0);
     ~TransactionTableModel();
 
     enum ColumnIndex {
@@ -63,8 +62,6 @@ public:
         LabelRole,
         /** Net amount of transaction */
         AmountRole,
-        /** Unique identifier */
-        TxIDRole,
         /** Transaction hash */
         TxHashRole,
         /** Transaction data, hex-encoded */
@@ -96,7 +93,6 @@ private:
     QStringList columns;
     TransactionTablePriv *priv;
     bool fProcessingQueuedTransactions;
-    const PlatformStyle *platformStyle;
     int cachedChainLockHeight;
 
     void subscribeToCoreSignals();

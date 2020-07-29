@@ -45,23 +45,23 @@ void CDeterministicMNState::ToJson(UniValue& obj) const
 {
     obj.clear();
     obj.setObject();
-    obj.push_back(Pair("service", addr.ToStringIPPort(false)));
-    obj.push_back(Pair("registeredHeight", nRegisteredHeight));
-    obj.push_back(Pair("lastPaidHeight", nLastPaidHeight));
-    obj.push_back(Pair("PoSePenalty", nPoSePenalty));
-    obj.push_back(Pair("PoSeRevivedHeight", nPoSeRevivedHeight));
-    obj.push_back(Pair("PoSeBanHeight", nPoSeBanHeight));
-    obj.push_back(Pair("revocationReason", nRevocationReason));
-    obj.push_back(Pair("ownerAddress", EncodeDestination(keyIDOwner)));
-    obj.push_back(Pair("votingAddress", EncodeDestination(keyIDVoting)));
+    obj.pushKV("service", addr.ToStringIPPort(false));
+    obj.pushKV("registeredHeight", nRegisteredHeight);
+    obj.pushKV("lastPaidHeight", nLastPaidHeight);
+    obj.pushKV("PoSePenalty", nPoSePenalty);
+    obj.pushKV("PoSeRevivedHeight", nPoSeRevivedHeight);
+    obj.pushKV("PoSeBanHeight", nPoSeBanHeight);
+    obj.pushKV("revocationReason", nRevocationReason);
+    obj.pushKV("ownerAddress", EncodeDestination(keyIDOwner));
+    obj.pushKV("votingAddress", EncodeDestination(keyIDVoting));
 
     CTxDestination dest;
     if (ExtractDestination(scriptPayout, dest)) {
-        obj.push_back(Pair("payoutAddress", EncodeDestination(dest)));
+        obj.pushKV("payoutAddress", EncodeDestination(dest));
     }
-    obj.push_back(Pair("pubKeyOperator", pubKeyOperator.Get().ToString()));
+    obj.pushKV("pubKeyOperator", pubKeyOperator.Get().ToString());
     if (ExtractDestination(scriptOperatorPayout, dest)) {
-        obj.push_back(Pair("operatorPayoutAddress", EncodeDestination(dest)));
+        obj.pushKV("operatorPayoutAddress", EncodeDestination(dest));
     }
 }
 
@@ -85,20 +85,20 @@ void CDeterministicMN::ToJson(UniValue& obj) const
     UniValue stateObj;
     pdmnState->ToJson(stateObj);
 
-    obj.push_back(Pair("proTxHash", proTxHash.ToString()));
-    obj.push_back(Pair("collateralHash", collateralOutpoint.hash.ToString()));
-    obj.push_back(Pair("collateralIndex", (int)collateralOutpoint.n));
+    obj.pushKV("proTxHash", proTxHash.ToString());
+    obj.pushKV("collateralHash", collateralOutpoint.hash.ToString());
+    obj.pushKV("collateralIndex", (int)collateralOutpoint.n);
 
     Coin coin;
     if (GetUTXOCoin(collateralOutpoint, coin)) {
         CTxDestination dest;
         if (ExtractDestination(coin.out.scriptPubKey, dest)) {
-            obj.push_back(Pair("collateralAddress", EncodeDestination(dest)));
+            obj.pushKV("collateralAddress", EncodeDestination(dest));
         }
     }
 
-    obj.push_back(Pair("operatorReward", (double)nOperatorReward / 100));
-    obj.push_back(Pair("state", stateObj));
+    obj.pushKV("operatorReward", (double)nOperatorReward / 100);
+    obj.pushKV("state", stateObj);
 }
 
 bool CDeterministicMNList::IsMNValid(const uint256& proTxHash) const
@@ -549,6 +549,7 @@ bool CDeterministicMNManager::ProcessBlock(const CBlock& block, const CBlockInde
         LOCK(cs);
 
         if (!BuildNewListFromBlock(block, pindex->pprev, _state, newList, true)) {
+            // pass the state returned by the function above
             return false;
         }
 
@@ -669,9 +670,9 @@ bool CDeterministicMNManager::BuildNewListFromBlock(const CBlock& block, const C
         // has been reached, but the block hash will then point to the block at nMasternodeMinimumConfirmations
         int nConfirmations = pindexPrev->nHeight - dmn->pdmnState->nRegisteredHeight;
         if (nConfirmations >= Params().GetConsensus().nMasternodeMinimumConfirmations) {
-            CDeterministicMNState newState = *dmn->pdmnState;
-            newState.UpdateConfirmedHash(dmn->proTxHash, pindexPrev->GetBlockHash());
-            newList.UpdateMN(dmn->proTxHash, std::make_shared<CDeterministicMNState>(newState));
+            auto newState = std::make_shared<CDeterministicMNState>(*dmn->pdmnState);
+            newState->UpdateConfirmedHash(dmn->proTxHash, pindexPrev->GetBlockHash());
+            newList.UpdateMN(dmn->proTxHash, newState);
         }
     });
 
@@ -729,17 +730,14 @@ bool CDeterministicMNManager::BuildNewListFromBlock(const CBlock& block, const C
             }
 
             dmn->nOperatorReward = proTx.nOperatorReward;
-            dmn->pdmnState = std::make_shared<CDeterministicMNState>(proTx);
 
-            CDeterministicMNState dmnState = *dmn->pdmnState;
-            dmnState.nRegisteredHeight = nHeight;
-
+            auto dmnState = std::make_shared<CDeterministicMNState>(proTx);
+            dmnState->nRegisteredHeight = nHeight;
             if (proTx.addr == CService()) {
                 // start in banned pdmnState as we need to wait for a ProUpServTx
-                dmnState.nPoSeBanHeight = nHeight;
+                dmnState->nPoSeBanHeight = nHeight;
             }
-
-            dmn->pdmnState = std::make_shared<CDeterministicMNState>(dmnState);
+            dmn->pdmnState = dmnState;
 
             newList.AddMN(dmn);
 

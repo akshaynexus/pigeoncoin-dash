@@ -6,7 +6,6 @@
 #include <evo/providertx.h>
 #include <evo/specialtx.h>
 
-#include <base58.h>
 #include <chainparams.h>
 #include <clientversion.h>
 #include <core_io.h>
@@ -14,7 +13,6 @@
 #include <messagesigner.h>
 #include <script/standard.h>
 #include <streams.h>
-#include <univalue.h>
 #include <validation.h>
 
 template <typename ProTx>
@@ -119,6 +117,7 @@ bool CheckProRegTx(const CTransaction& tx, const CBlockIndex* pindexPrev, CValid
     // It's allowed to set addr to 0, which will put the MN into PoSe-banned state and require a ProUpServTx to be issues later
     // If any of both is set, it must be valid however
     if (ptx.addr != CService() && !CheckService(tx.GetHash(), ptx, state)) {
+        // pass the state returned by the function above
         return false;
     }
 
@@ -196,6 +195,7 @@ bool CheckProRegTx(const CTransaction& tx, const CBlockIndex* pindexPrev, CValid
     if (keyForPayloadSig) {
         // collateral is not part of this ProRegTx, so we must verify ownership of the collateral
         if (!CheckStringSig(ptx, *keyForPayloadSig, state)) {
+            // pass the state returned by the function above
             return false;
         }
     } else {
@@ -224,6 +224,7 @@ bool CheckProUpServTx(const CTransaction& tx, const CBlockIndex* pindexPrev, CVa
     }
 
     if (!CheckService(ptx.proTxHash, ptx, state)) {
+        // pass the state returned by the function above
         return false;
     }
 
@@ -251,9 +252,11 @@ bool CheckProUpServTx(const CTransaction& tx, const CBlockIndex* pindexPrev, CVa
 
         // we can only check the signature if pindexPrev != nullptr and the MN is known
         if (!CheckInputsHash(tx, ptx, state)) {
+            // pass the state returned by the function above
             return false;
         }
         if (!CheckHashSig(ptx, mn->pdmnState->pubKeyOperator.Get(), state)) {
+            // pass the state returned by the function above
             return false;
         }
     }
@@ -333,9 +336,11 @@ bool CheckProUpRegTx(const CTransaction& tx, const CBlockIndex* pindexPrev, CVal
         }
 
         if (!CheckInputsHash(tx, ptx, state)) {
+            // pass the state returned by the function above
             return false;
         }
         if (!CheckHashSig(ptx, dmn->pdmnState->keyIDOwner, state)) {
+            // pass the state returned by the function above
             return false;
         }
     }
@@ -370,10 +375,14 @@ bool CheckProUpRevTx(const CTransaction& tx, const CBlockIndex* pindexPrev, CVal
         if (!dmn)
             return state.DoS(100, false, REJECT_INVALID, "bad-protx-hash");
 
-        if (!CheckInputsHash(tx, ptx, state))
+        if (!CheckInputsHash(tx, ptx, state)) {
+            // pass the state returned by the function above
             return false;
-        if (!CheckHashSig(ptx, dmn->pdmnState->pubKeyOperator.Get(), state))
+        }
+        if (!CheckHashSig(ptx, dmn->pdmnState->pubKeyOperator.Get(), state)) {
+            // pass the state returned by the function above
             return false;
+        }
     }
 
     return true;

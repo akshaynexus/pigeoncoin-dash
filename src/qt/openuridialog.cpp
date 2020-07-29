@@ -16,9 +16,9 @@ OpenURIDialog::OpenURIDialog(QWidget *parent) :
     ui(new Ui::OpenURIDialog)
 {
     ui->setupUi(this);
-#if QT_VERSION >= 0x040700
+    GUIUtil::updateFonts();
+    GUIUtil::disableMacFocusRect(this);
     ui->uriEdit->setPlaceholderText("pigeon:");
-#endif
 }
 
 OpenURIDialog::~OpenURIDialog()

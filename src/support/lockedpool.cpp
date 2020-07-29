@@ -27,7 +27,6 @@
 #endif
 
 #include <algorithm>
-#include <memory>
 
 LockedPoolManager* LockedPoolManager::_instance = nullptr;
 std::once_flag LockedPoolManager::init_flag;
@@ -185,7 +184,7 @@ void Win32LockedPageAllocator::FreeLocked(void* addr, size_t len)
 
 size_t Win32LockedPageAllocator::GetLimit()
 {
-    // TODO is there a limit on windows, how to get it?
+    // TODO is there a limit on Windows, how to get it?
     return std::numeric_limits<size_t>::max();
 }
 #endif

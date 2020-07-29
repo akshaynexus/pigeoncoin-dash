@@ -10,7 +10,6 @@
 
 class BitcoinGUI;
 class ClientModel;
-class PlatformStyle;
 class SendCoinsRecipient;
 class WalletModel;
 class WalletView;
@@ -31,12 +30,12 @@ class WalletFrame : public QFrame
     Q_OBJECT
 
 public:
-    explicit WalletFrame(const PlatformStyle *platformStyle, BitcoinGUI *_gui = 0);
+    explicit WalletFrame(BitcoinGUI* _gui = 0);
     ~WalletFrame();
 
     void setClientModel(ClientModel *clientModel);
 
-    bool addWallet(const QString& name, WalletModel *walletModel);
+    bool addWallet(WalletModel *walletModel);
     bool setCurrentWallet(const QString& name);
     bool removeWallet(const QString &name);
     void removeAllWallets();
@@ -57,8 +56,7 @@ private:
 
     bool bOutOfSync;
 
-    const PlatformStyle *platformStyle;
-
+public:
     WalletView *currentWalletView();
 
 public Q_SLOTS:

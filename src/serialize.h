@@ -162,8 +162,13 @@ enum
     SER_GETHASH         = (1 << 2),
 };
 
+//! Convert the reference base type to X, without changing constness or reference type.
+template<typename X> X& ReadWriteAsHelper(X& x) { return x; }
+template<typename X> const X& ReadWriteAsHelper(const X& x) { return x; }
+
 #define READWRITE(obj)      (::SerReadWrite(s, (obj), ser_action))
-#define READWRITEMANY(...)      (::SerReadWriteMany(s, ser_action, __VA_ARGS__))
+#define READWRITEMANY(...) (::SerReadWriteMany(s, ser_action, __VA_ARGS__))
+#define READWRITEAS(type, obj) (::SerReadWriteMany(s, ser_action, ReadWriteAsHelper<type>(obj)))
 
 /** 
  * Implement three methods for serializable objects. These are actually wrappers over
@@ -181,7 +186,9 @@ enum
         SerializationOp(s, CSerActionUnserialize());                  \
     }
 
+#ifndef CHAR_EQUALS_INT8
 template<typename Stream> inline void Serialize(Stream& s, char a    ) { ser_writedata8(s, a); } // TODO Get rid of bare char
+#endif
 template<typename Stream> inline void Serialize(Stream& s, int8_t a  ) { ser_writedata8(s, a); }
 template<typename Stream> inline void Serialize(Stream& s, uint8_t a ) { ser_writedata8(s, a); }
 template<typename Stream> inline void Serialize(Stream& s, int16_t a ) { ser_writedata16(s, a); }
@@ -193,7 +200,9 @@ template<typename Stream> inline void Serialize(Stream& s, uint64_t a) { ser_wri
 template<typename Stream> inline void Serialize(Stream& s, float a   ) { ser_writedata32(s, ser_float_to_uint32(a)); }
 template<typename Stream> inline void Serialize(Stream& s, double a  ) { ser_writedata64(s, ser_double_to_uint64(a)); }
 
+#ifndef CHAR_EQUALS_INT8
 template<typename Stream> inline void Unserialize(Stream& s, char& a    ) { a = ser_readdata8(s); } // TODO Get rid of bare char
+#endif
 template<typename Stream> inline void Unserialize(Stream& s, int8_t& a  ) { a = ser_readdata8(s); }
 template<typename Stream> inline void Unserialize(Stream& s, uint8_t& a ) { a = ser_readdata8(s); }
 template<typename Stream> inline void Unserialize(Stream& s, int16_t& a ) { a = ser_readdata16(s); }
@@ -376,7 +385,7 @@ I ReadVarInt(Stream& is)
 #define COMPACTSIZE(obj) REF(CCompactSize(REF(obj)))
 #define LIMITED_STRING(obj,n) REF(LimitedString< n >(REF(obj)))
 
-/** 
+/**
  * Wrapper for serializing arrays and POD.
  */
 class CFlatData

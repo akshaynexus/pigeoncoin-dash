@@ -2,8 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DASH_QUORUMS_DKGSESSIONHANDLER_H
-#define DASH_QUORUMS_DKGSESSIONHANDLER_H
+#ifndef BITCOIN_LLMQ_QUORUMS_DKGSESSIONHANDLER_H
+#define BITCOIN_LLMQ_QUORUMS_DKGSESSIONHANDLER_H
 
 #include <llmq/quorums_dkgsession.h>
 
@@ -103,7 +103,6 @@ private:
     std::atomic<bool> stopRequested{false};
 
     const Consensus::LLMQParams& params;
-    ctpl::thread_pool& messageHandlerPool;
     CBLSWorker& blsWorker;
     CDKGSessionManager& dkgManager;
 
@@ -120,11 +119,14 @@ private:
     CDKGPendingMessages pendingPrematureCommitments;
 
 public:
-    CDKGSessionHandler(const Consensus::LLMQParams& _params, ctpl::thread_pool& _messageHandlerPool, CBLSWorker& blsWorker, CDKGSessionManager& _dkgManager);
+    CDKGSessionHandler(const Consensus::LLMQParams& _params, CBLSWorker& blsWorker, CDKGSessionManager& _dkgManager);
     ~CDKGSessionHandler();
 
     void UpdatedBlockTip(const CBlockIndex *pindexNew);
     void ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, CConnman& connman);
+
+    void StartThread();
+    void StopThread();
 
 private:
     bool InitNewQuorum(const CBlockIndex* pindexQuorum);
@@ -143,4 +145,4 @@ private:
 
 } // namespace llmq
 
-#endif //DASH_QUORUMS_DKGSESSIONHANDLER_H
+#endif // BITCOIN_LLMQ_QUORUMS_DKGSESSIONHANDLER_H

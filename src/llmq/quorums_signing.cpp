@@ -27,12 +27,12 @@ CSigningManager* quorumSigningManager;
 UniValue CRecoveredSig::ToJson() const
 {
     UniValue ret(UniValue::VOBJ);
-    ret.push_back(Pair("llmqType", (int)llmqType));
-    ret.push_back(Pair("quorumHash", quorumHash.ToString()));
-    ret.push_back(Pair("id", id.ToString()));
-    ret.push_back(Pair("msgHash", msgHash.ToString()));
-    ret.push_back(Pair("sig", sig.Get().ToString()));
-    ret.push_back(Pair("hash", sig.Get().GetHash().ToString()));
+    ret.pushKV("llmqType", (int)llmqType);
+    ret.pushKV("quorumHash", quorumHash.ToString());
+    ret.pushKV("id", id.ToString());
+    ret.pushKV("msgHash", msgHash.ToString());
+    ret.pushKV("sig", sig.Get().ToString());
+    ret.pushKV("hash", sig.Get().GetHash().ToString());
     return ret;
 }
 
@@ -730,7 +730,7 @@ void CSigningManager::ProcessRecoveredSig(NodeId nodeId, const CRecoveredSig& re
 
     CInv inv(MSG_QUORUM_RECOVERED_SIG, recoveredSig.GetHash());
     g_connman->ForEachNode([&](CNode* pnode) {
-        if (pnode->nVersion >= LLMQS_PROTO_VERSION && pnode->fSendRecSigs && !pnode->fMasternode) {
+        if (pnode->nVersion >= LLMQS_PROTO_VERSION && pnode->fSendRecSigs) {
             pnode->PushInventory(inv);
         }
     });
@@ -938,14 +938,12 @@ CQuorumCPtr CSigningManager::SelectQuorumForSigning(Consensus::LLMQType llmqType
 
 bool CSigningManager::VerifyRecoveredSig(Consensus::LLMQType llmqType, int signedAtHeight, const uint256& id, const uint256& msgHash, const CBLSSignature& sig)
 {
-    auto& llmqParams = Params().GetConsensus().llmqs.at(Params().GetConsensus().llmqTypeChainLocks);
-
-    auto quorum = SelectQuorumForSigning(llmqParams.type, signedAtHeight, id);
+    auto quorum = SelectQuorumForSigning(llmqType, signedAtHeight, id);
     if (!quorum) {
         return false;
     }
 
-    uint256 signHash = CLLMQUtils::BuildSignHash(llmqParams.type, quorum->qc.quorumHash, id, msgHash);
+    uint256 signHash = CLLMQUtils::BuildSignHash(llmqType, quorum->qc.quorumHash, id, msgHash);
     return sig.VerifyInsecure(quorum->qc.quorumPublicKey, signHash);
 }
 

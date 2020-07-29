@@ -373,6 +373,8 @@ class P2PInterface(P2PConnection):
     def wait_for_disconnect(self, timeout=60):
         test_function = lambda: self.state != "connected"
         wait_until(test_function, timeout=timeout, lock=mininode_lock)
+        # This is a hack. The related issues should be fixed by bitcoin 14119 and 14457.
+        time.sleep(1)
 
     # Message receiving helper methods
 
@@ -428,7 +430,7 @@ class P2PInterface(P2PConnection):
 
 
 # Keep our own socket map for asyncore, so that we can track disconnects
-# ourselves (to workaround an issue with closing an asyncore socket when
+# ourselves (to work around an issue with closing an asyncore socket when
 # using select)
 mininode_socket_map = dict()
 
@@ -447,7 +449,7 @@ class NetworkThread(threading.Thread):
     def run(self):
         while mininode_socket_map:
             # We check for whether to disconnect outside of the asyncore
-            # loop to workaround the behavior of asyncore when using
+            # loop to work around the behavior of asyncore when using
             # select
             disconnected = []
             for fd, obj in mininode_socket_map.items():
@@ -521,7 +523,7 @@ class P2PDataStore(P2PInterface):
             # as we go.
             prev_block_hash = headers_list[-1].hashPrevBlock
             if prev_block_hash in self.block_store:
-                prev_block_header = self.block_store[prev_block_hash]
+                prev_block_header = CBlockHeader(self.block_store[prev_block_hash])
                 headers_list.append(prev_block_header)
                 if prev_block_header.sha256 == hash_stop:
                     # if this is the hashstop header, stop here
@@ -562,7 +564,7 @@ class P2PDataStore(P2PInterface):
                 self.block_store[block.sha256] = block
                 self.last_block_hash = block.sha256
 
-        self.send_message(msg_headers([blocks[-1]]))
+        self.send_message(msg_headers([CBlockHeader(blocks[-1])]))
 
         if request_block:
             wait_until(lambda: blocks[-1].sha256 in self.getdata_requests, timeout=timeout, lock=mininode_lock)

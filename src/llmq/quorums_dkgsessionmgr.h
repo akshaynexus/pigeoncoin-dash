@@ -2,8 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DASH_QUORUMS_DKGSESSIONMGR_H
-#define DASH_QUORUMS_DKGSESSIONMGR_H
+#ifndef BITCOIN_LLMQ_QUORUMS_DKGSESSIONMGR_H
+#define BITCOIN_LLMQ_QUORUMS_DKGSESSIONMGR_H
 
 #include <llmq/quorums_dkgsessionhandler.h>
 
@@ -23,7 +23,6 @@ class CDKGSessionManager
 private:
     CDBWrapper& llmqDb;
     CBLSWorker& blsWorker;
-    ctpl::thread_pool messageHandlerPool;
 
     std::map<Consensus::LLMQType, CDKGSessionHandler> dkgSessionHandlers;
 
@@ -50,8 +49,8 @@ public:
     CDKGSessionManager(CDBWrapper& _llmqDb, CBLSWorker& _blsWorker);
     ~CDKGSessionManager();
 
-    void StartMessageHandlerPool();
-    void StopMessageHandlerPool();
+    void StartThreads();
+    void StopThreads();
 
     void UpdatedBlockTip(const CBlockIndex *pindexNew, bool fInitialDownload);
 
@@ -76,4 +75,4 @@ extern CDKGSessionManager* quorumDKGSessionManager;
 
 } // namespace llmq
 
-#endif //DASH_QUORUMS_DKGSESSIONMGR_H
+#endif // BITCOIN_LLMQ_QUORUMS_DKGSESSIONMGR_H

@@ -13,7 +13,7 @@ Do not submit patches solely to modify the style of existing code.
 [src/.clang-format](/src/.clang-format). You can use the provided
 [clang-format-diff script](/contrib/devtools/README.md#clang-format-diffpy)
 tool to clean up patches automatically before submission.
-  - Braces on new lines for namespaces, classes, functions, methods.
+  - Braces on new lines for classes, functions, methods.
   - Braces on the same line for everything else.
   - 4 space indentation (no tabs) for every block except namespaces.
   - No indentation for `public`/`protected`/`private` or for `namespace`.
@@ -34,19 +34,22 @@ code.
   - Constant names are all uppercase, and use `_` to separate words.
   - Class names, function names and method names are UpperCamelCase
     (PascalCase). Do not prefix class names with `C`.
+  - Test suite naming convention: The Boost test suite in file
+    `src/test/foo_tests.cpp` should be named `foo_tests`. Test suite names
+    must be unique.
 
 - **Miscellaneous**
   - `++i` is preferred over `i++`.
   - `nullptr` is preferred over `NULL` or `(void*)0`.
   - `static_assert` is preferred over `assert` where possible. Generally; compile-time checking is preferred over run-time checking.
   - Align pointers and references to the left i.e. use `type& var` and not `type &var`.
+  - `enum class` is preferred over `enum` where possible. Scoped enumerations avoid two potential pitfalls/problems with traditional C++ enumerations: implicit conversions to int, and name clashes due to enumerators being exported to the surrounding scope.
 
 Block style example:
 ```c++
 int g_count = 0;
 
-namespace foo
-{
+namespace foo {
 class Class
 {
     std::string m_name;
@@ -133,6 +136,8 @@ Not OK (used plenty in the current source, but not picked up):
 A full list of comment syntaxes picked up by doxygen can be found at http://www.stack.nl/~dimitri/doxygen/manual/docblocks.html,
 but if possible use one of the above styles.
 
+Documentation can be generated with `make docs` and cleaned up with `make clean-docs`.
+
 Development tips and tricks
 ---------------------------
 
@@ -140,6 +145,10 @@ Development tips and tricks
 
 Run configure with the --enable-debug option, then make. Or run configure with
 CXXFLAGS="-g -ggdb -O0" or whatever debug flags you need.
+
+**compiling for gprof profiling**
+
+Run configure with the --enable-gprof option, then make.
 
 **debug.log**
 
@@ -240,8 +249,6 @@ Threads
 - ThreadMessageHandler : Higher-level message handling (sending and receiving).
 
 - DumpAddresses : Dumps IP addresses of nodes to peers.dat.
-
-- ThreadFlushWalletDB : Close the wallet.dat file if it hasn't been used in 500ms.
 
 - ThreadRPCServer : Remote procedure call handler, listens on port 9998 for connections and services them.
 
@@ -368,12 +375,21 @@ C++ data structures
 
 - Vector bounds checking is only enabled in debug mode. Do not rely on it
 
-- Make sure that constructors initialize all fields. If this is skipped for a
-  good reason (i.e., optimization on the critical path), add an explicit
-  comment about this
+- Initialize all non-static class members where they are defined.
+  If this is skipped for a good reason (i.e., optimization on the critical
+  path), add an explicit comment about this
 
   - *Rationale*: Ensure determinism by avoiding accidental use of uninitialized
     values. Also, static analyzers balk about this.
+    Initializing the members in the declaration makes it easy to
+    spot uninitialized ones.
+
+```cpp
+class A
+{
+    uint32_t m_count{0};
+}
+```
 
 - By default, declare single-argument constructors `explicit`.
 
@@ -408,7 +424,35 @@ Strings and formatting
 
 - Use `ParseInt32`, `ParseInt64`, `ParseUInt32`, `ParseUInt64`, `ParseDouble` from `utilstrencodings.h` for number parsing
 
-  - *Rationale*: These functions do overflow checking, and avoid pesky locale issues
+  - *Rationale*: These functions do overflow checking, and avoid pesky locale issues.
+
+- Avoid using locale dependent functions if possible. You can use the provided
+  [`lint-locale-dependence.sh`](/contrib/devtools/lint-locale-dependence.sh)
+  to check for accidental use of locale dependent functions.
+
+  - *Rationale*: Unnecessary locale dependence can cause bugs that are very tricky to isolate and fix.
+
+  - These functions are known to be locale dependent:
+    `alphasort`, `asctime`, `asprintf`, `atof`, `atoi`, `atol`, `atoll`, `atoq`,
+    `btowc`, `ctime`, `dprintf`, `fgetwc`, `fgetws`, `fprintf`, `fputwc`,
+    `fputws`, `fscanf`, `fwprintf`, `getdate`, `getwc`, `getwchar`, `isalnum`,
+    `isalpha`, `isblank`, `iscntrl`, `isdigit`, `isgraph`, `islower`, `isprint`,
+    `ispunct`, `isspace`, `isupper`, `iswalnum`, `iswalpha`, `iswblank`,
+    `iswcntrl`, `iswctype`, `iswdigit`, `iswgraph`, `iswlower`, `iswprint`,
+    `iswpunct`, `iswspace`, `iswupper`, `iswxdigit`, `isxdigit`, `mblen`,
+    `mbrlen`, `mbrtowc`, `mbsinit`, `mbsnrtowcs`, `mbsrtowcs`, `mbstowcs`,
+    `mbtowc`, `mktime`, `putwc`, `putwchar`, `scanf`, `snprintf`, `sprintf`,
+    `sscanf`, `stoi`, `stol`, `stoll`, `strcasecmp`, `strcasestr`, `strcoll`,
+    `strfmon`, `strftime`, `strncasecmp`, `strptime`, `strtod`, `strtof`,
+    `strtoimax`, `strtol`, `strtold`, `strtoll`, `strtoq`, `strtoul`,
+    `strtoull`, `strtoumax`, `strtouq`, `strxfrm`, `swprintf`, `tolower`,
+    `toupper`, `towctrans`, `towlower`, `towupper`, `ungetwc`, `vasprintf`,
+    `vdprintf`, `versionsort`, `vfprintf`, `vfscanf`, `vfwprintf`, `vprintf`,
+    `vscanf`, `vsnprintf`, `vsprintf`, `vsscanf`, `vswprintf`, `vwprintf`,
+    `wcrtomb`, `wcscasecmp`, `wcscoll`, `wcsftime`, `wcsncasecmp`, `wcsnrtombs`,
+    `wcsrtombs`, `wcstod`, `wcstof`, `wcstoimax`, `wcstol`, `wcstold`,
+    `wcstoll`, `wcstombs`, `wcstoul`, `wcstoull`, `wcstoumax`, `wcswidth`,
+    `wcsxfrm`, `wctob`, `wctomb`, `wctrans`, `wctype`, `wcwidth`, `wprintf`
 
 - For `strprintf`, `LogPrint`, `LogPrintf` formatting characters don't need size specifiers
 
@@ -427,11 +471,11 @@ member name:
 ```c++
 class AddressBookPage
 {
-    Mode mode;
+    Mode m_mode;
 }
 
 AddressBookPage::AddressBookPage(Mode _mode) :
-      mode(_mode)
+      m_mode(_mode)
 ...
 ```
 
@@ -475,9 +519,14 @@ Source code organization
 
   - *Rationale*: Shorter and simpler header files are easier to read, and reduce compile time
 
+- Use only the lowercase alphanumerics (`a-z0-9`), underscore (`_`) and hyphen (`-`) in source code filenames.
+
+  - *Rationale*: `grep`:ing and auto-completing filenames is easier when using a consistent
+    naming pattern. Potential problems when building on case-insensitive filesystems are
+    avoided when using only lowercase characters in source code filenames.
+
 - Every `.cpp` and `.h` file should `#include` every header file it directly uses classes, functions or other
-  definitions from, even if those headers are already included indirectly through other headers. One exception
-  is that a `.cpp` file does not need to re-include the includes already included in its corresponding `.h` file.
+  definitions from, even if those headers are already included indirectly through other headers.
 
   - *Rationale*: Excluding headers because they are already indirectly included results in compilation
     failures when those indirect dependencies change. Furthermore, it obscures what the real code
@@ -493,23 +542,33 @@ Source code organization
 
 ```c++
 namespace mynamespace {
-    ...
+...
 } // namespace mynamespace
 
 namespace {
-    ...
+...
 } // namespace
 ```
 
   - *Rationale*: Avoids confusion about the namespace context
 
-- Prefer `#include <primitives/transaction.h>` bracket syntax instead of
-  `#include "primitives/transactions.h"` quote syntax when possible.
+- Use `#include <primitives/transaction.h>` bracket syntax instead of
+  `#include "primitives/transactions.h"` quote syntax.
 
   - *Rationale*: Bracket syntax is less ambiguous because the preprocessor
     searches a fixed list of include directories without taking location of the
     source file into account. This allows quoted includes to stand out more when
     the location of the source file actually is relevant.
+
+- Use include guards to avoid the problem of double inclusion. The header file
+  `foo/bar.h` should use the include guard identifier `BITCOIN_FOO_BAR_H`, e.g.
+
+```c++
+#ifndef BITCOIN_FOO_BAR_H
+#define BITCOIN_FOO_BAR_H
+...
+#endif // BITCOIN_FOO_BAR_H
+```
 
 GUI
 -----
@@ -617,7 +676,7 @@ To create a scripted-diff:
 
 The scripted-diff is verified by the tool `contrib/devtools/commit-script-check.sh`
 
-Commit `bb81e173` is an example of a scripted-diff.
+Commit [`bb81e173`](https://github.com/bitcoin/bitcoin/commit/bb81e173) is an example of a scripted-diff.
 
 RPC interface guidelines
 --------------------------
@@ -707,3 +766,14 @@ A few guidelines for introducing and reviewing new RPC interfaces:
     client may be aware of prior to entering a wallet RPC call, we must block
     until the wallet is caught up to the chainstate as of the RPC call's entry.
     This also makes the API much easier for RPC clients to reason about.
+
+- Be aware of RPC method aliases and generally avoid registering the same
+  callback function pointer for different RPCs.
+
+  - *Rationale*: RPC methods registered with the same function pointer will be
+    considered aliases and only the first method name will show up in the
+    `help` rpc command list.
+
+  - *Exception*: Using RPC method aliases may be appropriate in cases where a
+    new RPC is replacing a deprecated RPC, to avoid both RPCs confusingly
+    showing up in the command list.

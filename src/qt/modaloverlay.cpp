@@ -22,6 +22,15 @@ userClosed(false),
 foreverHidden(false)
 {
     ui->setupUi(this);
+
+    GUIUtil::setFont({ui->infoTextStrong,
+                      ui->labelNumberOfBlocksLeft,
+                      ui->labelLastBlockTime,
+                      ui->labelSyncDone,
+                      ui->labelProgressIncrease,
+                      ui->labelEstimatedTimeLeft,
+                     }, GUIUtil::FontWeight::Bold);
+
     connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(closeClicked()));
     if (parent) {
         parent->installEventFilter(this);
@@ -82,7 +91,7 @@ void ModalOverlay::tipUpdate(int count, const QDateTime& blockDate, double nVeri
     // keep a vector of samples of verification progress at height
     blockProcessTime.push_front(qMakePair(currentDate.toMSecsSinceEpoch(), nVerificationProgress));
 
-    // show progress speed if we have more then one sample
+    // show progress speed if we have more than one sample
     if (blockProcessTime.size() >= 2) {
         double progressDelta = 0;
         double progressPerHour = 0;

@@ -25,6 +25,7 @@ std::vector<CSporkDef> sporkDefs = {
     MAKE_SPORK_DEF(SPORK_19_CHAINLOCKS_ENABLED,            4070908800ULL), // OFF
     MAKE_SPORK_DEF(SPORK_21_QUORUM_ALL_CONNECTED,          4070908800ULL), // OFF
     MAKE_SPORK_DEF(SPORK_22_MIN_PEER_PROTOCOL_VERSION,     PROTOCOL_RVN_VERSION), // OFF
+    MAKE_SPORK_DEF(SPORK_23_PS_MORE_PARTICIPANTS,          4070908800ULL), // OFF
 };
 
 CSporkManager sporkManager;
@@ -117,7 +118,6 @@ void CSporkManager::CheckAndRemove()
 
 void CSporkManager::ProcessSpork(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, CConnman& connman)
 {
-    if(fLiteMode) return; // disable all Dash specific functionality
 
     if (strCommand == NetMsgType::SPORK) {
 

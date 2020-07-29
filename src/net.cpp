@@ -28,7 +28,6 @@
 #include <privatesend/privatesend.h>
 #include <evo/deterministicmns.h>
 
-#include <memory>
 #ifdef WIN32
 #include <string.h>
 #else
@@ -1402,11 +1401,11 @@ void CConnman::NotifyNumConnectionsChanged()
 void CConnman::InactivityCheck(CNode *pnode)
 {
     int64_t nTime = GetSystemTimeInSeconds();
-    if (nTime - pnode->nTimeConnected > 60)
+    if (nTime - pnode->nTimeConnected > m_peer_connect_timeout)
     {
         if (pnode->nLastRecv == 0 || pnode->nLastSend == 0)
         {
-            LogPrint(BCLog::NET, "socket no message in first 60 seconds, %d %d from %d\n", pnode->nLastRecv != 0, pnode->nLastSend != 0, pnode->GetId());
+            LogPrint(BCLog::NET, "socket no message in first %i seconds, %d %d from %d\n", m_peer_connect_timeout, pnode->nLastRecv != 0, pnode->nLastSend != 0, pnode->GetId());
             pnode->fDisconnect = true;
         }
         else if (nTime - pnode->nLastSend > TIMEOUT_INTERVAL)
@@ -1948,6 +1947,8 @@ void CConnman::WakeSelect()
 
 
 #ifdef USE_UPNP
+static CThreadInterrupt g_upnp_interrupt;
+static std::thread g_upnp_thread;
 void ThreadMapPort()
 {
     std::string port = strprintf("%u", GetListenPort());
@@ -1998,35 +1999,29 @@ void ThreadMapPort()
 
         std::string strDesc = "Dash Core " + FormatFullVersion();
 
-        try {
-            while (true) {
+        do {
 #ifndef UPNPDISCOVER_SUCCESS
-                /* miniupnpc 1.5 */
-                r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,
-                                    port.c_str(), port.c_str(), lanaddr, strDesc.c_str(), "TCP", 0);
+            /* miniupnpc 1.5 */
+            r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,
+                                port.c_str(), port.c_str(), lanaddr, strDesc.c_str(), "TCP", 0);
 #else
-                /* miniupnpc 1.6 */
-                r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,
-                                    port.c_str(), port.c_str(), lanaddr, strDesc.c_str(), "TCP", 0, "0");
+            /* miniupnpc 1.6 */
+            r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,
+                                port.c_str(), port.c_str(), lanaddr, strDesc.c_str(), "TCP", 0, "0");
 #endif
 
-                if(r!=UPNPCOMMAND_SUCCESS)
-                    LogPrintf("AddPortMapping(%s, %s, %s) failed with code %d (%s)\n",
-                        port, port, lanaddr, r, strupnperror(r));
-                else
-                    LogPrintf("UPnP Port Mapping successful.\n");
+            if(r!=UPNPCOMMAND_SUCCESS)
+                LogPrintf("AddPortMapping(%s, %s, %s) failed with code %d (%s)\n",
+                    port, port, lanaddr, r, strupnperror(r));
+            else
+                LogPrintf("UPnP Port Mapping successful.\n");
+        }
+        while(g_upnp_interrupt.sleep_for(std::chrono::minutes(20)));
 
-                MilliSleep(20*60*1000); // Refresh every 20 minutes
-            }
-        }
-        catch (const boost::thread_interrupted&)
-        {
-            r = UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype, port.c_str(), "TCP", 0);
-            LogPrintf("UPNP_DeletePortMapping() returned: %d\n", r);
-            freeUPNPDevlist(devlist); devlist = nullptr;
-            FreeUPNPUrls(&urls);
-            throw;
-        }
+        r = UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype, port.c_str(), "TCP", 0);
+        LogPrintf("UPNP_DeletePortMapping() returned: %d\n", r);
+        freeUPNPDevlist(devlist); devlist = nullptr;
+        FreeUPNPUrls(&urls);
     } else {
         LogPrintf("No valid UPnP IGDs found\n");
         freeUPNPDevlist(devlist); devlist = nullptr;
@@ -2035,27 +2030,39 @@ void ThreadMapPort()
     }
 }
 
-void MapPort(bool fUseUPnP)
+void StartMapPort()
 {
-    static std::unique_ptr<boost::thread> upnp_thread;
-
-    if (fUseUPnP)
-    {
-        if (upnp_thread) {
-            upnp_thread->interrupt();
-            upnp_thread->join();
-        }
-        upnp_thread.reset(new boost::thread(boost::bind(&TraceThread<void (*)()>, "upnp", &ThreadMapPort)));
+    if (!g_upnp_thread.joinable()) {
+        assert(!g_upnp_interrupt);
+        g_upnp_thread = std::thread((std::bind(&TraceThread<void (*)()>, "upnp", &ThreadMapPort)));
     }
-    else if (upnp_thread) {
-        upnp_thread->interrupt();
-        upnp_thread->join();
-        upnp_thread.reset();
+}
+
+void InterruptMapPort()
+{
+    if(g_upnp_thread.joinable()) {
+        g_upnp_interrupt();
+    }
+}
+
+void StopMapPort()
+{
+    if(g_upnp_thread.joinable()) {
+        g_upnp_thread.join();
+        g_upnp_interrupt.reset();
     }
 }
 
 #else
-void MapPort(bool)
+void StartMapPort()
+{
+    // Intentionally left blank.
+}
+void InterruptMapPort()
+{
+    // Intentionally left blank.
+}
+void StopMapPort()
 {
     // Intentionally left blank.
 }
@@ -2268,7 +2275,6 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
         CAddress addrConnect;
 
         // Only connect out to one peer per network group (/16 for IPv4).
-        // Do this here so we don't have to critsect vNodes inside mapAddresses critsect.
         // This is only done for mainnet and testnet
         int nOutbound = 0;
         std::set<std::vector<unsigned char> > setConnected;
@@ -2321,13 +2327,20 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
             }
         }
 
+        addrman.ResolveCollisions();
+
         auto mnList = deterministicMNManager->GetListAtChainTip();
 
         int64_t nANow = GetAdjustedTime();
         int nTries = 0;
         while (!interruptNet)
         {
-            CAddrInfo addr = addrman.Select(fFeeler);
+            CAddrInfo addr = addrman.SelectTriedCollision();
+
+            // SelectTriedCollision returns an invalid address if it is empty.
+            if (!fFeeler || !addr.IsValid()) {
+                addr = addrman.Select(fFeeler);
+            }
 
             auto dmn = mnList.GetMNByService(addr);
             bool isMasternode = dmn != nullptr;
@@ -2459,7 +2472,7 @@ void CConnman::ThreadOpenAddedConnections()
         for (const AddedNodeInfo& info : vInfo) {
             if (!info.fConnected) {
                 if (!grant.TryAcquire()) {
-                    // If we've used up our semaphore and need a new one, lets not wait here since while we are waiting
+                    // If we've used up our semaphore and need a new one, let's not wait here since while we are waiting
                     // the addednodeinfo state might change.
                     break;
                 }
@@ -2693,19 +2706,18 @@ void CConnman::OpenMasternodeConnection(const CAddress &addrConnect, bool probe)
 
 void CConnman::ThreadMessageHandler()
 {
-    int64_t nLastForceSendMessages = 0;
+    int64_t nLastSendMessagesTimeMasternodes = 0;
 
     while (!flagInterruptMsgProc)
     {
         std::vector<CNode*> vNodesCopy = CopyNodeVector();
 
-        int64_t nNow = GetTimeMillis();
-
         bool fMoreWork = false;
-        bool fForceSendMessages = false;
-        if (nNow - nLastForceSendMessages >= 100) {
-            fForceSendMessages = true;
-            nLastForceSendMessages = nNow;
+
+        bool fSkipSendMessagesForMasternodes = true;
+        if (GetTimeMillis() - nLastSendMessagesTimeMasternodes >= 100) {
+            fSkipSendMessagesForMasternodes = false;
+            nLastSendMessagesTimeMasternodes = GetTimeMillis();
         }
 
         for (CNode* pnode : vNodesCopy)
@@ -2714,15 +2726,14 @@ void CConnman::ThreadMessageHandler()
                 continue;
 
             // Receive messages
-            bool fDidWork = false;
-            bool fMoreNodeWork = m_msgproc->ProcessMessages(pnode, flagInterruptMsgProc, fDidWork);
+            bool fMoreNodeWork = m_msgproc->ProcessMessages(pnode, flagInterruptMsgProc);
             fMoreWork |= (fMoreNodeWork && !pnode->fPauseSend);
             if (flagInterruptMsgProc)
                 return;
             // Send messages
-            if (fDidWork || fForceSendMessages) {
+            if (!fSkipSendMessagesForMasternodes || !pnode->fMasternode) {
                 LOCK(pnode->cs_sendProcessing);
-                m_msgproc->SendMessages(pnode, flagInterruptMsgProc);
+                m_msgproc->SendMessages(pnode);
             }
 
             if (flagInterruptMsgProc)
@@ -2827,7 +2838,7 @@ bool CConnman::BindListenPort(const CService &addrBind, std::string& strError, b
     return true;
 }
 
-void Discover(boost::thread_group& threadGroup)
+void Discover()
 {
     if (!fDiscover)
         return;

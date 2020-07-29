@@ -12,7 +12,6 @@
 #include <consensus/validation.h>
 #include <hash.h>
 #include <init.h>
-#include <validation.h>
 #include <merkleblock.h>
 #include <netmessagemaker.h>
 #include <netbase.h>
@@ -482,7 +481,7 @@ bool MarkBlockAsInFlight(NodeId nodeid, const uint256& hash, const CBlockIndex *
     CNodeState *state = State(nodeid);
     assert(state != nullptr);
 
-    // Short-circuit most stuff in case its from the same node
+    // Short-circuit most stuff in case it is from the same node
     std::map<uint256, std::pair<NodeId, std::list<QueuedBlock>::iterator> >::iterator itInFlight = mapBlocksInFlight.find(hash);
     if (itInFlight != mapBlocksInFlight.end() && itInFlight->second.first == nodeid) {
         if (pit) {
@@ -544,6 +543,12 @@ void UpdateBlockAvailability(NodeId nodeid, const uint256 &hash) EXCLUSIVE_LOCKS
     }
 }
 
+/**
+ * When a peer sends us a valid block, instruct it to announce blocks to us
+ * using CMPCTBLOCK if possible by adding its nodeid to the end of
+ * lNodesAnnouncingHeaderAndIDs, and keeping that list under a certain size by
+ * removing the first element if necessary.
+ */
 void MaybeSetPeerAsAnnouncingHeaderAndIDs(NodeId nodeid, CConnman* connman)
 {
     AssertLockHeld(cs_main);
@@ -655,7 +660,7 @@ void FindNextBlocksToDownload(NodeId nodeid, unsigned int count, std::vector<con
         }
 
         // Iterate over those blocks in vToFetch (in forward direction), adding the ones that
-        // are not yet downloaded and not in flight to vBlocks. In the mean time, update
+        // are not yet downloaded and not in flight to vBlocks. In the meantime, update
         // pindexLastCommonBlock as long as all ancestors are already downloaded, or if it's
         // already part of our chain (and therefore don't need it even if pruned).
         for (const CBlockIndex* pindex : vToFetch) {
@@ -831,7 +836,7 @@ size_t GetRequestedObjectCount(NodeId nodeId)
 }
 
 // This function is used for testing the stale tip eviction logic, see
-// DoS_tests.cpp
+// denialofservice_tests.cpp
 void UpdateLastBlockAnnounceTime(NodeId node, int64_t time_in_seconds)
 {
     LOCK(cs_main);
@@ -1109,6 +1114,10 @@ PeerLogicValidation::PeerLogicValidation(CConnman* connmanIn, CScheduler &schedu
     scheduler.scheduleEvery(std::bind(&PeerLogicValidation::CheckForStaleTipAndEvictPeers, this, consensusParams), EXTRA_PEER_CHECK_INTERVAL * 1000);
 }
 
+/**
+ * Evict orphan txn pool entries (EraseOrphanTx) based on a newly connected
+ * block. Also save the time of the last tip update.
+ */
 void PeerLogicValidation::BlockConnected(const std::shared_ptr<const CBlock>& pblock, const CBlockIndex* pindex, const std::vector<CTransactionRef>& vtxConflicted) {
     LOCK2(cs_main, g_cs_orphans);
 
@@ -1139,7 +1148,7 @@ void PeerLogicValidation::BlockConnected(const std::shared_ptr<const CBlock>& pb
         }
     }
 
-    // Erase orphan transactions include or precluded by this block
+    // Erase orphan transactions included or precluded by this block
     if (vOrphanErase.size()) {
         int nErased = 0;
         for (uint256 &orphanHash : vOrphanErase) {
@@ -1162,6 +1171,10 @@ static std::shared_ptr<const CBlock> most_recent_block GUARDED_BY(cs_most_recent
 static std::shared_ptr<const CBlockHeaderAndShortTxIDs> most_recent_compact_block GUARDED_BY(cs_most_recent_block);
 static uint256 most_recent_block_hash GUARDED_BY(cs_most_recent_block);
 
+/**
+ * Maintain state about the best-seen block and fast-announce a compact block
+ * to compatible peers.
+ */
 void PeerLogicValidation::NewPoWValidBlock(const CBlockIndex *pindex, const std::shared_ptr<const CBlock>& pblock) {
     std::shared_ptr<const CBlockHeaderAndShortTxIDs> pcmpctblock = std::make_shared<const CBlockHeaderAndShortTxIDs> (*pblock);
     const CNetMsgMaker msgMaker(PROTOCOL_VERSION);
@@ -1202,6 +1215,10 @@ void PeerLogicValidation::NewPoWValidBlock(const CBlockIndex *pindex, const std:
     });
 }
 
+/**
+ * Update our best height and announce any block hashes which weren't previously
+ * in chainActive to our peers.
+ */
 void PeerLogicValidation::UpdatedBlockTip(const CBlockIndex *pindexNew, const CBlockIndex *pindexFork, bool fInitialDownload) {
     const int nNewHeight = pindexNew->nHeight;
     connman->SetBestHeight(nNewHeight);
@@ -1235,6 +1252,10 @@ void PeerLogicValidation::UpdatedBlockTip(const CBlockIndex *pindexNew, const CB
     nTimeBestReceived = GetTime();
 }
 
+/**
+ * Handle invalid block rejection and consequent peer banning, maintain which
+ * peers announce compact blocks.
+ */
 void PeerLogicValidation::BlockChecked(const CBlock& block, const CValidationState& state) {
     LOCK(cs_main);
 
@@ -1398,7 +1419,7 @@ static void RelayAddress(const CAddress& addr, bool fReachable, CConnman* connma
     connman->ForEachNodeThen(std::move(sortfunc), std::move(pushfunc));
 }
 
-void static ProcessGetBlockData(CNode* pfrom, const CChainParams& chainparams, const CInv& inv, CConnman* connman, const std::atomic<bool>& interruptMsgProc)
+void static ProcessGetBlockData(CNode* pfrom, const CChainParams& chainparams, const CInv& inv, CConnman* connman)
 {
     bool send = false;
     std::shared_ptr<const CBlock> a_recent_block;
@@ -1705,7 +1726,7 @@ void static ProcessGetData(CNode* pfrom, const CChainParams& chainparams, CConnm
         const CInv &inv = *it;
         if (inv.type == MSG_BLOCK || inv.type == MSG_FILTERED_BLOCK || inv.type == MSG_CMPCT_BLOCK) {
             it++;
-            ProcessGetBlockData(pfrom, chainparams, inv, connman, interruptMsgProc);
+            ProcessGetBlockData(pfrom, chainparams, inv, connman);
         }
     }
 
@@ -2310,7 +2331,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::SENDHEADERS));
         }
 
-        if (pfrom->nVersion >= SHORT_IDS_BLOCKS_VERSION) {
+        if (pfrom->nVersion >= SHORT_IDS_BLOCKS_VERSION && !pfrom->fMasternode) {
             // Tell our peer we are willing to provide version-1 cmpctblocks
             // However, we do not request new block announcements using
             // cmpctblock messages.
@@ -2330,7 +2351,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             pfrom->fSendDSQueue = true;
         }
 
-        if (pfrom->nVersion >= LLMQS_PROTO_VERSION) {
+        if (pfrom->nVersion >= LLMQS_PROTO_VERSION && !pfrom->fMasternode) {
             // Tell our peer that we're interested in plain LLMQ recovered signatures.
             // Otherwise the peer would only announce/send messages resulting from QRECSIG,
             // e.g. InstantSend locks or ChainLocks. SPV nodes should not send this message
@@ -2338,7 +2359,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::QSENDRECSIGS, true));
         }
 
-        if (gArgs.GetBoolArg("-watchquorums", llmq::DEFAULT_WATCH_QUORUMS)) {
+        if (gArgs.GetBoolArg("-watchquorums", llmq::DEFAULT_WATCH_QUORUMS) && !pfrom->fMasternode) {
             connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::QWATCH));
         }
 
@@ -3521,7 +3542,10 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
     {
         //probably one the extensions
 #ifdef ENABLE_WALLET
-        privateSendClient.ProcessMessage(pfrom, strCommand, vRecv, *connman, enable_bip61);
+        privateSendClientQueueManager.ProcessMessage(pfrom, strCommand, vRecv, *connman, enable_bip61);
+        for (auto& pair : privateSendClientManagers) {
+            pair.second->ProcessMessage(pfrom, strCommand, vRecv, *connman, enable_bip61);
+        }
 #endif // ENABLE_WALLET
         privateSendServer.ProcessMessage(pfrom, strCommand, vRecv, *connman, enable_bip61);
         sporkManager.ProcessSpork(pfrom, strCommand, vRecv, *connman);
@@ -3575,7 +3599,7 @@ static bool SendRejectsAndCheckIfBanned(CNode* pnode, CConnman* connman, bool en
     return false;
 }
 
-bool PeerLogicValidation::ProcessMessages(CNode* pfrom, std::atomic<bool>& interruptMsgProc, bool &fRetDidWork)
+bool PeerLogicValidation::ProcessMessages(CNode* pfrom, std::atomic<bool>& interruptMsgProc)
 {
     const CChainParams& chainparams = Params();
     //
@@ -3587,17 +3611,13 @@ bool PeerLogicValidation::ProcessMessages(CNode* pfrom, std::atomic<bool>& inter
     //  (x) data
     //
     bool fMoreWork = false;
-    fRetDidWork = false;
 
-    if (!pfrom->vRecvGetData.empty()) {
+    if (!pfrom->vRecvGetData.empty())
         ProcessGetData(pfrom, chainparams, connman, interruptMsgProc);
-        fRetDidWork = true;
-    }
 
     if (!pfrom->orphan_work_set.empty()) {
         LOCK2(cs_main, g_cs_orphans);
         ProcessOrphanTx(connman, pfrom->orphan_work_set);
-        fRetDidWork = true;
     }
 
     if (pfrom->fDisconnect)
@@ -3621,7 +3641,6 @@ bool PeerLogicValidation::ProcessMessages(CNode* pfrom, std::atomic<bool>& inter
         pfrom->nProcessQueueSize -= msgs.front().vRecv.size() + CMessageHeader::HEADER_SIZE;
         pfrom->fPauseRecv = pfrom->nProcessQueueSize > connman->GetReceiveFloodSize();
         fMoreWork = !pfrom->vProcessMsg.empty();
-        fRetDidWork = true;
     }
     CNetMessage& msg(msgs.front());
 
@@ -3859,7 +3878,7 @@ public:
 };
 }
 
-bool PeerLogicValidation::SendMessages(CNode* pto, std::atomic<bool>& interruptMsgProc)
+bool PeerLogicValidation::SendMessages(CNode* pto)
 {
     const Consensus::Params& consensusParams = Params().GetConsensus();
     {

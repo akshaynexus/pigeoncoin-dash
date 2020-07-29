@@ -7,10 +7,11 @@
 
 #include <qt/guiutil.h>
 
+#include <uint256.h>
+
 #include <QWidget>
 #include <QKeyEvent>
 
-class PlatformStyle;
 class TransactionFilterProxy;
 class WalletModel;
 
@@ -34,7 +35,7 @@ class TransactionView : public QWidget
     Q_OBJECT
 
 public:
-    explicit TransactionView(const PlatformStyle *platformStyle, QWidget *parent = 0);
+    explicit TransactionView(QWidget* parent = 0);
 
     void setModel(WalletModel *model);
 
@@ -80,10 +81,12 @@ private:
     QAction *abandonAction;
 
     QWidget *createDateRangeWidget();
+    void updateCalendarWidgets();
 
     GUIUtil::TableViewLastColumnResizingFixer *columnResizingFixer;
 
     virtual void resizeEvent(QResizeEvent* event) override;
+    void changeEvent(QEvent* e) override;
 
     bool eventFilter(QObject *obj, QEvent *event) override;
 
@@ -121,6 +124,7 @@ public Q_SLOTS:
     void changedSearch();
     void exportClicked();
     void focusTransaction(const QModelIndex&);
+    void focusTransaction(const uint256& txid);
     void computeSum();
 };
 

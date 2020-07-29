@@ -7,13 +7,13 @@
 
 #include <tinyformat.h>
 #include <util.h>
+#include <utilmemory.h>
 
 #include <assert.h>
-#include <memory>
 
 const std::string CBaseChainParams::MAIN = "main";
 const std::string CBaseChainParams::TESTNET = "test";
-const std::string CBaseChainParams::DEVNET = "dev";
+const std::string CBaseChainParams::DEVNET = "devnet";
 const std::string CBaseChainParams::REGTEST = "regtest";
 
 void AppendParamsHelpMessages(std::string& strUsage, bool debugHelp)

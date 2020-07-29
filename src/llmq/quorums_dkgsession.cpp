@@ -7,7 +7,6 @@
 #include <llmq/quorums_commitment.h>
 #include <llmq/quorums_debug.h>
 #include <llmq/quorums_dkgsessionmgr.h>
-#include <llmq/quorums_utils.h>
 
 #include <evo/specialtx.h>
 
@@ -15,7 +14,6 @@
 #include <masternode/masternode-meta.h>
 #include <chainparams.h>
 #include <init.h>
-#include <net.h>
 #include <netmessagemaker.h>
 #include <spork.h>
 #include <univalue.h>
@@ -125,6 +123,7 @@ bool CDKGSession::Init(const CBlockIndex* _pindexQuorum, const std::vector<CDete
 
     if (!myProTxHash.IsNull()) {
         quorumDKGDebugManager->InitLocalSessionStatus(params.type, pindexQuorum->GetBlockHash(), pindexQuorum->nHeight);
+        relayMembers = CLLMQUtils::GetQuorumRelayMembers(params.type, pindexQuorum, myProTxHash, true);
     }
 
     if (myProTxHash.IsNull()) {
@@ -445,7 +444,7 @@ void CDKGSession::VerifyAndComplain(CDKGPendingMessages& pendingMessages)
 
 void CDKGSession::VerifyConnectionAndMinProtoVersions()
 {
-    if (!sporkManager.IsSporkActive(SPORK_21_QUORUM_ALL_CONNECTED)) {
+    if (!CLLMQUtils::IsAllMembersConnectedEnabled(params.type)) {
         return;
     }
 
@@ -1314,7 +1313,7 @@ void CDKGSession::RelayInvToParticipants(const CInv& inv) const
         bool relay = false;
         if (pnode->qwatch) {
             relay = true;
-        } else if (!pnode->verifiedProRegTxHash.IsNull() && membersMap.count(pnode->verifiedProRegTxHash)) {
+        } else if (!pnode->verifiedProRegTxHash.IsNull() && relayMembers.count(pnode->verifiedProRegTxHash)) {
             relay = true;
         }
         if (relay) {

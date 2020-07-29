@@ -23,7 +23,6 @@
 #include <ui_interface.h>
 #include <util.h> // for GetBoolArg
 #include <wallet/coincontrol.h>
-#include <wallet/wallet.h>
 #include <wallet/walletdb.h> // for BackupWallet
 
 #include <spork.h>
@@ -37,17 +36,13 @@
 #include <QTimer>
 
 
-WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *_wallet, OptionsModel *_optionsModel, QObject *parent) :
+WalletModel::WalletModel(CWallet* _wallet, OptionsModel* _optionsModel, QObject* parent) :
     QObject(parent), wallet(_wallet), optionsModel(_optionsModel), addressTableModel(0),
     transactionTableModel(0),
     recentRequestsTableModel(0),
-    cachedBalance(0),
-    cachedUnconfirmedBalance(0),
-    cachedImmatureBalance(0),
+    cachedBalance(0), cachedUnconfirmedBalance(0), cachedImmatureBalance(0),
+    cachedWatchOnlyBalance{0}, cachedWatchUnconfBalance{0}, cachedWatchImmatureBalance{0},
     cachedAnonymizedBalance(0),
-    cachedWatchOnlyBalance(0),
-    cachedWatchUnconfBalance(0),
-    cachedWatchImmatureBalance(0),
     cachedEncryptionStatus(Unencrypted),
     cachedNumBlocks(0),
     cachedNumISLocks(0),
@@ -57,7 +52,7 @@ WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *_wallet, O
     fForceCheckBalanceChanged = false;
 
     addressTableModel = new AddressTableModel(wallet, this);
-    transactionTableModel = new TransactionTableModel(platformStyle, wallet, this);
+    transactionTableModel = new TransactionTableModel(wallet, this);
     recentRequestsTableModel = new RecentRequestsTableModel(wallet, this);
 
     // This timer will be fired repeatedly to update the balance
@@ -143,8 +138,9 @@ void WalletModel::updateStatus()
 {
     EncryptionStatus newEncryptionStatus = getEncryptionStatus();
 
-    if(cachedEncryptionStatus != newEncryptionStatus)
-        Q_EMIT encryptionStatusChanged(newEncryptionStatus);
+    if(cachedEncryptionStatus != newEncryptionStatus) {
+        Q_EMIT encryptionStatusChanged();
+    }
 }
 
 void WalletModel::pollBalanceChanged()
@@ -159,13 +155,12 @@ void WalletModel::pollBalanceChanged()
     if(!lockWallet)
         return;
 
-    if(fForceCheckBalanceChanged || chainActive.Height() != cachedNumBlocks || privateSendClient.nPrivateSendRounds != cachedPrivateSendRounds)
-    {
+    if (fForceCheckBalanceChanged || chainActive.Height() != cachedNumBlocks || CPrivateSendClientOptions::GetRounds() != cachedPrivateSendRounds) {
         fForceCheckBalanceChanged = false;
 
         // Balance and number of transactions might have changed
         cachedNumBlocks = chainActive.Height();
-        cachedPrivateSendRounds = privateSendClient.nPrivateSendRounds;
+        cachedPrivateSendRounds = CPrivateSendClientOptions::GetRounds();
 
         checkBalanceChanged();
         if(transactionTableModel)
@@ -812,4 +807,19 @@ bool WalletModel::hdEnabled() const
 int WalletModel::getDefaultConfirmTarget() const
 {
     return nTxConfirmTarget;
+}
+
+QString WalletModel::getWalletName() const
+{
+    LOCK(wallet->cs_wallet);
+    QString walletName = QString::fromStdString(wallet->GetName());
+    if (walletName.endsWith(".dat")) {
+        walletName.truncate(walletName.size() - 4);
+    }
+    return walletName;
+}
+
+bool WalletModel::isMultiwallet()
+{
+    return gArgs.GetArgs("-wallet").size() > 1;
 }

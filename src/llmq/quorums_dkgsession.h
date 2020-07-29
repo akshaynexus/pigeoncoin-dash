@@ -2,8 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DASH_QUORUMS_DKGSESSION_H
-#define DASH_QUORUMS_DKGSESSION_H
+#ifndef BITCOIN_LLMQ_QUORUMS_DKGSESSION_H
+#define BITCOIN_LLMQ_QUORUMS_DKGSESSION_H
 
 #include <consensus/params.h>
 #include <net.h>
@@ -254,6 +254,7 @@ private:
 private:
     std::vector<std::unique_ptr<CDKGMember>> members;
     std::map<uint256, size_t> membersMap;
+    std::set<uint256> relayMembers;
     BLSVerificationVectorPtr vvecContribution;
     BLSSecretKeyVector skContributions;
 
@@ -344,4 +345,4 @@ void SetSimulatedDKGErrorRate(const std::string& type, double rate);
 
 } // namespace llmq
 
-#endif //DASH_QUORUMS_DKGSESSION_H
+#endif // BITCOIN_LLMQ_QUORUMS_DKGSESSION_H

@@ -4,12 +4,13 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Class for pigeond node under test"""
 
+import contextlib
 import decimal
 import errno
 import http.client
 import json
 import logging
-import os
+import os.path
 import re
 import subprocess
 import time
@@ -17,6 +18,7 @@ import time
 from .authproxy import JSONRPCException
 from .messages import MY_SUBVERSION
 from .util import (
+    append_config,
     assert_equal,
     delete_cookie_file,
     get_rpc_proxy,
@@ -44,7 +46,7 @@ class TestNode():
     To make things easier for the test writer, any unrecognised messages will
     be dispatched to the RPC connection."""
 
-    def __init__(self, i, dirname, extra_args, extra_args_from_options, rpchost, timewait, binary, stderr, mocktime, coverage_dir, use_cli=False):
+    def __init__(self, i, dirname, extra_args_from_options, rpchost, timewait, bitcoind, bitcoin_cli, stderr, mocktime, coverage_dir, extra_conf=None, extra_args=None, use_cli=False):
         self.index = i
         self.datadir = os.path.join(dirname, "node" + str(i))
         self.rpchost = rpchost
@@ -53,19 +55,19 @@ class TestNode():
         else:
             # Wait for up to 60 seconds for the RPC server to respond
             self.rpc_timeout = 60
-        if binary is None:
-            self.binary = os.getenv("BITCOIND", "pigeond")
-        else:
-            self.binary = binary
+        self.binary = bitcoind
         self.stderr = stderr
         self.coverage_dir = coverage_dir
         self.mocktime = mocktime
-        # Most callers will just need to add extra args to the standard list below. For those callers that need more flexibity, they can just set the args property directly.
+        if extra_conf != None:
+            append_config(dirname, i, extra_conf)
+        # Most callers will just need to add extra args to the standard list below.
+        # For those callers that need more flexibity, they can just set the args property directly.
         self.extra_args = extra_args
         self.extra_args_from_options = extra_args_from_options
         self.args = [self.binary, "-datadir=" + self.datadir, "-server", "-keypool=1", "-discover=0", "-rest", "-logtimemicros", "-debug", "-debugexclude=libevent", "-debugexclude=leveldb", "-mocktime=" + str(mocktime), "-uacomment=testnode%d" % i]
 
-        self.cli = TestNodeCLI(os.getenv("BITCOINCLI", "dash-cli"), self.datadir)
+        self.cli = TestNodeCLI(bitcoin_cli, self.datadir)
         self.use_cli = use_cli
 
         # Don't try auto backups (they fail a lot when running tests)
@@ -186,6 +188,23 @@ class TestNode():
 
     def wait_until_stopped(self, timeout=BITCOIND_PROC_WAIT_TIMEOUT):
         wait_until(self.is_node_stopped, timeout=timeout)
+
+    @contextlib.contextmanager
+    def assert_debug_log(self, expected_msgs):
+        debug_log = os.path.join(self.datadir, 'regtest', 'debug.log')
+        with open(debug_log, encoding='utf-8') as dl:
+            dl.seek(0, 2)
+            prev_size = dl.tell()
+        try:
+            yield
+        finally:
+            with open(debug_log, encoding='utf-8') as dl:
+                dl.seek(prev_size)
+                log = dl.read()
+            print_log = " - " + "\n - ".join(log.splitlines())
+            for expected_msg in expected_msgs:
+                if re.search(re.escape(expected_msg), log, flags=re.MULTILINE) is None:
+                    self._raise_assertion_error('Expected message "{}" does not partially match log:\n\n{}\n\n'.format(expected_msg, print_log))
 
     def node_encrypt_wallet(self, passphrase):
         """"Encrypts the wallet.

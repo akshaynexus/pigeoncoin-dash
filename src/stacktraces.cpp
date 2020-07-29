@@ -4,7 +4,6 @@
 
 #include <stacktraces.h>
 #include <fs.h>
-#include <tinyformat.h>
 #include <random.h>
 #include <streams.h>
 #include <util.h>
@@ -14,13 +13,10 @@
 
 #include <mutex>
 #include <map>
-#include <string>
 #include <vector>
 #include <memory>
 #include <thread>
 #include <atomic>
-
-#include <cxxabi.h>
 
 #if WIN32
 #include <windows.h>
@@ -524,7 +520,7 @@ static std::string GetCrashInfoStr(const crash_info& ci, size_t spaces)
 static void PrintCrashInfo(const crash_info& ci)
 {
     auto str = GetCrashInfoStr(ci);
-    LogPrintf("%s", str);
+    LogPrintf("%s", str); /* Continued */
     fprintf(stderr, "%s", str.c_str());
     fflush(stderr);
 }

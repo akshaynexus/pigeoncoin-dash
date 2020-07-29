@@ -82,6 +82,20 @@ BOOST_AUTO_TEST_CASE(util_HexStr)
         "04 67 8a fd b0");
 
     BOOST_CHECK_EQUAL(
+        HexStr(ParseHex_expected + sizeof(ParseHex_expected),
+               ParseHex_expected + sizeof(ParseHex_expected)),
+        "");
+
+    BOOST_CHECK_EQUAL(
+        HexStr(ParseHex_expected + sizeof(ParseHex_expected),
+               ParseHex_expected + sizeof(ParseHex_expected), true),
+        "");
+
+    BOOST_CHECK_EQUAL(
+        HexStr(ParseHex_expected, ParseHex_expected),
+        "");
+
+    BOOST_CHECK_EQUAL(
         HexStr(ParseHex_expected, ParseHex_expected, true),
         "");
 
@@ -90,6 +104,58 @@ BOOST_AUTO_TEST_CASE(util_HexStr)
     BOOST_CHECK_EQUAL(
         HexStr(ParseHex_vec, true),
         "04 67 8a fd b0");
+
+    BOOST_CHECK_EQUAL(
+        HexStr(ParseHex_vec.rbegin(), ParseHex_vec.rend()),
+        "b0fd8a6704"
+    );
+
+    BOOST_CHECK_EQUAL(
+        HexStr(ParseHex_vec.rbegin(), ParseHex_vec.rend(), true),
+        "b0 fd 8a 67 04"
+    );
+
+    BOOST_CHECK_EQUAL(
+        HexStr(std::reverse_iterator<const uint8_t *>(ParseHex_expected),
+               std::reverse_iterator<const uint8_t *>(ParseHex_expected)),
+        ""
+    );
+
+    BOOST_CHECK_EQUAL(
+        HexStr(std::reverse_iterator<const uint8_t *>(ParseHex_expected),
+               std::reverse_iterator<const uint8_t *>(ParseHex_expected), true),
+        ""
+    );
+
+    BOOST_CHECK_EQUAL(
+        HexStr(std::reverse_iterator<const uint8_t *>(ParseHex_expected + 1),
+               std::reverse_iterator<const uint8_t *>(ParseHex_expected)),
+        "04"
+    );
+
+    BOOST_CHECK_EQUAL(
+        HexStr(std::reverse_iterator<const uint8_t *>(ParseHex_expected + 1),
+               std::reverse_iterator<const uint8_t *>(ParseHex_expected), true),
+        "04"
+    );
+
+    BOOST_CHECK_EQUAL(
+        HexStr(std::reverse_iterator<const uint8_t *>(ParseHex_expected + 5),
+               std::reverse_iterator<const uint8_t *>(ParseHex_expected)),
+        "b0fd8a6704"
+    );
+
+    BOOST_CHECK_EQUAL(
+        HexStr(std::reverse_iterator<const uint8_t *>(ParseHex_expected + 5),
+               std::reverse_iterator<const uint8_t *>(ParseHex_expected), true),
+        "b0 fd 8a 67 04"
+    );
+
+    BOOST_CHECK_EQUAL(
+        HexStr(std::reverse_iterator<const uint8_t *>(ParseHex_expected + 65),
+               std::reverse_iterator<const uint8_t *>(ParseHex_expected)),
+        "5f1df16b2b704c8a578d0bbaf74d385cde12c11ee50455f3c438ef4c3fbcf649b6de611feae06279a60939e028a8d65c10b73071a6f16719274855feb0fd8a6704"
+    );
 }
 
 
@@ -734,6 +800,21 @@ BOOST_AUTO_TEST_CASE(util_time_GetTime)
     BOOST_CHECK(us_0 < GetTime<std::chrono::microseconds>());
 }
 
+BOOST_AUTO_TEST_CASE(test_IsDigit)
+{
+    BOOST_CHECK_EQUAL(IsDigit('0'), true);
+    BOOST_CHECK_EQUAL(IsDigit('1'), true);
+    BOOST_CHECK_EQUAL(IsDigit('8'), true);
+    BOOST_CHECK_EQUAL(IsDigit('9'), true);
+
+    BOOST_CHECK_EQUAL(IsDigit('0' - 1), false);
+    BOOST_CHECK_EQUAL(IsDigit('9' + 1), false);
+    BOOST_CHECK_EQUAL(IsDigit(0), false);
+    BOOST_CHECK_EQUAL(IsDigit(1), false);
+    BOOST_CHECK_EQUAL(IsDigit(8), false);
+    BOOST_CHECK_EQUAL(IsDigit(9), false);
+}
+
 BOOST_AUTO_TEST_CASE(test_ParseInt32)
 {
     int32_t n;
@@ -986,21 +1067,6 @@ BOOST_AUTO_TEST_CASE(test_ParseFixedPoint)
     BOOST_CHECK(!ParseFixedPoint("1.1e", 8, &amount));
     BOOST_CHECK(!ParseFixedPoint("1.1e-", 8, &amount));
     BOOST_CHECK(!ParseFixedPoint("1.", 8, &amount));
-}
-
-BOOST_AUTO_TEST_CASE(version_info_helper)
-{
-    BOOST_CHECK(StringVersionToInt("1.1.1") == 0x010101);
-    BOOST_CHECK(IntVersionToString(0x010101) == "1.1.1");
-
-    BOOST_CHECK_THROW(StringVersionToInt("1.1.hgdghfgf"), std::bad_cast);
-    BOOST_CHECK_THROW(StringVersionToInt("1.1"), std::bad_cast);
-    BOOST_CHECK_THROW(StringVersionToInt("1.1.1f"), std::bad_cast);
-    BOOST_CHECK_THROW(StringVersionToInt("1.1.1000"), std::bad_cast);
-    BOOST_CHECK_THROW(StringVersionToInt("10"), std::bad_cast);
-    BOOST_CHECK_THROW(StringVersionToInt("1.1.1.1"), std::bad_cast);
-    BOOST_CHECK_THROW(IntVersionToString(0x01010101), std::bad_cast);
-    BOOST_CHECK_THROW(IntVersionToString(0), std::bad_cast);
 }
 
 static void TestOtherThread(fs::path dirname, std::string lockname, bool *result)

@@ -96,7 +96,7 @@ $(OSX_APP)/Contents/Resources/bitcoin.icns: $(OSX_INSTALLER_ICONS)
 
 $(OSX_APP)/Contents/MacOS/Pigeon-Qt: $(BITCOIN_QT_BIN)
 	$(MKDIR_P) $(@D)
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM)  $< $@
+	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM)  $(BITCOIN_QT_BIN) $@
 
 $(OSX_APP)/Contents/Resources/Base.lproj/InfoPlist.strings:
 	$(MKDIR_P) $(@D)
@@ -255,7 +255,8 @@ EXTRA_DIST += \
     test/util/data/txcreatescript2.json \
     test/util/data/txcreatesignv1.hex \
     test/util/data/txcreatesignv1.json \
-    test/util/data/txcreatesignv2.hex
+    test/util/data/txcreatesignv2.hex \
+    test/util/rpcauth-test.py
 
 CLEANFILES = $(OSX_DMG) $(BITCOIN_WIN_INSTALLER)
 

@@ -7,7 +7,6 @@
 #include <core_io.h>
 #include <init.h>
 #include <messagesigner.h>
-#include <rpc/safemode.h>
 #include <rpc/server.h>
 #include <txmempool.h>
 #include <utilmoneystr.h>
@@ -28,7 +27,7 @@
 
 #include <bls/bls.h>
 
-#include "masternode/masternode-meta.h"
+#include <masternode/masternode-meta.h>
 
 #ifdef ENABLE_WALLET
 extern UniValue signrawtransaction(const JSONRPCRequest& request);
@@ -62,7 +61,7 @@ std::string GetHelpString(int nParamNum, std::string strParamName)
             "                              Must be unique on the network. Can be set to 0, which will require a ProUpServTx afterwards.\n"
         },
         {"operatorKey",
-            "%d. \"operatorKey\"              (string, required) The operator private key belonging to the\n"
+            "%d. \"operatorKey\"              (string, required) The operator BLS private key associated with the\n"
             "                              registered operator public key.\n"
         },
         {"operatorPayoutAddress",
@@ -71,12 +70,12 @@ std::string GetHelpString(int nParamNum, std::string strParamName)
             "                              If set to an empty string, the currently active payout address is reused.\n"
         },
         {"operatorPubKey_register",
-            "%d. \"operatorPubKey\"           (string, required) The operator BLS public key. The private key does not have to be known.\n"
-            "                              It has to match the private key which is later used when operating the masternode.\n"
+            "%d. \"operatorPubKey\"           (string, required) The operator BLS public key. The BLS private key does not have to be known.\n"
+            "                              It has to match the BLS private key which is later used when operating the masternode.\n"
         },
         {"operatorPubKey_update",
-            "%d. \"operatorPubKey\"           (string, required) The operator BLS public key. The private key does not have to be known.\n"
-            "                              It has to match the private key which is later used when operating the masternode.\n"
+            "%d. \"operatorPubKey\"           (string, required) The operator BLS public key. The BLS private key does not have to be known.\n"
+            "                              It has to match the BLS private key which is later used when operating the masternode.\n"
             "                              If set to an empty string, the currently active operator BLS public key is reused.\n"
         },
         {"operatorReward",
@@ -429,8 +428,6 @@ UniValue protx_register(const JSONRPCRequest& request)
         protx_register_prepare_help();
     }
 
-    ObserveSafeMode();
-
     if (!EnsureWalletIsAvailable(pwallet, request.fHelp))
         return NullUniValue;
 
@@ -555,9 +552,9 @@ UniValue protx_register(const JSONRPCRequest& request)
             SetTxPayload(tx, ptx);
 
             UniValue ret(UniValue::VOBJ);
-            ret.push_back(Pair("tx", EncodeHexTx(tx)));
-            ret.push_back(Pair("collateralAddress", EncodeDestination(txDest)));
-            ret.push_back(Pair("signMessage", ptx.MakeSignString()));
+            ret.pushKV("tx", EncodeHexTx(tx));
+            ret.pushKV("collateralAddress", EncodeDestination(txDest));
+            ret.pushKV("signMessage", ptx.MakeSignString());
             return ret;
         } else {
             // lets prove we own the collateral
@@ -578,8 +575,6 @@ UniValue protx_register_submit(const JSONRPCRequest& request)
     if (request.fHelp || request.params.size() != 3) {
         protx_register_submit_help(pwallet);
     }
-
-    ObserveSafeMode();
 
     if (!EnsureWalletIsAvailable(pwallet, request.fHelp))
         return NullUniValue;
@@ -634,15 +629,13 @@ UniValue protx_update_service(const JSONRPCRequest& request)
     if (request.fHelp || (request.params.size() < 4 || request.params.size() > 6))
         protx_update_service_help(pwallet);
 
-    ObserveSafeMode();
-
     if (!EnsureWalletIsAvailable(pwallet, request.fHelp))
         return NullUniValue;
 
     EnsureWalletIsUnlocked(pwallet);
 
     CProUpServTx ptx;
-    ptx.nVersion = CProRegTx::CURRENT_VERSION;
+    ptx.nVersion = CProUpServTx::CURRENT_VERSION;
     ptx.proTxHash = ParseHashV(request.params[1], "proTxHash");
 
     if (!Lookup(request.params[2].get_str().c_str(), ptx.addr, Params().GetDefaultPort(), false)) {
@@ -732,15 +725,13 @@ UniValue protx_update_registrar(const JSONRPCRequest& request)
         protx_update_registrar_help(pwallet);
     }
 
-    ObserveSafeMode();
-
     if (!EnsureWalletIsAvailable(pwallet, request.fHelp))
         return NullUniValue;
 
     EnsureWalletIsUnlocked(pwallet);
 
     CProUpRegTx ptx;
-    ptx.nVersion = CProRegTx::CURRENT_VERSION;
+    ptx.nVersion = CProUpRegTx::CURRENT_VERSION;
     ptx.proTxHash = ParseHashV(request.params[1], "proTxHash");
 
     auto dmn = deterministicMNManager->GetListAtChainTip().GetMN(ptx.proTxHash);
@@ -822,15 +813,13 @@ UniValue protx_revoke(const JSONRPCRequest& request)
         protx_revoke_help(pwallet);
     }
 
-    ObserveSafeMode();
-
     if (!EnsureWalletIsAvailable(pwallet, request.fHelp))
         return NullUniValue;
 
     EnsureWalletIsUnlocked(pwallet);
 
     CProUpRevTx ptx;
-    ptx.nVersion = CProRegTx::CURRENT_VERSION;
+    ptx.nVersion = CProUpRevTx::CURRENT_VERSION;
     ptx.proTxHash = ParseHashV(request.params[1], "proTxHash");
 
     CBLSSecretKey keyOperator = ParseBLSSecretKey(request.params[2].get_str(), "operatorKey");
@@ -941,7 +930,7 @@ UniValue BuildDMNListEntry(CWallet* pwallet, const CDeterministicMNCPtr& dmn, bo
     dmn->ToJson(o);
 
     int confirmations = GetUTXOConfirmations(dmn->collateralOutpoint);
-    o.push_back(Pair("confirmations", confirmations));
+    o.pushKV("confirmations", confirmations);
 
     bool hasOwnerKey = CheckWalletOwnsKey(pwallet, dmn->pdmnState->keyIDOwner);
     bool hasOperatorKey = false; //CheckWalletOwnsKey(dmn->pdmnState->keyIDOperator);
@@ -957,18 +946,18 @@ UniValue BuildDMNListEntry(CWallet* pwallet, const CDeterministicMNCPtr& dmn, bo
 #ifdef ENABLE_WALLET
     if (pwallet) {
         UniValue walletObj(UniValue::VOBJ);
-        walletObj.push_back(Pair("hasOwnerKey", hasOwnerKey));
-        walletObj.push_back(Pair("hasOperatorKey", hasOperatorKey));
-        walletObj.push_back(Pair("hasVotingKey", hasVotingKey));
-        walletObj.push_back(Pair("ownsCollateral", ownsCollateral));
-        walletObj.push_back(Pair("ownsPayeeScript", CheckWalletOwnsScript(pwallet, dmn->pdmnState->scriptPayout)));
-        walletObj.push_back(Pair("ownsOperatorRewardScript", CheckWalletOwnsScript(pwallet, dmn->pdmnState->scriptOperatorPayout)));
-        o.push_back(Pair("wallet", walletObj));
+        walletObj.pushKV("hasOwnerKey", hasOwnerKey);
+        walletObj.pushKV("hasOperatorKey", hasOperatorKey);
+        walletObj.pushKV("hasVotingKey", hasVotingKey);
+        walletObj.pushKV("ownsCollateral", ownsCollateral);
+        walletObj.pushKV("ownsPayeeScript", CheckWalletOwnsScript(pwallet, dmn->pdmnState->scriptPayout));
+        walletObj.pushKV("ownsOperatorRewardScript", CheckWalletOwnsScript(pwallet, dmn->pdmnState->scriptOperatorPayout));
+        o.pushKV("wallet", walletObj);
     }
 #endif
 
     auto metaInfo = mmetaman.GetMetaInfo(dmn->proTxHash);
-    o.push_back(Pair("metaInfo", metaInfo->ToJson()));
+    o.pushKV("metaInfo", metaInfo->ToJson());
 
     return o;
 }
@@ -1224,8 +1213,8 @@ UniValue bls_generate(const JSONRPCRequest& request)
     sk.MakeNewKey();
 
     UniValue ret(UniValue::VOBJ);
-    ret.push_back(Pair("secret", sk.ToString()));
-    ret.push_back(Pair("public", sk.GetPublicKey().ToString()));
+    ret.pushKV("secret", sk.ToString());
+    ret.pushKV("public", sk.GetPublicKey().ToString());
     return ret;
 }
 
@@ -1258,8 +1247,8 @@ UniValue bls_fromsecret(const JSONRPCRequest& request)
     }
 
     UniValue ret(UniValue::VOBJ);
-    ret.push_back(Pair("secret", sk.ToString()));
-    ret.push_back(Pair("public", sk.GetPublicKey().ToString()));
+    ret.pushKV("secret", sk.ToString());
+    ret.pushKV("public", sk.GetPublicKey().ToString());
     return ret;
 }
 

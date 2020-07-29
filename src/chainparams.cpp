@@ -14,7 +14,6 @@
 #include <arith_uint256.h>
 
 #include <assert.h>
-#include <memory>
 
 #include <chainparamsseeds.h>
 
@@ -426,7 +425,9 @@ public:
         nLLMQConnectionRetryTimeout = 60;
 
         nPoolMinParticipants = 3;
-        nPoolMaxParticipants = 5; // TODO: bump on next HF / mandatory upgrade
+        nPoolNewMinParticipants = 3;
+        nPoolMaxParticipants = 5;
+        nPoolNewMaxParticipants = 20;
         nFulfilledRequestExpireTime = 60*60; // fulfilled requests expire in 1 hour
 
         vSporkAddresses = {"PPFKKvLvWx73rGvyjG2Pm6eMCKjuowuqHB"};
@@ -631,8 +632,10 @@ public:
         fAllowMultiplePorts = true;
         nLLMQConnectionRetryTimeout = 60;
 
-        nPoolMinParticipants = 3; // TODO drop to 2 with next mandatory upgrade
+        nPoolMinParticipants = 3;
+        nPoolNewMinParticipants = 2;
         nPoolMaxParticipants = 5;
+        nPoolNewMaxParticipants = 20;
         nFulfilledRequestExpireTime = 5*60; // fulfilled requests expire in 5 minutes
 
         vSporkAddresses = {"nNUCGQF1pzxXWoMdBQSQEzN5CzAsQ9uQdG"};
@@ -662,7 +665,7 @@ public:
 class CDevNetParams : public CChainParams {
 public:
     CDevNetParams() {
-        strNetworkID = "dev";
+        strNetworkID = "devnet";
         consensus.nSubsidyHalvingInterval = 210240;
         consensus.nMasternodePaymentsStartBlock = 4010;
         consensus.nInstantSendConfirmationsRequired = 2;
@@ -786,8 +789,10 @@ public:
         fAllowMultiplePorts = true;
         nLLMQConnectionRetryTimeout = 60;
 
-        nPoolMinParticipants = 3; // same, drop to 2 w/ breaking change
+        nPoolMinParticipants = 3;
+        nPoolNewMinParticipants = 2;
         nPoolMaxParticipants = 5;
+        nPoolNewMaxParticipants = 20;
         nFulfilledRequestExpireTime = 5*60; // fulfilled requests expire in 5 minutes
 
         vSporkAddresses = {"yjPtiKh2uwk3bDutTEA2q9mCtXyiZRWn55"};
@@ -945,6 +950,7 @@ public:
 
         nFulfilledRequestExpireTime = 5*60; // fulfilled requests expire in 5 minutes
         nPoolMinParticipants = 2;
+        nPoolNewMinParticipants = 2;
         nPoolMaxParticipants = 5;
         vector<FounderRewardStrcuture> rewardStructures = {  
                                                             {500000, 5},

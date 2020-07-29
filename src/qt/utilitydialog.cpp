@@ -17,7 +17,6 @@
 #include <qt/guiutil.h>
 #include <qt/intro.h>
 #include <qt/paymentrequestplus.h>
-#include <qt/guiutil.h>
 
 #include <clientversion.h>
 #include <init.h>
@@ -38,6 +37,8 @@ HelpMessageDialog::HelpMessageDialog(QWidget *parent, HelpMode helpMode) :
     ui(new Ui::HelpMessageDialog)
 {
     ui->setupUi(this);
+
+    GUIUtil::updateFonts();
 
     QString version = tr(PACKAGE_NAME) + " " + tr("version") + " " + QString::fromStdString(FormatFullVersion());
     /* On x86 add a bit specifier to the version so that users can distinguish between
@@ -60,7 +61,7 @@ HelpMessageDialog::HelpMessageDialog(QWidget *parent, HelpMode helpMode) :
         // Make URLs clickable
         QRegExp uri("<(.*)>", Qt::CaseSensitive, QRegExp::RegExp2);
         uri.setMinimal(true); // use non-greedy matching
-        licenseInfoHTML.replace(uri, "<a href=\"\\1\">\\1</a>");
+        licenseInfoHTML.replace(uri, QString("<a style=\"%1\"href=\"\\1\">\\1</a>").arg(GUIUtil::getThemedStyleQString(GUIUtil::ThemedStyle::TS_COMMAND)));
         // Replace newlines with HTML breaks
         licenseInfoHTML.replace("\n", "<br>");
 
@@ -80,13 +81,18 @@ HelpMessageDialog::HelpMessageDialog(QWidget *parent, HelpMode helpMode) :
         cursor.insertText(header);
         cursor.insertBlock();
 
-        std::string strUsage = HelpMessage(HMM_BITCOIN_QT);
+        std::string strUsage = HelpMessage(HelpMessageMode::BITCOIN_QT);
         const bool showDebug = gArgs.GetBoolArg("-help-debug", false);
         strUsage += HelpMessageGroup(tr("UI Options:").toStdString());
         if (showDebug) {
             strUsage += HelpMessageOpt("-allowselfsignedrootcertificates", strprintf("Allow self signed root certificates (default: %u)", DEFAULT_SELFSIGNED_ROOTCERTS));
         }
         strUsage += HelpMessageOpt("-choosedatadir", strprintf(tr("Choose data directory on startup (default: %u)").toStdString(), DEFAULT_CHOOSE_DATADIR));
+        strUsage += HelpMessageOpt("-custom-css-dir", "Set a directory which contains custom css files. Those will be used as stylesheets for the UI.");
+        strUsage += HelpMessageOpt("-font-family", tr("Set the font family. Possible values: %1. (default: %2)").arg("SystemDefault, Montserrat").arg(GUIUtil::fontFamilyToString(GUIUtil::getFontFamilyDefault())).toStdString());
+        strUsage += HelpMessageOpt("-font-scale", tr("Set a scale factor which gets applied to the base font size. Possible range %1 (smallest fonts) to %2 (largest fonts). (default: %3)").arg(-100).arg(100).arg(GUIUtil::getFontScaleDefault()).toStdString());
+        strUsage += HelpMessageOpt("-font-weight-bold", tr("Set the font weight for bold texts. Possible range %1 to %2 (default: %3)").arg(0).arg(8).arg(GUIUtil::weightToArg(GUIUtil::getFontWeightBoldDefault())).toStdString());
+        strUsage += HelpMessageOpt("-font-weight-normal", tr("Set the font weight for normal texts. Possible range %1 to %2 (default: %3)").arg(0).arg(8).arg(GUIUtil::weightToArg(GUIUtil::getFontWeightNormalDefault())).toStdString());
         strUsage += HelpMessageOpt("-lang=<lang>", tr("Set language, for example \"de_DE\" (default: system locale)").toStdString());
         strUsage += HelpMessageOpt("-min", tr("Start minimized").toStdString());
         strUsage += HelpMessageOpt("-rootcertificates=<file>", tr("Set SSL root certificates for payment request (default: -system-)").toStdString());
@@ -94,6 +100,7 @@ HelpMessageDialog::HelpMessageDialog(QWidget *parent, HelpMode helpMode) :
         strUsage += HelpMessageOpt("-resetguisettings", tr("Reset all settings changed in the GUI").toStdString());
         if (showDebug) {
             strUsage += HelpMessageOpt("-uiplatform", strprintf("Select platform to customize UI for (one of windows, macosx, other; default: %s)", BitcoinGUI::DEFAULT_UIPLATFORM));
+            strUsage += HelpMessageOpt("-debug-ui", "Updates the UI's stylesheets in realtime with changes made to the css files in -custom-css-dir and forces some widgets to show up which are usually only visible under certain circumstances. (default: 0)");
         }
         strUsage += HelpMessageOpt("-windowtitle=<name>", _("Sets a window title which is appended to \"Dash Core - \""));
 
@@ -163,8 +170,8 @@ your funds will already be mixed. No additional waiting is required.</li> \
 This means those 1000 addresses last for about 100 mixing events. When 900 of them are used, your wallet must create more addresses. \
 It can only do this, however, if you have automatic backups enabled.<br> \
 Consequently, users who have backups disabled will also have PrivateSend disabled. <hr>\
-For more information, see the <a href=\"https://docs.pigeon.org/en/stable/wallets/pigeoncore/privatesend-instantsend.html\">PrivateSend documentation</a>."
-        ));
+For more information, see the <a style=\"%1\" href=\"https://docs.dash.org/en/stable/wallets/dashcore/privatesend-instantsend.html\">PrivateSend documentation</a>."
+        ).arg(GUIUtil::getThemedStyleQString(GUIUtil::ThemedStyle::TS_COMMAND)));
         ui->aboutMessage->setWordWrap(true);
         ui->helpMessage->setVisible(false);
     }
@@ -204,8 +211,7 @@ ShutdownWindow::ShutdownWindow(QWidget *parent, Qt::WindowFlags f):
 {
     setObjectName("ShutdownWindow");
 
-    /* Open CSS when configured */
-    this->setStyleSheet(GUIUtil::loadStyleSheet());
+    GUIUtil::loadStyleSheet(this);
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(new QLabel(

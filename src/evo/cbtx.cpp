@@ -12,7 +12,6 @@
 
 #include <chainparams.h>
 #include <consensus/merkle.h>
-#include <univalue.h>
 #include <validation.h>
 
 bool CheckCbTx(const CTransaction& tx, const CBlockIndex* pindexPrev, CValidationState& state)
@@ -39,7 +38,7 @@ bool CheckCbTx(const CTransaction& tx, const CBlockIndex* pindexPrev, CValidatio
     }
 
     if (pindexPrev) {
-        bool fDIP0008Active = VersionBitsState(pindexPrev, Params().GetConsensus(), Consensus::DEPLOYMENT_DIP0008, versionbitscache) == THRESHOLD_ACTIVE;
+        bool fDIP0008Active = VersionBitsState(pindexPrev, Params().GetConsensus(), Consensus::DEPLOYMENT_DIP0008, versionbitscache) == ThresholdState::ACTIVE;
         if (fDIP0008Active && cbTx.nVersion < 2) {
             return state.DoS(100, false, REJECT_INVALID, "bad-cbtx-version");
         }
@@ -72,7 +71,8 @@ bool CheckCbTxMerkleRoots(const CBlock& block, const CBlockIndex* pindex, CValid
     if (pindex) {
         uint256 calculatedMerkleRoot;
         if (!CalcCbTxMerkleRootMNList(block, pindex->pprev, calculatedMerkleRoot, state)) {
-            return state.DoS(100, false, REJECT_INVALID, "bad-cbtx-mnmerkleroot");
+            // pass the state returned by the function above
+            return false;
         }
         if (calculatedMerkleRoot != cbTx.merkleRootMNList) {
             return state.DoS(100, false, REJECT_INVALID, "bad-cbtx-mnmerkleroot");
@@ -83,7 +83,8 @@ bool CheckCbTxMerkleRoots(const CBlock& block, const CBlockIndex* pindex, CValid
 
         if (cbTx.nVersion >= 2) {
             if (!CalcCbTxMerkleRootQuorums(block, pindex->pprev, calculatedMerkleRoot, state)) {
-                return state.DoS(100, false, REJECT_INVALID, "bad-cbtx-quorummerkleroot");
+                // pass the state returned by the function above
+                return false;
             }
             if (calculatedMerkleRoot != cbTx.merkleRootQuorums) {
                 return state.DoS(100, false, REJECT_INVALID, "bad-cbtx-quorummerkleroot");
@@ -111,6 +112,7 @@ bool CalcCbTxMerkleRootMNList(const CBlock& block, const CBlockIndex* pindexPrev
     try {
         CDeterministicMNList tmpMNList;
         if (!deterministicMNManager->BuildNewListFromBlock(block, pindexPrev, state, tmpMNList, false)) {
+            // pass the state returned by the function above
             return false;
         }
 
@@ -128,7 +130,10 @@ bool CalcCbTxMerkleRootMNList(const CBlock& block, const CBlockIndex* pindexPrev
 
         if (sml.mnList == smlCached.mnList) {
             merkleRootRet = merkleRootCached;
-            return !mutatedCached;
+            if (mutatedCached) {
+                return state.DoS(100, false, REJECT_INVALID, "mutated-cached-calc-cb-mnmerkleroot");
+            }
+            return true;
         }
 
         bool mutated = false;
@@ -141,7 +146,11 @@ bool CalcCbTxMerkleRootMNList(const CBlock& block, const CBlockIndex* pindexPrev
         merkleRootCached = merkleRootRet;
         mutatedCached = mutated;
 
-        return !mutated;
+        if (mutated) {
+            return state.DoS(100, false, REJECT_INVALID, "mutated-calc-cb-mnmerkleroot");
+        }
+
+        return true;
     } catch (const std::exception& e) {
         LogPrintf("%s -- failed: %s\n", __func__, e.what());
         return state.DoS(100, false, REJECT_INVALID, "failed-calc-cb-mnmerkleroot");
@@ -198,7 +207,7 @@ bool CalcCbTxMerkleRootQuorums(const CBlock& block, const CBlockIndex* pindexPre
         if (tx->nVersion == 3 && tx->nType == TRANSACTION_QUORUM_COMMITMENT) {
             llmq::CFinalCommitmentTxPayload qc;
             if (!GetTxPayload(*tx, qc)) {
-                return state.DoS(100, false, REJECT_INVALID, "bad-qc-payload");
+                return state.DoS(100, false, REJECT_INVALID, "bad-qc-payload-calc-cbtx-quorummerkleroot");
             }
             if (qc.commitment.IsNull()) {
                 continue;
@@ -215,7 +224,7 @@ bool CalcCbTxMerkleRootQuorums(const CBlock& block, const CBlockIndex* pindexPre
             v.emplace_back(qcHash);
             hashCount++;
             if (v.size() > params.signingActiveQuorumCount) {
-                return state.DoS(100, false, REJECT_INVALID, "excess-quorums");
+                return state.DoS(100, false, REJECT_INVALID, "excess-quorums-calc-cbtx-quorummerkleroot");
             }
         }
     }
@@ -239,7 +248,11 @@ bool CalcCbTxMerkleRootQuorums(const CBlock& block, const CBlockIndex* pindexPre
     int64_t nTime5 = GetTimeMicros(); nTimeMerkle += nTime5 - nTime4;
     LogPrint(BCLog::BENCHMARK, "            - ComputeMerkleRoot: %.2fms [%.2fs]\n", 0.001 * (nTime5 - nTime4), nTimeMerkle * 0.000001);
 
-    return !mutated;
+    if (mutated) {
+        return state.DoS(100, false, REJECT_INVALID, "mutated-calc-cbtx-quorummerkleroot");
+    }
+
+    return true;
 }
 
 std::string CCbTx::ToString() const

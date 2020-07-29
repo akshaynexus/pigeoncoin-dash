@@ -45,6 +45,10 @@ public:
         ThirdPartyTxUrls,       // QString
         Digits,                 // QString
         Theme,                  // QString
+        FontFamily,             // int
+        FontScale,              // int
+        FontWeightNormal,       // int
+        FontWeightBold,         // int
         Language,               // QString
         CoinControlFeatures,    // bool
         ThreadsScriptVerif,     // int
@@ -84,7 +88,7 @@ public:
     /* Restart flag helper */
     void setRestartRequired(bool fRequired);
     bool isRestartRequired() const;
-    bool resetSettings;
+    bool resetSettingsOnShutdown{false};
 
 private:
     /* Qt-only settings */

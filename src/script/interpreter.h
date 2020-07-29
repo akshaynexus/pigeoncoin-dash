@@ -92,7 +92,7 @@ enum
     // See BIP112 for details
     SCRIPT_VERIFY_CHECKSEQUENCEVERIFY = (1U << 10),
 
-    // Signature(s) must be empty vector if an CHECK(MULTI)SIG operation failed
+    // Signature(s) must be empty vector if a CHECK(MULTI)SIG operation failed
     //
     SCRIPT_VERIFY_NULLFAIL = (1U << 14),
 };
@@ -106,9 +106,9 @@ struct PrecomputedTransactionData
     explicit PrecomputedTransactionData(const CTransaction& tx);
 };
 
-enum SigVersion
+enum class SigVersion
 {
-    SIGVERSION_BASE = 0,
+    BASE = 0,
 };
 
 uint256 SignatureHash(const CScript &scriptCode, const CTransaction& txTo, unsigned int nIn, int nHashType, const CAmount& amount, SigVersion sigversion, const PrecomputedTransactionData* cache = nullptr);

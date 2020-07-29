@@ -415,7 +415,7 @@ public:
 
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action) {
-        READWRITE(static_cast<CScriptBase&>(*this));
+        READWRITEAS(CScriptBase, *this);
     }
 
     CScript& operator+=(const CScript& b)
@@ -613,15 +613,6 @@ public:
             *this = result;
         }
 
-        return nFound;
-    }
-    int Find(opcodetype op) const
-    {
-        int nFound = 0;
-        opcodetype opcode;
-        for (const_iterator pc = begin(); pc != end() && GetOp(pc, opcode);)
-            if (opcode == op)
-                ++nFound;
         return nFound;
     }
 

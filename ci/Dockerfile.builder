@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install $APT_ARGS python3-pip python3-setuptools &
 # Python stuff
 RUN pip3 install pyzmq # really needed?
 RUN pip3 install jinja2
+RUN pip3 install flake8
 
 # x21s_hash
 RUN git clone https://github.com/RitoProject/x21s_hash

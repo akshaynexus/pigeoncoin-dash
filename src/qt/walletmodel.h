@@ -20,7 +20,6 @@
 
 class AddressTableModel;
 class OptionsModel;
-class PlatformStyle;
 class RecentRequestsTableModel;
 class TransactionTableModel;
 class WalletModelTransaction;
@@ -103,7 +102,7 @@ class WalletModel : public QObject
     Q_OBJECT
 
 public:
-    explicit WalletModel(const PlatformStyle *platformStyle, CWallet *wallet, OptionsModel *optionsModel, QObject *parent = 0);
+    explicit WalletModel(CWallet* wallet, OptionsModel* optionsModel, QObject* parent = 0);
     ~WalletModel();
 
     enum StatusCode // Returned by sendCoins
@@ -132,6 +131,8 @@ public:
     AddressTableModel *getAddressTableModel();
     TransactionTableModel *getTransactionTableModel();
     RecentRequestsTableModel *getRecentRequestsTableModel();
+
+    CWallet *getWallet() const { return wallet; };
 
     CAmount getBalance(const CCoinControl *coinControl = nullptr) const;
     CAmount getUnconfirmedBalance() const;
@@ -232,6 +233,9 @@ public:
 
     int getRealOutpointPrivateSendRounds(const COutPoint& outpoint) const;
 
+    QString getWalletName() const;
+
+    static bool isMultiwallet();
 private:
     CWallet *wallet;
     bool fHaveWatchOnly;
@@ -270,7 +274,7 @@ Q_SIGNALS:
                         const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance);
 
     // Encryption status of wallet changed
-    void encryptionStatusChanged(int status);
+    void encryptionStatusChanged();
 
     // Signal emitted when wallet needs to be unlocked
     // It is valid behaviour for listeners to keep the wallet locked after this signal;
