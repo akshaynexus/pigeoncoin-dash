@@ -178,6 +178,26 @@ static Consensus::LLMQParams llmq_test = {
         .recoveryMembers = 3,
 };
 
+// this one is for testing only
+static Consensus::LLMQParams llmq5_60 = {
+    .type = Consensus::LLMQ_5_60,
+    .name = "llmq_5_60",
+    .size = 5,
+    .minSize = 3,
+    .threshold = 3,
+
+    .dkgInterval = 24, // one DKG per hour
+    .dkgPhaseBlocks = 2,
+    .dkgMiningWindowStart = 10, // dkgPhaseBlocks * 5 = after finalization
+    .dkgMiningWindowEnd = 18,
+    .dkgBadVotesThreshold = 8,
+
+    .signingActiveQuorumCount = 2, // just a few ones to allow easier testing
+
+    .keepOldConnections = 3,
+    .recoveryMembers = 3,
+
+};
 // this one is for devnets only
 static Consensus::LLMQParams llmq_devnet = {
         .type = Consensus::LLMQ_DEVNET,
@@ -534,17 +554,17 @@ public:
                                                             {500000, 5},
 															{1000000, 2}
                                                           };
-		consensus.nFounderPayment = FounderPayment(rewardStructures, 3000, "n6yjcgyB6VUJipV9p361QTSCDs3gf8izEh",
-													"nLphepxwA1bNxLDuwB3SLYPXjed6jMwFw4", 4000);
+		consensus.nFounderPayment = FounderPayment(rewardStructures, 3000, "n7YVWJjZhUi5ZepC9nQWX8hzhSFRCpzcNY",
+													"n5L7KqH4kmYsFXujyXUpLEzNgEz65RTQKE", 4000);
         consensus.masternodeCollateral = 1000000; //1,000,000 PGN Servicenode collateral
         consensus.nMagicChangeHeight = 2;
 
-        pchMessageStart[0] = 0x5d;
-        pchMessageStart[1] = 0x6a;
-        pchMessageStart[2] = 0x4c;
-        pchMessageStart[3] = 0x5d;
+        pchMessageStart[0] = 0x5c;
+        pchMessageStart[1] = 0x6d;
+        pchMessageStart[2] = 0x4a;
+        pchMessageStart[3] = 0x5e;
 
-        //New message start after hf
+        //New message start after hf,TODO Add code to change pchmessagestart
         pchMessageStartNew[0] = 0x2a;
         pchMessageStartNew[1] = 0x5d;
         pchMessageStartNew[2] = 0x2c;
@@ -592,9 +612,9 @@ public:
         std::cout << "Genesis Merkle " << genesis.hashMerkleRoot.GetHex() << std::endl;
         std::cout << "\n";
         std::exit(0);*/
-        genesis = CreateGenesisBlock(1591550485, 424062, 0x1e0ffff0, 4, 5000 * COIN);
+        genesis = CreateGenesisBlock(1596046713, 276241, 0x1e0ffff0, 4, 5000 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x000004af7394525c5d24cc9dcebbe5d01cc21047e4b2c6c2e4637bc36d238c28"));
+        assert(consensus.hashGenesisBlock == uint256S("0x0000006325bc6c7e7c9ae94763327b23ad27414073bd29c106b7c72ed43bd4b6"));
 		assert(genesis.hashMerkleRoot == uint256S("0xf0cc5f92b11a6655a4939fc239e8bf960cd0453b87b5a0820ab36904279341a5"));
 
         vFixedSeeds.clear();
@@ -618,11 +638,12 @@ public:
         nExtCoinType = 1;
 
         // long living quorum params
+        consensus.llmqs[Consensus::LLMQ_5_60] = llmq5_60;
         consensus.llmqs[Consensus::LLMQ_50_60] = llmq50_60;
         consensus.llmqs[Consensus::LLMQ_400_60] = llmq400_60;
         consensus.llmqs[Consensus::LLMQ_400_85] = llmq400_85;
-        consensus.llmqTypeChainLocks = Consensus::LLMQ_50_60;
-        consensus.llmqTypeInstantSend = Consensus::LLMQ_50_60;
+        consensus.llmqTypeChainLocks = Consensus::LLMQ_5_60;
+        consensus.llmqTypeInstantSend = Consensus::LLMQ_5_60;
 
         fDefaultConsistencyChecks = false;
         fRequireStandard = false;
@@ -638,13 +659,13 @@ public:
         nPoolNewMaxParticipants = 20;
         nFulfilledRequestExpireTime = 5*60; // fulfilled requests expire in 5 minutes
 
-        vSporkAddresses = {"nNUCGQF1pzxXWoMdBQSQEzN5CzAsQ9uQdG"};
+        vSporkAddresses = {"nEmsfrX3f1siKDZyTuVswcodv5ft6xHPVg"};
         nMinSporkKeys = 1;
         fBIP9CheckMasternodesUpgraded = true;
 
         checkpointData = (CCheckpointData) {
             {
-                { 0, uint256S("0x000006da310a93a3feaa9c5d0dce878e31644c616d4e7d8a17db5d848757b79a")},
+                { 0, consensus.hashGenesisBlock},
             }
         };
 
