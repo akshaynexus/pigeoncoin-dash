@@ -9,7 +9,9 @@
 #include <uint256.h>
 #include <map>
 #include <string>
-#include "founderpayment.h"
+#include <founderpayment.h>
+#include <limits>
+
 namespace Consensus {
 
 enum DeploymentPos
@@ -34,6 +36,14 @@ struct BIP9Deployment {
     int64_t nStartTime;
     /** Timeout/expiry MedianTime for the deployment attempt. */
     int64_t nTimeout;
+    /** Constant for nTimeout very far in the future. */
+    static constexpr int64_t NO_TIMEOUT = std::numeric_limits<int64_t>::max();
+
+    /** Special value for nStartTime indicating that the deployment is always active.
+     *  This is useful for testing, as it means tests don't need to deal with the activation
+     *  process (which takes at least 3 BIP9 intervals). Only tests that specifically test the
+     *  behaviour during activation cannot use this. */
+    static constexpr int64_t ALWAYS_ACTIVE = -1;
     /** The number of past blocks (including the block under consideration) to be taken into account for locking in a fork. */
     int64_t nWindowSize{0};
     /** A number of blocks, in the range of 1..nWindowSize, which must signal for a fork in order to lock it in. */
