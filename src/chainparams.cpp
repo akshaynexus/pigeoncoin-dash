@@ -404,18 +404,18 @@ public:
         assert(consensus.hashGenesisBlock == uint256S("0x000000f049bef9fec0179131874c54c76c0ff59f695db30a4f0da52072c99492"));
         assert(genesis.hashMerkleRoot == uint256S("0xf0cc5f92b11a6655a4939fc239e8bf960cd0453b87b5a0820ab36904279341a5"));
 
-        vSeeds.emplace_back("dnsseed.pigeon.org", true);
-        vSeeds.emplace_back("dnsseed.pigeondot.io", true);
+        vSeeds.emplace_back("dnsseed.pigeon.org");
+        vSeeds.emplace_back("dnsseed.pigeondot.io");
 
 	    /// Official DNS Seeds
-        vSeeds.emplace_back("seed.pigeoncoin.org",true);
-        vSeeds.emplace_back("seed2.pigeoncoin.org",true);
-        vSeeds.emplace_back("seed3.pigeoncoin.org",true);
-        vSeeds.emplace_back("seed4.pigeoncoin.org",true);
-        vSeeds.emplace_back("157.230.41.76",true);
+        vSeeds.emplace_back("seed.pigeoncoin.org");
+        vSeeds.emplace_back("seed2.pigeoncoin.org");
+        vSeeds.emplace_back("seed3.pigeoncoin.org");
+        vSeeds.emplace_back("seed4.pigeoncoin.org");
+        vSeeds.emplace_back("157.230.41.76");
 
 	    /// Community DNS Seeds
-        vSeeds.emplace_back("seed.pigeoncoin.xyz", true);
+        vSeeds.emplace_back("seed.pigeoncoin.xyz");
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,55); // changed 60 to 55
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,122); // changed 122 to 123
@@ -622,8 +622,8 @@ public:
 
         vSeeds.clear();
         // nodes with support for servicebits filtering should be at the top
-        vSeeds.emplace_back("mineit.io",true);
-        vSeeds.emplace_back("pgntseeder.mineit.io", true);
+        vSeeds.emplace_back("mineit.io");
+        vSeeds.emplace_back("pgntseeder.mineit.io");
 
         // Testnet Pigeon Addresses start with 'n'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,112);
@@ -639,9 +639,6 @@ public:
 
         // long living quorum params
         consensus.llmqs[Consensus::LLMQ_5_60] = llmq5_60;
-        consensus.llmqs[Consensus::LLMQ_50_60] = llmq50_60;
-        consensus.llmqs[Consensus::LLMQ_400_60] = llmq400_60;
-        consensus.llmqs[Consensus::LLMQ_400_85] = llmq400_85;
         consensus.llmqTypeChainLocks = Consensus::LLMQ_5_60;
         consensus.llmqTypeInstantSend = Consensus::LLMQ_5_60;
 
@@ -671,10 +668,10 @@ public:
 
         chainTxData = ChainTxData{
             // Update as we know more about the contents of the Pigeon chain
-        	1543578342, // * UNIX timestamp of last known number of transactions
-            1,          // * total number of transactions between genesis and that timestamp
+        	1596132112, // * UNIX timestamp of last known number of transactions
+            6120,          // * total number of transactions between genesis and that timestamp
                         //   (the tx=... number in the SetBestChain debug.log lines)
-            3.1         // * estimated number of transactions per second after that timestamp
+            0.0791638640244218         // * estimated number of transactions per second after that timestamp
         };
 
     }
