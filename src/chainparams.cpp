@@ -610,7 +610,7 @@ public:
         std::exit(0);*/
         genesis = CreateGenesisBlock(1596160996, 419160, 0x1e0ffff0, 4, 5000 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x0x00000be49a798b5156cd41539c413718622eb7e0784aa9ba4b9b5e975cfd56fc"));
+        assert(consensus.hashGenesisBlock == uint256S("0x00000be49a798b5156cd41539c413718622eb7e0784aa9ba4b9b5e975cfd56fc"));
 		assert(genesis.hashMerkleRoot == uint256S("0xf0cc5f92b11a6655a4939fc239e8bf960cd0453b87b5a0820ab36904279341a5"));
 
         vFixedSeeds.clear();
