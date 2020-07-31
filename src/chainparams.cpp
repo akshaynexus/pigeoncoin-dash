@@ -370,9 +370,7 @@ public:
 
         // By default assume that the signatures in ancestors of this block are valid.
         consensus.defaultAssumeValid = uint256S("0x000000000023d0c447406c5f05c4f51c70ec3faa5fe3943c1b3136785ebd7cc0"); // 1067570
-        std::vector<FounderRewardStrcuture> rewardStructures = {  {1420000, 5}// 5% founder/dev fee for blocks between startFounder block and 500k block
-
-        																   };
+        std::vector<FounderRewardStrcuture> rewardStructures = {{1420000, 5}}; // 5% founder/dev fee for blocks between startFounder block and 500k block}
 	    consensus.nFounderPayment = FounderPayment(rewardStructures, 420000, "rQG3D3nzy3jfFxugbmUoZ9LhjpeJ4vrYbR",
 	    											"rLzD7RxVS1QMZ5yYrmoUvfnTNuzgUqJVVK", 738178);
 
@@ -470,7 +468,7 @@ public:
 };
 
 /**
- * Testnet (v3)
+ * Testnet (v9)
  */
 class CTestNetParams : public CChainParams {
 public:
@@ -494,15 +492,15 @@ public:
         consensus.BIP65Height = 2431; // 0000039cf01242c7f921dcb4806a5994bc003b48c1973ae0c89b67809c2bb2ab
         consensus.BIP66Height = 2075; // 0000002acdd29a14583540cb72e1c5cc83783560e38fa7081495d474fe1671f7
         consensus.DIP0001Height = 100;
-        consensus.DIP0003Height = 800;
-        consensus.DIP0003EnforcementHeight = 810;
+        consensus.DIP0003Height = 250;
+        consensus.DIP0003EnforcementHeight = 251;
         consensus.DIP0003EnforcementHash = uint256();
         consensus.powLimit = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // ~uint256(0) >> 20
         consensus.nPowTargetTimespan = 2016 * 60; // 1.4 days
         consensus.nPowTargetSpacing = 1 * 60; // Dash: 2.5 minutes
         consensus.nPowDifficultyRetargetHeight = 2017; // blockheight to switch to 360 block retarget rules
         consensus.nPowTargetTimespanShort = 360 * 60; //~6 hours
-        consensus.zawyLWMAHeight = 50; // blockheight to switch to LWMA retarget rules
+        consensus.zawyLWMAHeight = 500; // blockheight to switch to LWMA retarget rules
         consensus.nAfterExploitHeight = 0; 
 
         consensus.fPowAllowMinDifficultyBlocks = true;
@@ -523,46 +521,44 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].nWindowSize = 100;
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].nThreshold = 50; // 50% of 100
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].nThreshold = 10; // 10% of 100
 
         // Deployment of BIP147
         consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].bit = 2;
         consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].nWindowSize = 100;
-        consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].nThreshold = 50; // 50% of 100
+        consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].nThreshold = 10; // 10% of 100
 
         // Deployment of DIP0003
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].bit = 3;
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].nWindowSize = 100;
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].nThreshold = 50; // 50% of 100
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].nThreshold = 10; // 10% of 100
 
         // Deployment of DIP0008
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].bit = 4;
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nWindowSize = 100;
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nThreshold = 50; // 50% of 100
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nThreshold = 10; // 10% of 100
 
         consensus.nMinimumChainWork = uint256S("0x00");
 
         // By default assume that the signatures in ancestors of this block are valid.
         consensus.defaultAssumeValid = uint256S("0x00");
-        vector<FounderRewardStrcuture> rewardStructures = {  
-                                                            {500000, 5},
-															{1000000, 2}
-                                                          };
+        vector<FounderRewardStrcuture> rewardStructures = {{500000, 5}};
+
 		consensus.nFounderPayment = FounderPayment(rewardStructures, 3000, "n7YVWJjZhUi5ZepC9nQWX8hzhSFRCpzcNY",
-													"n5L7KqH4kmYsFXujyXUpLEzNgEz65RTQKE", 4000);
+													"", INT_MAX);//first addr stays,no devfee addr change
         consensus.masternodeCollateral = 1000000; //1,000,000 PGN Servicenode collateral
         consensus.nMagicChangeHeight = 2;
 
-        pchMessageStart[0] = 0x5c;
-        pchMessageStart[1] = 0x6d;
-        pchMessageStart[2] = 0x4a;
-        pchMessageStart[3] = 0x5e;
+        pchMessageStart[0] = 0x5d;
+        pchMessageStart[1] = 0x6a;
+        pchMessageStart[2] = 0x4d;
+        pchMessageStart[3] = 0x5a;
 
         //New message start after hf,TODO Add code to change pchmessagestart
         pchMessageStartNew[0] = 0x2a;
@@ -612,9 +608,9 @@ public:
         std::cout << "Genesis Merkle " << genesis.hashMerkleRoot.GetHex() << std::endl;
         std::cout << "\n";
         std::exit(0);*/
-        genesis = CreateGenesisBlock(1596046713, 276241, 0x1e0ffff0, 4, 5000 * COIN);
+        genesis = CreateGenesisBlock(1596160996, 419160, 0x1e0ffff0, 4, 5000 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x0000006325bc6c7e7c9ae94763327b23ad27414073bd29c106b7c72ed43bd4b6"));
+        assert(consensus.hashGenesisBlock == uint256S("0x0x00000be49a798b5156cd41539c413718622eb7e0784aa9ba4b9b5e975cfd56fc"));
 		assert(genesis.hashMerkleRoot == uint256S("0xf0cc5f92b11a6655a4939fc239e8bf960cd0453b87b5a0820ab36904279341a5"));
 
         vFixedSeeds.clear();

@@ -29,7 +29,7 @@ enum SporkId : int32_t {
     SPORK_19_CHAINLOCKS_ENABLED                            = 10018,
     SPORK_21_QUORUM_ALL_CONNECTED                          = 10020,
     SPORK_22_MIN_PEER_PROTOCOL_VERSION                     = 10021,
-    SPORK_23_PS_MORE_PARTICIPANTS                          = 10021,
+    SPORK_23_PS_MORE_PARTICIPANTS                          = 10022,
 
     SPORK_INVALID                                          = -1,
 };
