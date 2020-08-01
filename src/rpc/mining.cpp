@@ -686,9 +686,9 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
         obj.pushKV("amount", txout.nValue);
         masternodeObj.push_back(obj);
     }
-
+    int nHeight = pindexPrev->nHeight + 1;
     result.pushKV("masternode", masternodeObj);
-    result.pushKV("masternode_payments_started", pindexPrev->nHeight + 1 > consensusParams.nMasternodePaymentsStartBlock);
+    result.pushKV("masternode_payments_started", nHeight > consensusParams.nMasternodePaymentsStartBlock);
     result.pushKV("masternode_payments_enforced", true);
 
     UniValue superblockObjArray(UniValue::VARR);
@@ -704,22 +704,19 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
         }
     }
     result.pushKV("superblock", superblockObjArray);
-    result.pushKV("superblocks_started", pindexPrev->nHeight + 1 > consensusParams.nSuperblockStartBlock);
+    result.pushKV("superblocks_started", nHeight > consensusParams.nSuperblockStartBlock);
     result.pushKV("superblocks_enabled", sporkManager.IsSporkActive(SPORK_9_SUPERBLOCKS_ENABLED));
 
     result.pushKV("coinbase_payload", HexStr(pblock->vtx[0]->vExtraPayload));
     UniValue founderObj(UniValue::VOBJ);
     FounderPayment founderPayment = Params().GetConsensus().nFounderPayment;
-	if(pblock->txoutFounder!= CTxOut()) {
-		CTxDestination address;
-		ExtractDestination(pblock->txoutFounder.scriptPubKey, address);
-		std::string addressString = EncodeDestination(address);
-		founderObj.push_back(Pair("payee", addressString.c_str()));
-		founderObj.push_back(Pair("script", HexStr(pblock->txoutFounder.scriptPubKey.begin(), pblock->txoutFounder.scriptPubKey.end())));
+	if(pblock->txoutFounder != CTxOut()) {
+		founderObj.push_back(Pair("payee", founderPayment.GetFounderPayeeAddr(nHeight)));
+		founderObj.push_back(Pair("script", HexStr(pblock->txoutFounder.scriptPubKey)));
 		founderObj.push_back(Pair("amount", pblock->txoutFounder.nValue));
 	}
 	result.push_back(Pair("founder", founderObj));
-	result.push_back(Pair("founder_payments_started", pindexPrev->nHeight + 1 > founderPayment.getStartBlock()));
+	result.push_back(Pair("founder_payments_started", founderPayment.shouldPayFounder(nHeight)));
     return result;
 }
 

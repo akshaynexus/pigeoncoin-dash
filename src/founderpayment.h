@@ -7,6 +7,7 @@
  *
  *  Created on: Jun 24, 2018
  *      Author: Tri Nguyen
+ *      Modifed by: Akshay CM
  */
 
 #ifndef SRC_FOUNDERPAYMENT_H_
@@ -41,8 +42,9 @@ public:
 	std::string GetFounderPayeeAddr(int nHeight);
 	void LogFounderDebug(const CTxOut& out,int height,CAmount founderReward,CAmount blockReward);
 	bool isPossibleFounderReward(CAmount nValPaid,CAmount nFounderRequiredAmount,int nHeight,int blockReward);
-	int getStartBlock() {return this->startBlock;};
-	int getAddress2StartBlock() {return this->address2StartBlock;};
+	int getStartBlock() {return this->startBlock;}
+	bool shouldPayFounder(int nHeight) {return nHeight > this->startBlock;}
+	int getAddress2StartBlock() {return this->address2StartBlock;}
 	CScript GetFounderPayeeScript(int nHeight);
 private:
 	string founderAddress;

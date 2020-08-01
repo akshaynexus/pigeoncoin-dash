@@ -31,9 +31,10 @@ CAmount FounderPayment::getFounderPaymentAmount(int blockHeight, CAmount blockRe
 }
 
 CScript FounderPayment::GetFounderPayeeScript(int nHeight){
-	string payeeaddr = nHeight >= address2StartBlock ? founderAddress2 : founderAddress;
+	string payeeaddr = GetFounderPayeeAddr(nHeight);
 	return GetScriptForDestination(DecodeDestination(payeeaddr));
 }
+
 //Start Extra helper functions
 
 std::string FounderPayment::GetFounderPayeeAddr(int nHeight){
