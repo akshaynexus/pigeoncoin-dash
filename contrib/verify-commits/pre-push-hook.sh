@@ -3,7 +3,8 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-if ! [[ "$2" =~ ^(git@)?(www.)?github.com(:|/)pigeonpay/pigeon(.git)?$ ]]; then
+export LC_ALL=C
+if ! [[ "$2" =~ ^(git@)?(www.)?github.com(:|/)dashpay/dash(.git)?$ ]]; then
     exit 0
 fi
 

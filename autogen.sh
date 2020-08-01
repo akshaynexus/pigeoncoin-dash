@@ -4,6 +4,8 @@
 # Copyright (c) 2017-2019 The Pigeoncoin Core developers
 #
 
+export LC_ALL=C
+set -e
 srcdir="$(dirname $0)"
 
 if [ -z ${LIBTOOLIZE} ] && GLIBTOOLIZE="`which glibtoolize 2>/dev/null`"; then
