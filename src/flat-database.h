@@ -134,8 +134,8 @@ private:
             // de-serialize file header (network specific magic number) and ..
             ssObj >> FLATDATA(pchMsgTmp);
 
-            // ... verify the network matches ours
-            if (memcmp(pchMsgTmp, Params().MessageStart(), sizeof(pchMsgTmp)))
+            // ... verify the network matches ours,accept both old and new pchmessage prefix
+            if (memcmp(pchMsgTmp, Params().MessageStartOld(), sizeof(pchMsgTmp)) && memcmp(pchMsgTmp, Params().MessageStartNew(), sizeof(pchMsgTmp)))
             {
                 error("%s: Invalid network magic number", __func__);
                 return IncorrectMagicNumber;

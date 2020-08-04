@@ -10,9 +10,9 @@
 #include <consensus/params.h>
 #include <primitives/block.h>
 #include <protocol.h>
+#include <timedata.h>
 
 #include <memory>
-#include "timedata.h"
 #include <vector>
 
 struct SeedSpec6 {
@@ -59,7 +59,9 @@ public:
     };
 
     const Consensus::Params& GetConsensus() const { return consensus; }
-    const CMessageHeader::MessageStartChars& MessageStart() const { return pchMessageStart; }
+    const CMessageHeader::MessageStartChars& MessageStart() const { return GetAdjustedTime() > pchMessageForktime ? MessageStartNew() : MessageStartOld(); }
+    const CMessageHeader::MessageStartChars& MessageStartOld() const {return pchMessageStart;}
+    const CMessageHeader::MessageStartChars& MessageStartNew() const {return pchMessageStartNew;}
     int GetDefaultPort() const { return nDefaultPort; }
 
     const CBlock& GenesisBlock() const { return genesis; }
@@ -136,6 +138,7 @@ protected:
     std::vector<std::string> vSporkAddresses;
     int nMinSporkKeys;
     bool fBIP9CheckMasternodesUpgraded;
+    int pchMessageForktime;
 };
 
 /**

@@ -451,6 +451,7 @@ public:
         vSporkAddresses = {"PPFKKvLvWx73rGvyjG2Pm6eMCKjuowuqHB"};
         nMinSporkKeys = 1;
         fBIP9CheckMasternodesUpgraded = true;
+        pchMessageForktime = INT_MAX;//TODO akshaynexus set mainnet pchmessage forktime for mainnet
 
         checkpointData = {
             {
@@ -655,6 +656,7 @@ public:
         vSporkAddresses = {"nEmsfrX3f1siKDZyTuVswcodv5ft6xHPVg"};
         nMinSporkKeys = 1;
         fBIP9CheckMasternodesUpgraded = true;
+        pchMessageForktime = 1596515400;//Date and time (GMT): Tuesday, August 4, 2020 4:30:00 AM
 
         checkpointData = (CCheckpointData) {
             {
@@ -978,6 +980,7 @@ public:
         nMinSporkKeys = 1;
         // regtest usually has no masternodes in most tests, so don't check for upgraged MNs
         fBIP9CheckMasternodesUpgraded = false;
+        pchMessageForktime = 1596485451;
 
         checkpointData = {
             {
