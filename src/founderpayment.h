@@ -41,7 +41,7 @@ public:
 	bool IsBlockPayeeValid(const CTransaction& txNew, const int height, const CAmount blockReward);
 	std::string GetFounderPayeeAddr(int nHeight);
 	void LogFounderDebug(const CTxOut& out,int height,CAmount founderReward,CAmount blockReward);
-	bool isPossibleFounderReward(CAmount nValPaid,CAmount nFounderRequiredAmount,int nHeight,int blockReward);
+	bool isPossibleFounderReward(CAmount nValPaid,CAmount nFounderRequiredAmount,int nHeight,CAmount blockReward);
 	int getStartBlock() {return this->startBlock;}
 	bool shouldPayFounder(int nHeight) {return nHeight > this->startBlock;}
 	int getAddress2StartBlock() {return this->address2StartBlock;}

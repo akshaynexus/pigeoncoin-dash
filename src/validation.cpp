@@ -1888,6 +1888,7 @@ static int64_t nTimeValueValid = 0;
 static int64_t nTimePayeeValid = 0;
 static int64_t nTimeProcessSpecial = 0;
 static int64_t nTimeDashSpecific = 0;
+static int64_t nTimeFounderCheck = 0;
 static int64_t nTimeConnect = 0;
 static int64_t nTimeIndex = 0;
 static int64_t nTimeCallbacks = 0;
@@ -1898,15 +1899,15 @@ bool IsFounderPaymentValid(const CTransaction& coinbaseTX, const Consensus::Para
     CAmount blockReward = GetBlockSubsidy(nHeight,consensusParams);
     FounderPayment founderPayment = consensusParams.nFounderPayment;
     CAmount founderAmt = founderPayment.getFounderPaymentAmount(nHeight, blockReward);
-    bool founderPaymentValid = founderAmt == 0;// if founder reward is 0 no need to check
-    bool fCheckFounderPayment = !founderPaymentValid && founderPayment.shouldPayFounder(nHeight);
+    bool founderPaymentValid = true;// if founder reward is 0 no need to check
+    bool fCheckFounderPayment = founderPayment.shouldPayFounder(nHeight);
     //Check for founder payment if it isnt already found in txes
     if(fCheckFounderPayment)
 	    founderPaymentValid = founderPayment.IsBlockPayeeValid(coinbaseTX,nHeight,blockReward);
 
     if(!founderPaymentValid)
 		return error("Founder payment of %d is not found at block height %d\n",founderAmt / COIN,nHeight);
-	
+
     return true;
 }
 
@@ -2285,6 +2286,14 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
 
     int64_t nTime5 = GetTimeMicros(); nTimeDashSpecific += nTime5 - nTime4;
     LogPrint(BCLog::BENCHMARK, "    - Dash specific: %.2fms [%.2fs (%.2fms/blk)]\n", MICRO * (nTime5 - nTime4), nTimeDashSpecific * MICRO, nTimeDashSpecific * MILLI / nBlocksTotal);
+    int64_t nTime6_1 = GetTimeMicros(); nTimeFounderCheck += nTime6_1 - nTime5;
+
+
+    //Check founder payments now
+    if(!IsFounderPaymentValid(*block.vtx[0],chainparams.GetConsensus(),pindex->nHeight)){
+        return state.DoS(10, error("CheckBlock(PGN): Block at height %d does not contain founder payment output",pindex->nHeight), REJECT_INVALID, "founderpayment-not-found");
+    }
+    LogPrint(BCLog::BENCHMARK, "    - Founder specific: %.2fms [%.2fs (%.2fms/blk)]\n", MICRO * (nTime6_1 - nTime5), nTimeFounderCheck * MICRO, nTimeFounderCheck * MILLI / nBlocksTotal);
 
     // END PGN
 
@@ -3412,11 +3421,6 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
         if (!CheckTransaction(*tx, state,isPassedLastExploitedHeight))
             return state.Invalid(false, state.GetRejectCode(), state.GetRejectReason(),
                                  strprintf("Transaction check failed (tx hash %s) %s", tx->GetHash().ToString(), state.GetDebugMessage()));
-    }
-
-    //Check founder payments now
-    if(!IsFounderPaymentValid(*block.vtx[0],consensusParams,chainActive.Height())){
-        return state.DoS(10, error("CheckBlock(PGN): Block at height %d does not contain founder payment output",chainActive.Height()), REJECT_INVALID, "founderpayment-not-found");
     }
 
     unsigned int nSigOps = 0;

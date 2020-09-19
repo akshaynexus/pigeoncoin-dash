@@ -2,7 +2,7 @@
  * Copyright (c) 2018 The Pigeon Core developers
  * Distributed under the MIT software license, see the accompanying
  * file COPYING or http://www.opensource.org/licenses/mit-license.php.
- * 
+ *
  * founderpayment.cpp
  *
  *  Created on: Jun 24, 2018
@@ -41,22 +41,25 @@ std::string FounderPayment::GetFounderPayeeAddr(int nHeight){
 	return nHeight >= address2StartBlock ? founderAddress2 : founderAddress;
 }
 
-bool FounderPayment::isPossibleFounderReward(CAmount nValPaid,CAmount nFounderRequiredAmount,int nHeight,int blockReward){
-	return nValPaid >= nFounderRequiredAmount && nValPaid < GetMasternodePayment(nHeight,blockReward);
+bool FounderPayment::isPossibleFounderReward(CAmount nValPaid,CAmount nFounderRequiredAmount,int nHeight,CAmount blockReward){
+	bool fPossible = nValPaid >= nFounderRequiredAmount;
+	CAmount mnReward = GetMasternodePayment(nHeight,blockReward);
+	//Handle mainnet switchover
+	if(mnReward > 0)
+		fPossible = fPossible && nValPaid < mnReward;
+	return  fPossible;
 }
 
 void FounderPayment::LogFounderDebug(const CTxOut& out,int height,CAmount founderReward,CAmount blockReward){
 	CTxDestination addressCurr;
 	std::string addrCurr,addrExpected;
 	addrExpected = GetFounderPayeeAddr(height);
-	if(isPossibleFounderReward(out.nValue,founderReward,height,blockReward)){
-		//Check if the address is convertable to a addr
-		if (ExtractDestination(out.scriptPubKey, addressCurr)){
-			addrCurr = EncodeDestination(addressCurr);
-			//Log this only if addrs doesnt match for founder payment
-			if(addrCurr != addrExpected)
+	//Check if the address is convertable to a addr
+	if (ExtractDestination(out.scriptPubKey, addressCurr)){
+		addrCurr = EncodeDestination(addressCurr);
+		//Log this only if addrs doesnt match for founder payment
+		if(addrCurr != addrExpected)
 				LogPrintf("Amount paid %d,Current Addr %s,Expected Addr %s\n",out.nValue / COIN,addrCurr,addrExpected);
-		}
 	}
 }
 
@@ -75,15 +78,16 @@ void FounderPayment::FillFounderPayment(CMutableTransaction& txNew, int nBlockHe
 }
 
 bool FounderPayment::IsBlockPayeeValid(const CTransaction& txNew, const int height, const CAmount blockReward) {
-	const CAmount founderReward = getFounderPaymentAmount(height, blockReward);
+	CAmount founderReward = getFounderPaymentAmount(height, blockReward);
 	CScript payee = GetFounderPayeeScript(height);
 
 	for(const CTxOut& out : txNew.vout) {
-		LogFounderDebug(out,height,founderReward,blockReward);
-		if(out.scriptPubKey == payee && out.nValue >= founderReward) {
-			return true;
+		if(isPossibleFounderReward(out.nValue,founderReward,height,blockReward)){
+			// LogFounderDebug(out,height,founderReward,blockReward);
+			if(out.scriptPubKey == payee && out.nValue >= founderReward) {
+				return true;
+			}
 		}
 	}
-
 	return false;
 }
