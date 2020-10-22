@@ -80,7 +80,8 @@ NetworkStyle::NetworkStyle(const QString &_appName, const int iconColorHueShift,
         QImage appIconImg = appIconPixmap.toImage();
         rotateColors(appIconImg, iconColorHueShift, iconColorSaturationReduction);
         //convert back to QPixmap
-        appIconPixmap.convertFromImage(appIconImg);
+        // appIconPixmap.convertFromImage(appIconImg);
+        appIconPixmap = QPixmap::fromImage(appIconImg);
         // tweak badge color
         rotateColor(badgeColor, iconColorHueShift, iconColorSaturationReduction);
     }

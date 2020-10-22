@@ -16,6 +16,9 @@
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QPixmap>
+#if QT_VERSION < 0x050000
+#include <QUrl>
+#endif
 
 #if defined(HAVE_CONFIG_H)
 #include "config/pigeon-config.h" /* for USE_QRCODE */
@@ -107,12 +110,12 @@ ReceiveRequestDialog::~ReceiveRequestDialog()
     delete ui;
 }
 
-void ReceiveRequestDialog::setModel(WalletModel *_model)
+void ReceiveRequestDialog::setModel(OptionsModel *_model)
 {
     this->model = _model;
 
     if (_model)
-        connect(_model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(update()));
+        connect(_model, SIGNAL(displayUnitChanged(int)), this, SLOT(update()));
 
     // update the display unit if necessary
     update();
@@ -143,14 +146,11 @@ void ReceiveRequestDialog::update()
             uri + "\">" + GUIUtil::HtmlEscape(uri) + "</a><br>";
     html += "<b>"+tr("Address")+"</b>: " + GUIUtil::HtmlEscape(info.address) + "<br>";
     if(info.amount)
-        html += "<b>"+tr("Amount")+"</b>: " + BitcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), info.amount) + "<br>";
+        html += "<b>"+tr("Amount")+"</b>: " + BitcoinUnits::formatHtmlWithUnit(model->getDisplayUnit(), info.amount) + "<br>";
     if(!info.label.isEmpty())
         html += "<b>"+tr("Label")+"</b>: " + GUIUtil::HtmlEscape(info.label) + "<br>";
     if(!info.message.isEmpty())
         html += "<b>"+tr("Message")+"</b>: " + GUIUtil::HtmlEscape(info.message) + "<br>";
-    if(model->isMultiwallet()) {
-        html += "<b>"+tr("Wallet")+"</b>: " + GUIUtil::HtmlEscape(model->getWalletName()) + "<br>";
-    }
     ui->outUri->setText(html);
 
 #ifdef USE_QRCODE
@@ -194,7 +194,7 @@ void ReceiveRequestDialog::update()
             painter.fillRect(paddedRect, GUIUtil::getThemedQColor(GUIUtil::ThemedColor::BACKGROUND_WIDGET));
             painter.drawImage(2, 2, qrImage.scaled(QR_IMAGE_SIZE - 4, QR_IMAGE_SIZE - 4));
             // calculate ideal font size
-            QFont font = GUIUtil::fixedPitchFont();
+            QFont font = GUIUtil::getFontNormal();
             qreal font_size = GUIUtil::calculateIdealFontSize((paddedRect.width() - 20), info.address, font);
             font.setPointSizeF(font_size);
             // paint the address

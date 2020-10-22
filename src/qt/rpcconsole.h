@@ -18,7 +18,6 @@
 
 class ClientModel;
 class RPCTimerInterface;
-class WalletModel;
 
 namespace Ui {
     class RPCConsole;
@@ -38,13 +37,12 @@ public:
     explicit RPCConsole(QWidget* parent);
     ~RPCConsole();
 
-    static bool RPCParseCommandLine(std::string &strResult, const std::string &strCommand, bool fExecute, std::string * const pstrFilteredOut = nullptr, const std::string *walletID = nullptr);
-    static bool RPCExecuteCommandLine(std::string &strResult, const std::string &strCommand, std::string * const pstrFilteredOut = nullptr, const std::string *walletID = nullptr) {
-        return RPCParseCommandLine(strResult, strCommand, true, pstrFilteredOut, walletID);
+    static bool RPCParseCommandLine(std::string &strResult, const std::string &strCommand, bool fExecute, std::string * const pstrFilteredOut = nullptr);
+    static bool RPCExecuteCommandLine(std::string &strResult, const std::string &strCommand, std::string * const pstrFilteredOut = nullptr) {
+        return RPCParseCommandLine(strResult, strCommand, true, pstrFilteredOut);
     }
 
     void setClientModel(ClientModel *model);
-    void addWallet(WalletModel * const walletModel);
 
     enum MessageClass {
         MC_ERROR,
@@ -75,8 +73,6 @@ private Q_SLOTS:
     void on_openDebugLogfileButton_clicked();
     /** change the time range of the network traffic graph */
     void on_sldGraphRange_valueChanged(int value);
-    /** update traffic statistics */
-    void updateTrafficStats(quint64 totalBytesIn, quint64 totalBytesOut);
     void resizeEvent(QResizeEvent *event);
     void showEvent(QShowEvent *event);
     void hideEvent(QHideEvent *event);
@@ -95,7 +91,7 @@ public Q_SLOTS:
     void fontBigger();
     void fontSmaller();
     void setFontSize(int newSize);
-
+    
     /** Wallet repair options */
     void walletSalvage();
     void walletRescan();
@@ -103,7 +99,7 @@ public Q_SLOTS:
     void walletZaptxes2();
     void walletUpgrade();
     void walletReindex();
-
+    
     /** Append the message to the message widget */
     void message(int category, const QString &message, bool html = false);
     /** Set number of connections shown in the UI */
@@ -112,8 +108,8 @@ public Q_SLOTS:
     void setNetworkActive(bool networkActive);
     /** Update number of masternodes shown in the UI */
     void updateMasternodeCount();
-    /** Set number of blocks and last block date shown in the UI */
-    void setNumBlocks(int count, const QDateTime& blockDate, double nVerificationProgress, bool headers);
+    /** Set number of blocks, last block date and last block hash shown in the UI */
+    void setNumBlocks(int count, const QDateTime& blockDate, const QString& blockHash, double nVerificationProgress, bool headers);
     /** Set size (number of transactions and memory usage) of the mempool in the UI */
     void setMempoolSize(long numberOfTxs, size_t dynUsage);
     /** Set number of InstantSend locks */
@@ -140,7 +136,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     // For RPC command executor
     void stopExecutor();
-    void cmdRequest(const QString &command, const QString &walletID);
+    void cmdRequest(const QString &command);
     /** Get restart command-line parameters and handle restart */
     void handleRestart(QStringList args);
 
@@ -151,6 +147,8 @@ private:
     void buildParameterlist(QString arg);
     /** show detailed information on ui about selected node */
     void updateNodeDetail(const CNodeCombinedStats *stats);
+    /** Set required icons for buttons inside the dialog */
+    void setButtonIcons();
 
     enum ColumnWidths
     {
@@ -175,7 +173,6 @@ private:
     int consoleFontSize;
     QCompleter *autoCompleter;
     QThread thread;
-    QString m_last_wallet_id;
 
     /** Update UI with latest network info from model. */
     void updateNetworkState();

@@ -26,23 +26,21 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(QWidget* parent) :
     model(0)
 {
     ui->setupUi(this);
-
     pageButtons.addButton(ui->btnSignMessage, pageButtons.buttons().size());
     pageButtons.addButton(ui->btnVerifyMessage, pageButtons.buttons().size());
     connect(&pageButtons, SIGNAL(buttonClicked(int)), this, SLOT(showPage(int)));
-
+#if QT_VERSION >= 0x040700
     ui->messageIn_SM->setPlaceholderText(tr("Enter a message to be signed"));
     ui->signatureOut_SM->setPlaceholderText(tr("Click \"Sign Message\" to generate signature"));
 
     ui->messageIn_VM->setPlaceholderText(tr("Enter a message to be verified"));
     ui->signatureIn_VM->setPlaceholderText(tr("Enter a signature for the message to be verified"));
+#endif
 
-    // These icons are needed on Mac also
-    ui->addressBookButton_SM->setIcon(QIcon(":/icons/address-book"));
-    ui->pasteButton_SM->setIcon(QIcon(":/icons/editpaste"));
-    ui->copySignatureButton_SM->setIcon(QIcon(":/icons/editcopy"));
-    ui->addressBookButton_VM->setIcon(QIcon(":/icons/address-book"));
-
+    GUIUtil::setIcon(ui->addressBookButton_SM, "address-book");
+    GUIUtil::setIcon(ui->pasteButton_SM, "editpaste");
+    GUIUtil::setIcon(ui->copySignatureButton_SM, "editcopy");
+    GUIUtil::setIcon(ui->addressBookButton_VM, "address-book");
 
     GUIUtil::setupAddressWidget(ui->addressIn_SM, this);
     GUIUtil::setupAddressWidget(ui->addressIn_VM, this);
@@ -54,9 +52,7 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(QWidget* parent) :
     ui->messageIn_VM->installEventFilter(this);
     ui->signatureIn_VM->installEventFilter(this);
 
-    GUIUtil::setFixedPitchFont({ui->signatureOut_SM, ui->signatureIn_VM});
-
-    GUIUtil::setFont({ui->signatureOut_SM}, GUIUtil::FontWeight::Normal, 11, true);
+    GUIUtil::setFont({ui->signatureOut_SM, ui->signatureIn_VM}, GUIUtil::FontWeight::Normal, 11, true);
     GUIUtil::setFont({ui->signatureLabel_SM}, GUIUtil::FontWeight::Bold, 16);
     GUIUtil::setFont({ui->statusLabel_SM, ui->statusLabel_VM}, GUIUtil::FontWeight::Bold);
 
@@ -113,6 +109,7 @@ void SignVerifyMessageDialog::showPage(int index)
 
     GUIUtil::setFont({btnActive}, GUIUtil::FontWeight::Bold, 16);
     GUIUtil::setFont(vecNormal, GUIUtil::FontWeight::Normal, 16);
+    GUIUtil::updateFonts();
 
     ui->stackedWidgetSig->setCurrentIndex(index);
     btnActive->setChecked(true);

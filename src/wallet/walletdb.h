@@ -9,7 +9,6 @@
 #include <amount.h>
 #include <wallet/db.h>
 #include <hdchain.h>
-#include <hdchainlegacy.h>
 #include <key.h>
 
 #include <list>
@@ -47,26 +46,22 @@ class uint256;
 using WalletDatabase = BerkeleyDatabase;
 
 /** Error statuses for the wallet database */
-enum class DBErrors
+enum DBErrors
 {
-    LOAD_OK,
-    CORRUPT,
-    NONCRITICAL_ERROR,
-    TOO_NEW,
-    LOAD_FAIL,
-    NEED_REWRITE
+    DB_LOAD_OK,
+    DB_CORRUPT,
+    DB_NONCRITICAL_ERROR,
+    DB_TOO_NEW,
+    DB_LOAD_FAIL,
+    DB_NEED_REWRITE
 };
 
 class CKeyMetadata
 {
 public:
-    static const int VERSION_BASIC=1;
-    static const int VERSION_WITH_HDDATA=10;
-    static const int CURRENT_VERSION=VERSION_BASIC;
+    static const int CURRENT_VERSION=1;
     int nVersion;
     int64_t nCreateTime; // 0 means unknown
-    std::string hdKeypathLegacy; //optional HD/bip32 keypath
-    CKeyID hdMasterKeyIDLegacy; //id of the HD masterkey used to derive this key
 
     CKeyMetadata()
     {
@@ -84,19 +79,12 @@ public:
     inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(this->nVersion);
         READWRITE(nCreateTime);
-        if (this->nVersion >= VERSION_WITH_HDDATA)
-        {
-            READWRITE(hdKeypathLegacy);
-            READWRITE(hdMasterKeyIDLegacy);
-        }
     }
 
     void SetNull()
     {
         nVersion = CKeyMetadata::CURRENT_VERSION;
         nCreateTime = 0;
-        hdKeypathLegacy.clear();
-        hdMasterKeyIDLegacy.SetNull();
     }
 };
 
@@ -172,6 +160,9 @@ public:
     bool ReadAccount(const std::string& strAccount, CAccount& account);
     bool WriteAccount(const std::string& strAccount, const CAccount& account);
 
+    bool ReadPrivateSendSalt(uint256& salt);
+    bool WritePrivateSendSalt(const uint256& salt);
+
     /// Write destination data key,value tuple to database
     bool WriteDestData(const std::string &address, const std::string &key, const std::string &value);
     /// Erase destination data tuple from wallet database
@@ -199,7 +190,6 @@ public:
 
     //! write the hdchain model (external chain child index counter)
     bool WriteHDChain(const CHDChain& chain);
-    bool WriteHDChainLegacy(const CHDChainLegacy& chain);
     bool WriteCryptedHDChain(const CHDChain& chain);
     bool WriteHDPubKey(const CHDPubKey& hdPubKey, const CKeyMetadata& keyMeta);
 

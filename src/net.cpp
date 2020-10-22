@@ -22,12 +22,13 @@
 #include <ui_interface.h>
 #include <utilstrencodings.h>
 #include <validation.h>
-#include <spork.h>
+
 #include <masternode/masternode-meta.h>
 #include <masternode/masternode-sync.h>
 #include <privatesend/privatesend.h>
 #include <evo/deterministicmns.h>
 
+#include <memory>
 #ifdef WIN32
 #include <string.h>
 #else
@@ -333,7 +334,7 @@ CNode* CConnman::FindNode(const CNetAddr& ip, bool fExcludeDisconnecting)
         if (fExcludeDisconnecting && pnode->fDisconnect) {
             continue;
         }
-        if (static_cast<CNetAddr>(pnode->addr) == ip) {
+        if ((CNetAddr)pnode->addr == ip) {
             return pnode;
         }
     }
@@ -347,7 +348,7 @@ CNode* CConnman::FindNode(const CSubNet& subNet, bool fExcludeDisconnecting)
         if (fExcludeDisconnecting && pnode->fDisconnect) {
             continue;
         }
-        if (subNet.Match(static_cast<CNetAddr>(pnode->addr))) {
+        if (subNet.Match((CNetAddr)pnode->addr)) {
             return pnode;
         }
     }
@@ -375,7 +376,7 @@ CNode* CConnman::FindNode(const CService& addr, bool fExcludeDisconnecting)
         if (fExcludeDisconnecting && pnode->fDisconnect) {
             continue;
         }
-        if (static_cast<CService>(pnode->addr) == addr) {
+        if ((CService)pnode->addr == addr) {
             return pnode;
         }
     }
@@ -417,7 +418,7 @@ CNode* CConnman::ConnectNode(CAddress addrConnect, const char *pszDest, bool fCo
         }
 
         // Look for an existing connection
-        CNode* pnode = FindNode(static_cast<CService>(addrConnect));
+        CNode* pnode = FindNode((CService)addrConnect);
         if (pnode)
         {
             LogPrintf("Failed to open new connection, already connected\n");
@@ -442,7 +443,7 @@ CNode* CConnman::ConnectNode(CAddress addrConnect, const char *pszDest, bool fCo
         if (Lookup(pszDest, resolved,  default_port, fNameLookup && !HaveNameProxy(), 256) && !resolved.empty()) {
             addrConnect = CAddress(resolved[GetRand(resolved.size())], NODE_NONE);
             if (!addrConnect.IsValid()) {
-                LogPrint(BCLog::NET, "Resolver returned invalid address %s for %s\n", addrConnect.ToString(), pszDest);
+                LogPrint(BCLog::NET, "Resolver returned invalid address %s for %s", addrConnect.ToString(), pszDest);
                 return nullptr;
             }
             // It is possible that we already have a connection to the IP/port pszDest resolved to.
@@ -450,7 +451,7 @@ CNode* CConnman::ConnectNode(CAddress addrConnect, const char *pszDest, bool fCo
             // Also store the name we used to connect in that CNode, so that future FindNode() calls to that
             // name catch this early.
             LOCK(cs_vNodes);
-            CNode* pnode = FindNode(static_cast<CService>(addrConnect));
+            CNode* pnode = FindNode((CService)addrConnect);
             if (pnode)
             {
                 pnode->MaybeSetAddrName(std::string(pszDest));
@@ -630,7 +631,7 @@ void CConnman::Ban(const CSubNet& subNet, const BanReason &banReason, int64_t ba
     {
         LOCK(cs_vNodes);
         for (CNode* pnode : vNodes) {
-            if (subNet.Match(static_cast<CNetAddr>(pnode->addr)))
+            if (subNet.Match((CNetAddr)pnode->addr))
                 pnode->fDisconnect = true;
         }
     }
@@ -1391,21 +1392,28 @@ void CConnman::NotifyNumConnectionsChanged()
         LOCK(cs_vNodes);
         vNodesSize = vNodes.size();
     }
+
+    // If we had zero connections before and new connections now or if we just dropped
+    // to zero connections reset the sync process if its outdated.
+    if ((vNodesSize > 0 && nPrevNodeCount == 0) || (vNodesSize == 0 && nPrevNodeCount > 0)) {
+        masternodeSync.Reset();
+    }
+
     if(vNodesSize != nPrevNodeCount) {
         nPrevNodeCount = vNodesSize;
         if(clientInterface)
-            clientInterface->NotifyNumConnectionsChanged(vNodesSize);
+            clientInterface->NotifyNumConnectionsChanged(nPrevNodeCount);
     }
 }
 
 void CConnman::InactivityCheck(CNode *pnode)
 {
     int64_t nTime = GetSystemTimeInSeconds();
-    if (nTime - pnode->nTimeConnected > m_peer_connect_timeout)
+    if (nTime - pnode->nTimeConnected > 60)
     {
         if (pnode->nLastRecv == 0 || pnode->nLastSend == 0)
         {
-            LogPrint(BCLog::NET, "socket no message in first %i seconds, %d %d from %d\n", m_peer_connect_timeout, pnode->nLastRecv != 0, pnode->nLastSend != 0, pnode->GetId());
+            LogPrint(BCLog::NET, "socket no message in first 60 seconds, %d %d from %d\n", pnode->nLastRecv != 0, pnode->nLastSend != 0, pnode->GetId());
             pnode->fDisconnect = true;
         }
         else if (nTime - pnode->nLastSend > TIMEOUT_INTERVAL)
@@ -1947,8 +1955,6 @@ void CConnman::WakeSelect()
 
 
 #ifdef USE_UPNP
-static CThreadInterrupt g_upnp_interrupt;
-static std::thread g_upnp_thread;
 void ThreadMapPort()
 {
     std::string port = strprintf("%u", GetListenPort());
@@ -1999,29 +2005,35 @@ void ThreadMapPort()
 
         std::string strDesc = "Dash Core " + FormatFullVersion();
 
-        do {
+        try {
+            while (true) {
 #ifndef UPNPDISCOVER_SUCCESS
-            /* miniupnpc 1.5 */
-            r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,
-                                port.c_str(), port.c_str(), lanaddr, strDesc.c_str(), "TCP", 0);
+                /* miniupnpc 1.5 */
+                r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,
+                                    port.c_str(), port.c_str(), lanaddr, strDesc.c_str(), "TCP", 0);
 #else
-            /* miniupnpc 1.6 */
-            r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,
-                                port.c_str(), port.c_str(), lanaddr, strDesc.c_str(), "TCP", 0, "0");
+                /* miniupnpc 1.6 */
+                r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,
+                                    port.c_str(), port.c_str(), lanaddr, strDesc.c_str(), "TCP", 0, "0");
 #endif
 
-            if(r!=UPNPCOMMAND_SUCCESS)
-                LogPrintf("AddPortMapping(%s, %s, %s) failed with code %d (%s)\n",
-                    port, port, lanaddr, r, strupnperror(r));
-            else
-                LogPrintf("UPnP Port Mapping successful.\n");
-        }
-        while(g_upnp_interrupt.sleep_for(std::chrono::minutes(20)));
+                if(r!=UPNPCOMMAND_SUCCESS)
+                    LogPrintf("AddPortMapping(%s, %s, %s) failed with code %d (%s)\n",
+                        port, port, lanaddr, r, strupnperror(r));
+                else
+                    LogPrintf("UPnP Port Mapping successful.\n");
 
-        r = UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype, port.c_str(), "TCP", 0);
-        LogPrintf("UPNP_DeletePortMapping() returned: %d\n", r);
-        freeUPNPDevlist(devlist); devlist = nullptr;
-        FreeUPNPUrls(&urls);
+                MilliSleep(20*60*1000); // Refresh every 20 minutes
+            }
+        }
+        catch (const boost::thread_interrupted&)
+        {
+            r = UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype, port.c_str(), "TCP", 0);
+            LogPrintf("UPNP_DeletePortMapping() returned: %d\n", r);
+            freeUPNPDevlist(devlist); devlist = nullptr;
+            FreeUPNPUrls(&urls);
+            throw;
+        }
     } else {
         LogPrintf("No valid UPnP IGDs found\n");
         freeUPNPDevlist(devlist); devlist = nullptr;
@@ -2030,39 +2042,27 @@ void ThreadMapPort()
     }
 }
 
-void StartMapPort()
+void MapPort(bool fUseUPnP)
 {
-    if (!g_upnp_thread.joinable()) {
-        assert(!g_upnp_interrupt);
-        g_upnp_thread = std::thread((std::bind(&TraceThread<void (*)()>, "upnp", &ThreadMapPort)));
-    }
-}
+    static std::unique_ptr<boost::thread> upnp_thread;
 
-void InterruptMapPort()
-{
-    if(g_upnp_thread.joinable()) {
-        g_upnp_interrupt();
+    if (fUseUPnP)
+    {
+        if (upnp_thread) {
+            upnp_thread->interrupt();
+            upnp_thread->join();
+        }
+        upnp_thread.reset(new boost::thread(boost::bind(&TraceThread<void (*)()>, "upnp", &ThreadMapPort)));
     }
-}
-
-void StopMapPort()
-{
-    if(g_upnp_thread.joinable()) {
-        g_upnp_thread.join();
-        g_upnp_interrupt.reset();
+    else if (upnp_thread) {
+        upnp_thread->interrupt();
+        upnp_thread->join();
+        upnp_thread.reset();
     }
 }
 
 #else
-void StartMapPort()
-{
-    // Intentionally left blank.
-}
-void InterruptMapPort()
-{
-    // Intentionally left blank.
-}
-void StopMapPort()
+void MapPort(bool)
 {
     // Intentionally left blank.
 }
@@ -2275,6 +2275,7 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
         CAddress addrConnect;
 
         // Only connect out to one peer per network group (/16 for IPv4).
+        // Do this here so we don't have to critsect vNodes inside mapAddresses critsect.
         // This is only done for mainnet and testnet
         int nOutbound = 0;
         std::set<std::vector<unsigned char> > setConnected;
@@ -2327,20 +2328,13 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
             }
         }
 
-        addrman.ResolveCollisions();
-
         auto mnList = deterministicMNManager->GetListAtChainTip();
 
         int64_t nANow = GetAdjustedTime();
         int nTries = 0;
         while (!interruptNet)
         {
-            CAddrInfo addr = addrman.SelectTriedCollision();
-
-            // SelectTriedCollision returns an invalid address if it is empty.
-            if (!fFeeler || !addr.IsValid()) {
-                addr = addrman.Select(fFeeler);
-            }
+            CAddrInfo addr = addrman.Select(fFeeler);
 
             auto dmn = mnList.GetMNByService(addr);
             bool isMasternode = dmn != nullptr;
@@ -2472,7 +2466,7 @@ void CConnman::ThreadOpenAddedConnections()
         for (const AddedNodeInfo& info : vInfo) {
             if (!info.fConnected) {
                 if (!grant.TryAcquire()) {
-                    // If we've used up our semaphore and need a new one, let's not wait here since while we are waiting
+                    // If we've used up our semaphore and need a new one, lets not wait here since while we are waiting
                     // the addednodeinfo state might change.
                     break;
                 }
@@ -2509,7 +2503,7 @@ void CConnman::ThreadOpenMasternodeConnections()
 
         didConnect = false;
 
-        if (!fNetworkActive)
+        if (!fNetworkActive || !masternodeSync.IsBlockchainSynced())
             continue;
 
         std::set<CService> connectedNodes;
@@ -2651,8 +2645,8 @@ void CConnman::OpenNetworkConnection(const CAddress& addrConnect, bool fCountFai
         if (!fAllowLocal && IsLocal(addrConnect))
             return;
         // if multiple ports for same IP are allowed, search for IP:PORT match, otherwise search for IP-only match
-        if ((!Params().AllowMultiplePorts() && FindNode(static_cast<CNetAddr>(addrConnect))) ||
-            (Params().AllowMultiplePorts() && FindNode(static_cast<CService>(addrConnect))))
+        if ((!Params().AllowMultiplePorts() && FindNode((CNetAddr)addrConnect)) ||
+            (Params().AllowMultiplePorts() && FindNode((CService)addrConnect)))
             return;
     } else if (FindNode(std::string(pszDest)))
         return;
@@ -2733,7 +2727,7 @@ void CConnman::ThreadMessageHandler()
             // Send messages
             if (!fSkipSendMessagesForMasternodes || !pnode->fMasternode) {
                 LOCK(pnode->cs_sendProcessing);
-                m_msgproc->SendMessages(pnode);
+                m_msgproc->SendMessages(pnode, flagInterruptMsgProc);
             }
 
             if (flagInterruptMsgProc)
@@ -2838,7 +2832,7 @@ bool CConnman::BindListenPort(const CService &addrBind, std::string& strError, b
     return true;
 }
 
-void Discover()
+void Discover(boost::thread_group& threadGroup)
 {
     if (!fDiscover)
         return;
@@ -2899,6 +2893,10 @@ void CConnman::SetNetworkActive(bool active)
 
     fNetworkActive = active;
 
+    // Always call the Reset() if the network gets enabled/disabled to make sure the sync process
+    // gets a reset if its outdated..
+    masternodeSync.Reset();
+
     uiInterface.NotifyNetworkActiveChanged(fNetworkActive);
 }
 
@@ -2950,8 +2948,7 @@ bool CConnman::InitBinds(const std::vector<CService>& binds, const std::vector<C
     if (binds.empty() && whiteBinds.empty()) {
         struct in_addr inaddr_any;
         inaddr_any.s_addr = INADDR_ANY;
-        struct in6_addr inaddr6_any = IN6ADDR_ANY_INIT;
-        fBound |= Bind(CService(inaddr6_any, GetListenPort()), BF_NONE);
+        fBound |= Bind(CService((in6_addr)IN6ADDR_ANY_INIT, GetListenPort()), BF_NONE);
         fBound |= Bind(CService(inaddr_any, GetListenPort()), !fBound ? BF_REPORT_ERROR : BF_NONE);
     }
     return fBound;
@@ -3482,7 +3479,7 @@ void CConnman::RelayTransaction(const CTransaction& tx)
     }
 }
 
-void CConnman::RelayInv(CInv &inv, int minProtoVersion, bool fAllowMasternodeConnections) {
+void CConnman::RelayInv(CInv &inv, const int minProtoVersion, bool fAllowMasternodeConnections) {
     LOCK(cs_vNodes);
     for (const auto& pnode : vNodes) {
         if (pnode->nVersion < minProtoVersion || (pnode->fMasternode && !fAllowMasternodeConnections))
@@ -3491,10 +3488,9 @@ void CConnman::RelayInv(CInv &inv, int minProtoVersion, bool fAllowMasternodeCon
     }
 }
 
-void CConnman::RelayInvFiltered(CInv &inv, const CTransaction& relatedTx, int minProtoVersion, bool fAllowMasternodeConnections)
+void CConnman::RelayInvFiltered(CInv &inv, const CTransaction& relatedTx, const int minProtoVersion, bool fAllowMasternodeConnections)
 {
     LOCK(cs_vNodes);
-    minProtoVersion = sporkManager.GetSporkValue(SPORK_22_MIN_PEER_PROTOCOL_VERSION);
     for (const auto& pnode : vNodes) {
         if (pnode->nVersion < minProtoVersion || (pnode->fMasternode && !fAllowMasternodeConnections))
             continue;
@@ -3507,10 +3503,9 @@ void CConnman::RelayInvFiltered(CInv &inv, const CTransaction& relatedTx, int mi
     }
 }
 
-void CConnman::RelayInvFiltered(CInv &inv, const uint256& relatedTxHash, int minProtoVersion, bool fAllowMasternodeConnections)
+void CConnman::RelayInvFiltered(CInv &inv, const uint256& relatedTxHash, const int minProtoVersion, bool fAllowMasternodeConnections)
 {
     LOCK(cs_vNodes);
-    minProtoVersion = sporkManager.GetSporkValue(SPORK_22_MIN_PEER_PROTOCOL_VERSION);
     for (const auto& pnode : vNodes) {
         if (pnode->nVersion < minProtoVersion || (pnode->fMasternode && !fAllowMasternodeConnections))
             continue;

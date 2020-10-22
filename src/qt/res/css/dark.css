@@ -118,7 +118,30 @@ QLineEdit:disabled {
 QAbstractSpinBox
 ******************************************************/
 
-/***** No dark.css specific coloring here yet *****/
+QAbstractSpinBox::up-arrow {
+    border-image: url(':/images/arrow_up_dark');
+}
+QAbstractSpinBox::up-arrow:hover {
+    border-image: url(':/images/arrow_up_light');
+}
+QAbstractSpinBox::up-arrow:pressed {
+    border-image: url(':/images/arrow_up_dark');
+}
+QAbstractSpinBox::up-arrow:disabled {
+    border-image: url(':/images/arrow_light_up_hover');
+}
+QAbstractSpinBox::down-arrow {
+    border-image: url(':/images/arrow_down_dark');
+}
+QAbstractSpinBox::down-arrow:hover {
+    border-image: url(':/images/arrow_down_light');
+}
+QAbstractSpinBox::down-arrow:pressed {
+    border-image: url(':/images/arrow_down_dark');
+}
+QAbstractSpinBox::down-arrow:disabled {
+    border-image: url(':/images/arrow_light_down_hover');
+}
 
 /******************************************************
 QCalendarWidget
@@ -150,6 +173,13 @@ QCalendarWidget,
     background-color: #39393b;
 }
 
+#qt_calendar_prevmonth {
+    qproperty-icon: url(':/images/arrow_left_dark');
+}
+#qt_calendar_nextmonth {
+    qproperty-icon: url(':/images/arrow_right_dark');
+}
+
 QCalendarWidget QToolButton {
     color: #c7c7c7;
 }
@@ -166,6 +196,41 @@ QCalendarWidget QAbstractItemView:enabled {
 
 QCalendarWidget QAbstractItemView:disabled {
     color: #818181;
+}
+
+/******************************************************
+QCheckBox
+******************************************************/
+
+QCheckBox::indicator:unchecked,
+QCheckBox::indicator:unchecked:pressed {
+    border-image: url(':/images/checkbox_normal_dark');
+}
+QCheckBox::indicator:checked,
+QCheckBox::indicator:checked:pressed {
+    border-image: url(':/images/checkbox_checked_dark');
+}
+QCheckBox::indicator:indeterminate,
+QCheckBox::indicator:indeterminate:pressed {
+    border-image: url(':/images/checkbox_partly_checked_dark');
+}
+QCheckBox::indicator:hover:!pressed:unchecked {
+    border-image: url(':/images/checkbox_normal_hover_dark');
+}
+QCheckBox::indicator:unchecked:disabled {
+    border-image: url(':/images/checkbox_normal_disabled_dark');
+}
+QCheckBox::indicator:checked:!pressed:hover {
+    border-image: url(':/images/checkbox_checked_hover_dark');
+}
+QCheckBox::indicator:checked:disabled {
+    border-image: url(':/images/checkbox_checked_disabled_dark');
+}
+QCheckBox::indicator:indeterminate:hover {
+    border-image: url(':/images/checkbox_partly_checked_hover_dark');
+}
+QCheckBox::indicator:indeterminate:disabled {
+    border-image: url(':/images/checkbox_partly_checked_disabled_dark');
 }
 
 /******************************************************
@@ -187,6 +252,19 @@ QComboBox::item:alternate {
 QComboBox::item:selected {
     background-color: #585858;
     color: #c7c7c7;
+}
+
+QComboBox::down-arrow {
+    border-image: url(':/images/arrow_down_dark') 0 0 0 0 stretch stretch;
+}
+QComboBox::down-arrow:hover {
+    border-image: url(':/images/arrow_down_light') 0 0 0 0 stretch stretch;
+}
+QComboBox::down-arrow:pressed {
+    border-image: url(':/images/arrow_down_dark') 0 0 0 0 stretch stretch;
+}
+QComboBox::down-arrow:disabled {
+    border-image: url(':/images/arrow_light_down_hover') 0 0 0 0 stretch stretch;
 }
 
 /******************************************************
@@ -399,8 +477,8 @@ QPushButton - Special case, tabbar replacement buttons
 /* Options dialog buttons */
 #btnMain,
 #btnWallet,
+#btnPrivateSend,
 #btnNetwork,
-#btnWindow,
 #btnDisplay,
 #btnAppearance,
 /* Sign/Verify dialog buttons */
@@ -419,8 +497,8 @@ QPushButton - Special case, tabbar replacement buttons
 /* Options dialog buttons */
 #btnMain:hover:checked,
 #btnWallet:hover:checked,
+#btnPrivateSend:hover:checked,
 #btnNetwork:hover:checked,
-#btnWindow:hover:checked,
 #btnDisplay:hover:checked,
 #btnAppearance:hover:checked,
 /* Sign/Verify dialog buttons */
@@ -439,8 +517,8 @@ QPushButton - Special case, tabbar replacement buttons
 /* Options dialog buttons */
 #btnMain:hover:!checked,
 #btnWallet:hover:!checked,
+#btnPrivateSend:hover:!checked,
 #btnNetwork:hover:!checked,
-#btnWindow:hover:!checked,
 #btnDisplay:hover:!checked,
 #btnAppearance:hover:!checked,
 /* Sign/Verify dialog buttons */
@@ -459,8 +537,8 @@ QPushButton - Special case, tabbar replacement buttons
 /* Options dialog buttons */
 #btnMain:checked,
 #btnWallet:checked,
+#btnPrivateSend:checked,
 #btnNetwork:checked,
-#btnWindow:checked,
 #btnDisplay:checked,
 #btnAppearance:checked,
 /* Sign/Verify dialog buttons */
@@ -474,7 +552,26 @@ QPushButton - Special case, tabbar replacement buttons
 QRadioButton
 ******************************************************/
 
-/***** No dark.css specific coloring here yet *****/
+QRadioButton::indicator:unchecked,
+QRadioButton::indicator:unchecked:pressed {
+    border-image: url(':/images/radio_normal_dark');
+}
+QRadioButton::indicator:checked,
+QRadioButton::indicator:checked:pressed {
+    border-image: url(':/images/radio_checked_dark');
+}
+QRadioButton::indicator:hover:!pressed:unchecked {
+    border-image: url(':/images/radio_normal_hover_dark');
+}
+QRadioButton::indicator:checked:hover:!pressed {
+    border-image: url(':/images/radio_checked_hover_dark');
+}
+QRadioButton::indicator:checked:disabled {
+    border-image: url(':/images/radio_checked_disabled_dark');
+}
+QRadioButton::indicator:unchecked:disabled {
+    border-image: url(':/images/radio_normal_disabled_dark');
+}
 
 /******************************************************
 QScrollArea
@@ -604,6 +701,48 @@ QTreeWidget {
     background-color: #2d2d2e;
     border-color: #4a4a4b;
 }
+QTreeWidget::branch::closed:has-children {
+    border-image: url(':/images/arrow_right_dark');
+}
+QTreeWidget::branch::closed:has-children:hover {
+    border-image: url(':/images/arrow_right_light');
+}
+QTreeWidget::branch::open {
+    border-image: url(':/images/arrow_down_dark');
+}
+QTreeWidget::branch::open:hover {
+    border-image: url(':/images/arrow_down_light');
+}
+QTreeWidget::indicator:unchecked,
+QTreeWidget::indicator:unchecked:pressed {
+    border-image: url(':/images/checkbox_normal_dark');
+}
+QTreeWidget::indicator:checked,
+QTreeWidget::indicator:checked:pressed {
+    border-image: url(':/images/checkbox_checked_dark');
+}
+QTreeWidget::indicator:indeterminate,
+QTreeWidget::indicator:indeterminate:pressed {
+    border-image: url(':/images/checkbox_partly_checked_dark');
+}
+QTreeWidget::indicator:hover:!pressed:unchecked {
+    border-image: url(':/images/checkbox_normal_hover_dark');
+}
+QTreeWidget::indicator:unchecked:disabled {
+    border-image: url(':/images/checkbox_normal_disabled_dark');
+}
+QTreeWidget::indicator:checked:!pressed:hover {
+    border-image: url(':/images/checkbox_checked_hover_dark');
+}
+QTreeWidget::indicator:checked:disabled {
+    border-image: url(':/images/checkbox_checked_disabled_dark');
+}
+QTreeWidget::indicator:indeterminate:!pressed:hover {
+    border-image: url(':/images/checkbox_partly_checked_hover_dark');
+}
+QTreeWidget::indicator:indeterminate:disabled {
+    border-image: url(':/images/checkbox_partly_checked_disabled_dark');
+}
 
 /******************************************************
 QWidget
@@ -658,6 +797,10 @@ AskPassphraseDialog
 /******************************************************
 CoinControlDialog
 ******************************************************/
+
+QDialog#CoinControlDialog .CoinControlTreeWidget#treeWidget::item {
+    border-color: #4a4a4b;
+}
 
 QDialog#CoinControlDialog .CoinControlTreeWidget#treeWidget::item:selected,
 QDialog#CoinControlDialog .CoinControlTreeWidget#treeWidget::item:checked,
@@ -869,6 +1012,58 @@ QScrollBar::sub-line:vertical:pressed,
 QScrollBar::add-line:horizontal:pressed,
 QScrollBar::sub-line:horizontal:pressed {
     background-color: #39393b;
+}
+
+QScrollBar:up-arrow {
+    border-image: url(':/images/arrow_up_dark');
+}
+QScrollBar:up-arrow:hover {
+    border-image: url(':/images/arrow_up_light');
+}
+QScrollBar:up-arrow:pressed {
+    border-image: url(':/images/arrow_up_dark');
+}
+QScrollBar:up-arrow:disabled {
+    border-image: url(':/images/arrow_light_up_hover');
+}
+
+QScrollBar:down-arrow {
+    border-image: url(':/images/arrow_down_dark');
+}
+QScrollBar:down-arrow:hover {
+    border-image: url(':/images/arrow_down_light');
+}
+QScrollBar:down-arrow:pressed {
+    border-image: url(':/images/arrow_down_dark');
+}
+QScrollBar:down-arrow:disabled {
+    border-image: url(':/images/arrow_light_down_hover');
+}
+
+QScrollBar:left-arrow {
+    border-image: url(':/images/arrow_left_dark');
+}
+QScrollBar:left-arrow:hover {
+    border-image: url(':/images/arrow_left_light');
+}
+QScrollBar:left-arrow:pressed {
+    border-image: url(':/images/arrow_left_dark');
+}
+QScrollBar:left-arrow:disabled {
+    border-image: url(':/images/arrow_light_left_hover');
+}
+
+QScrollBar:right-arrow {
+    border-image: url(':/images/arrow_right_dark');
+}
+QScrollBar:right-arrow:hover {
+    border-image: url(':/images/arrow_right_light');
+}
+QScrollBar:right-arrow:pressed {
+    border-image: url(':/images/arrow_right_dark');
+}
+QScrollBar:right-arrow:disabled {
+    border-image: url(':/images/arrow_light_right_hover');
 }
 
 </os>

@@ -23,6 +23,7 @@
 #include <ui_interface.h>
 #include <util.h> // for GetBoolArg
 #include <wallet/coincontrol.h>
+#include <wallet/wallet.h>
 #include <wallet/walletdb.h> // for BackupWallet
 
 #include <spork.h>
@@ -40,9 +41,13 @@ WalletModel::WalletModel(CWallet* _wallet, OptionsModel* _optionsModel, QObject*
     QObject(parent), wallet(_wallet), optionsModel(_optionsModel), addressTableModel(0),
     transactionTableModel(0),
     recentRequestsTableModel(0),
-    cachedBalance(0), cachedUnconfirmedBalance(0), cachedImmatureBalance(0),
-    cachedWatchOnlyBalance{0}, cachedWatchUnconfBalance{0}, cachedWatchImmatureBalance{0},
+    cachedBalance(0),
+    cachedUnconfirmedBalance(0),
+    cachedImmatureBalance(0),
     cachedAnonymizedBalance(0),
+    cachedWatchOnlyBalance(0),
+    cachedWatchUnconfBalance(0),
+    cachedWatchImmatureBalance(0),
     cachedEncryptionStatus(Unencrypted),
     cachedNumBlocks(0),
     cachedNumISLocks(0),
@@ -84,9 +89,9 @@ CAmount WalletModel::getAnonymizableBalance(bool fSkipDenominated, bool fSkipUnc
     return wallet->GetAnonymizableBalance(fSkipDenominated, fSkipUnconfirmed);
 }
 
-CAmount WalletModel::getAnonymizedBalance() const
+CAmount WalletModel::getAnonymizedBalance(const CCoinControl* coinControl) const
 {
-    return wallet->GetAnonymizedBalance();
+    return wallet->GetAnonymizedBalance(coinControl);
 }
 
 CAmount WalletModel::getDenominatedBalance(bool unconfirmed) const
@@ -138,9 +143,8 @@ void WalletModel::updateStatus()
 {
     EncryptionStatus newEncryptionStatus = getEncryptionStatus();
 
-    if(cachedEncryptionStatus != newEncryptionStatus) {
-        Q_EMIT encryptionStatusChanged();
-    }
+    if(cachedEncryptionStatus != newEncryptionStatus)
+        Q_EMIT encryptionStatusChanged(newEncryptionStatus);
 }
 
 void WalletModel::pollBalanceChanged()
@@ -155,12 +159,13 @@ void WalletModel::pollBalanceChanged()
     if(!lockWallet)
         return;
 
-    if (fForceCheckBalanceChanged || chainActive.Height() != cachedNumBlocks || CPrivateSendClientOptions::GetRounds() != cachedPrivateSendRounds) {
+    if(fForceCheckBalanceChanged || chainActive.Height() != cachedNumBlocks || privateSendClient.nPrivateSendRounds != cachedPrivateSendRounds)
+    {
         fForceCheckBalanceChanged = false;
 
         // Balance and number of transactions might have changed
         cachedNumBlocks = chainActive.Height();
-        cachedPrivateSendRounds = CPrivateSendClientOptions::GetRounds();
+        cachedPrivateSendRounds = privateSendClient.nPrivateSendRounds;
 
         checkBalanceChanged();
         if(transactionTableModel)
@@ -229,6 +234,11 @@ int WalletModel::getRealOutpointPrivateSendRounds(const COutPoint& outpoint) con
     return wallet->GetRealOutpointPrivateSendRounds(outpoint);
 }
 
+bool WalletModel::isFullyMixed(const COutPoint& outpoint) const
+{
+    return wallet->IsFullyMixed(outpoint);
+}
+
 void WalletModel::updateAddressBook(const QString &address, const QString &label,
         bool isMine, const QString &purpose, int status)
 {
@@ -295,7 +305,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
             total += subtotal;
         }
         else
-        {   // User-entered pigeon address / amount:
+        {   // User-entered dash address / amount:
             if(!validateAddress(rcp.address))
             {
                 return InvalidAddress;
@@ -397,7 +407,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
                 rcp.paymentRequest.SerializeToString(&value);
                 newTx->vOrderForm.push_back(make_pair(key, value));
             }
-            else if (!rcp.message.isEmpty()) // Message from normal pigeon:URI (pigeon:XyZ...?message=example)
+            else if (!rcp.message.isEmpty()) // Message from normal dash:URI (dash:XyZ...?message=example)
             {
                 newTx->vOrderForm.push_back(make_pair("Message", rcp.message.toStdString()));
             }
@@ -807,19 +817,4 @@ bool WalletModel::hdEnabled() const
 int WalletModel::getDefaultConfirmTarget() const
 {
     return nTxConfirmTarget;
-}
-
-QString WalletModel::getWalletName() const
-{
-    LOCK(wallet->cs_wallet);
-    QString walletName = QString::fromStdString(wallet->GetName());
-    if (walletName.endsWith(".dat")) {
-        walletName.truncate(walletName.size() - 4);
-    }
-    return walletName;
-}
-
-bool WalletModel::isMultiwallet()
-{
-    return gArgs.GetArgs("-wallet").size() > 1;
 }

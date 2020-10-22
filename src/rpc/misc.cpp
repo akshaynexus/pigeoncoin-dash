@@ -91,13 +91,12 @@ UniValue mnsync(const JSONRPCRequest& request)
 
     if(strMode == "status") {
         UniValue objStatus(UniValue::VOBJ);
-        objStatus.pushKV("AssetID", masternodeSync.GetAssetID());
-        objStatus.pushKV("AssetName", masternodeSync.GetAssetName());
-        objStatus.pushKV("AssetStartTime", masternodeSync.GetAssetStartTime());
-        objStatus.pushKV("Attempt", masternodeSync.GetAttempt());
-        objStatus.pushKV("IsBlockchainSynced", masternodeSync.IsBlockchainSynced());
-        objStatus.pushKV("IsSynced", masternodeSync.IsSynced());
-        objStatus.pushKV("IsFailed", masternodeSync.IsFailed());
+        objStatus.push_back(Pair("AssetID", masternodeSync.GetAssetID()));
+        objStatus.push_back(Pair("AssetName", masternodeSync.GetAssetName()));
+        objStatus.push_back(Pair("AssetStartTime", masternodeSync.GetAssetStartTime()));
+        objStatus.push_back(Pair("Attempt", masternodeSync.GetAttempt()));
+        objStatus.push_back(Pair("IsBlockchainSynced", masternodeSync.IsBlockchainSynced()));
+        objStatus.push_back(Pair("IsSynced", masternodeSync.IsSynced()));
         return objStatus;
     }
 
@@ -109,8 +108,7 @@ UniValue mnsync(const JSONRPCRequest& request)
 
     if(strMode == "reset")
     {
-        masternodeSync.Reset();
-        masternodeSync.SwitchToNextAsset(*g_connman);
+        masternodeSync.Reset(true);
         return "success";
     }
     return "failure";

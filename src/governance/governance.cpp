@@ -5,7 +5,9 @@
 #include <governance/governance.h>
 #include <consensus/validation.h>
 #include <governance/governance-classes.h>
+#include <governance/governance-object.h>
 #include <governance/governance-validators.h>
+#include <governance/governance-vote.h>
 #include <init.h>
 #include <masternode/masternode-meta.h>
 #include <masternode/masternode-sync.h>
@@ -14,6 +16,7 @@
 #include <netfulfilledman.h>
 #include <netmessagemaker.h>
 #include <spork.h>
+#include <util.h>
 #include <validation.h>
 #include <validationinterface.h>
 
@@ -82,7 +85,7 @@ bool CGovernanceManager::SerializeVoteForHash(const uint256& nHash, CDataStream&
     return cmapVoteToObject.Get(nHash, pGovobj) && pGovobj->GetVoteFile().SerializeVoteToStream(nHash, ss);
 }
 
-void CGovernanceManager::ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, CConnman& connman, bool enable_bip61)
+void CGovernanceManager::ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, CConnman& connman)
 {
     if (fDisableGovernance) return;
     if (!masternodeSync.IsBlockchainSynced()) return;
@@ -91,7 +94,7 @@ void CGovernanceManager::ProcessMessage(CNode* pfrom, const std::string& strComm
     if (strCommand == NetMsgType::MNGOVERNANCESYNC) {
         if (pfrom->nVersion < MIN_GOVERNANCE_PEER_PROTO_VERSION) {
             LogPrint(BCLog::GOBJECT, "MNGOVERNANCESYNC -- peer=%d using obsolete version %i\n", pfrom->GetId(), pfrom->nVersion);
-            if (enable_bip61) {
+            if (g_enable_bip61) {
                 connman.PushMessage(pfrom, CNetMsgMaker(pfrom->GetSendVersion()).Make(NetMsgType::REJECT, strCommand,
                                                                                       REJECT_OBSOLETE, strprintf(
                                 "Version must be %d or greater", MIN_GOVERNANCE_PEER_PROTO_VERSION)));
@@ -140,7 +143,7 @@ void CGovernanceManager::ProcessMessage(CNode* pfrom, const std::string& strComm
 
         if (pfrom->nVersion < MIN_GOVERNANCE_PEER_PROTO_VERSION) {
             LogPrint(BCLog::GOBJECT, "MNGOVERNANCEOBJECT -- peer=%d using obsolete version %i\n", pfrom->GetId(), pfrom->nVersion);
-            if (enable_bip61) {
+            if (g_enable_bip61) {
                 connman.PushMessage(pfrom, CNetMsgMaker(pfrom->GetSendVersion()).Make(NetMsgType::REJECT, strCommand,
                                                                                       REJECT_OBSOLETE, strprintf(
                                 "Version must be %d or greater", MIN_GOVERNANCE_PEER_PROTO_VERSION)));
@@ -219,7 +222,7 @@ void CGovernanceManager::ProcessMessage(CNode* pfrom, const std::string& strComm
 
         if (pfrom->nVersion < MIN_GOVERNANCE_PEER_PROTO_VERSION) {
             LogPrint(BCLog::GOBJECT, "MNGOVERNANCEOBJECTVOTE -- peer=%d using obsolete version %i\n", pfrom->GetId(), pfrom->nVersion);
-            if (enable_bip61) {
+            if (g_enable_bip61) {
                 connman.PushMessage(pfrom, CNetMsgMaker(pfrom->GetSendVersion()).Make(NetMsgType::REJECT, strCommand,
                                                                                       REJECT_OBSOLETE, strprintf(
                                 "Version must be %d or greater", MIN_GOVERNANCE_PEER_PROTO_VERSION)));
@@ -573,14 +576,14 @@ bool CGovernanceManager::ConfirmInventoryRequest(const CInv& inv)
             return false;
         }
         break;
-    }
+    } 
     case MSG_GOVERNANCE_OBJECT_VOTE: {
         if (cmapVoteToObject.HasKey(inv.hash)) {
             LogPrint(BCLog::GOBJECT, "CGovernanceManager::ConfirmInventoryRequest already have governance vote, returning false\n");
             return false;
         }
         break;
-    }
+    } 
     default:
         LogPrint(BCLog::GOBJECT, "CGovernanceManager::ConfirmInventoryRequest unknown type, returning false\n");
         return false;
@@ -1184,12 +1187,12 @@ UniValue CGovernanceManager::ToJson() const
     }
 
     UniValue jsonObj(UniValue::VOBJ);
-    jsonObj.pushKV("objects_total", (int)mapObjects.size());
-    jsonObj.pushKV("proposals", nProposalCount);
-    jsonObj.pushKV("triggers", nTriggerCount);
-    jsonObj.pushKV("other", nOtherCount);
-    jsonObj.pushKV("erased", (int)mapErasedGovernanceObjects.size());
-    jsonObj.pushKV("votes", (int)cmapVoteToObject.GetSize());
+    jsonObj.push_back(Pair("objects_total", (int)mapObjects.size()));
+    jsonObj.push_back(Pair("proposals", nProposalCount));
+    jsonObj.push_back(Pair("triggers", nTriggerCount));
+    jsonObj.push_back(Pair("other", nOtherCount));
+    jsonObj.push_back(Pair("erased", (int)mapErasedGovernanceObjects.size()));
+    jsonObj.push_back(Pair("votes", (int)cmapVoteToObject.GetSize()));
     return jsonObj;
 }
 

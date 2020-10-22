@@ -33,7 +33,8 @@ in the <theme.css> file.
 # Used colors in general.css for commit 44de8a93f2
 
 #00000000
-#096e03
+#222222
+#5e8c41
 #a84832
 #c79304
 
@@ -144,43 +145,35 @@ QAbstractSpinBox::down-button {
 QAbstractSpinBox::up-arrow {
     width: 20px;
     height: 20px;
-    border-image: url(':/images/arrow_up_normal');
 }
 QAbstractSpinBox::up-arrow:hover {
     width: 20px;
     height: 20px;
-    border-image: url(':/images/arrow_up_hover');
 }
 QAbstractSpinBox::up-arrow:pressed {
     width: 20px;
     height: 20px;
-    border-image: url(':/images/arrow_up_pressed');
 }
 QAbstractSpinBox::up-arrow:disabled {
     width: 20px;
     height: 20px;
-    border-image: url(':/images/arrow_light_up_hover');
 }
 
 QAbstractSpinBox::down-arrow {
     width: 20px;
     height: 20px;
-    border-image: url(':/images/arrow_down_normal');
 }
 QAbstractSpinBox::down-arrow:hover {
     width: 20px;
     height: 20px;
-    border-image: url(':/images/arrow_down_hover');
 }
 QAbstractSpinBox::down-arrow:pressed {
     width: 20px;
     height: 20px;
-    border-image: url(':/images/arrow_down_pressed');
 }
 QAbstractSpinBox::down-arrow:disabled {
     width: 20px;
     height: 20px;
-    border-image: url(':/images/arrow_light_down_hover');
 }
 
 /******************************************************
@@ -285,42 +278,29 @@ QCheckBox::indicator {
     height: 15px;
     margin-right: 5px;
 }
-
 QCheckBox::indicator:unchecked {
-    border-image: url(':/images/checkbox_normal');
 }
 QCheckBox::indicator:hover:unchecked {
-    border-image: url(':/images/checkbox_normal_hover');
 }
 QCheckBox::indicator:unchecked:pressed {
-    border-image: url(':/images/checkbox_normal_pressed');
 }
 QCheckBox::indicator:unchecked:disabled {
-    border-image: url(':/images/checkbox_normal_disabled');
 }
 QCheckBox::indicator:checked {
-    border-image: url(':/images/checkbox_checked');
 }
 QCheckBox::indicator:checked:hover {
-    border-image: url(':/images/checkbox_checked_hover');
 }
 QCheckBox::indicator:checked:pressed {
-    border-image: url(':/images/checkbox_checked_pressed');
 }
 QCheckBox::indicator:checked:disabled {
-    border-image: url(':/images/checkbox_checked_disabled');
 }
 QCheckBox::indicator:indeterminate {
-    border-image: url(':/images/checkbox_partly_checked');
 }
 QCheckBox::indicator:indeterminate:hover {
-    border-image: url(':/images/checkbox_partly_checked_hover');
 }
 QCheckBox::indicator:indeterminate:pressed {
-    border-image: url(':/images/checkbox_partly_checked_pressed');
 }
 QCheckBox::indicator:indeterminate:disabled {
-    border-image: url(':/images/checkbox_partly_checked_disabled');
 }
 
 /******************************************************
@@ -370,22 +350,18 @@ QComboBox::indicator {
 QComboBox::down-arrow {
     width: 20px;
     height: 20px;
-    border-image: url(':/images/arrow_down_normal') 0 0 0 0 stretch stretch;
 }
 QComboBox::down-arrow:hover {
     width: 20px;
     height: 20px;
-    border-image: url(':/images/arrow_down_hover') 0 0 0 0 stretch stretch;
 }
 QComboBox::down-arrow:pressed {
     width: 20px;
     height: 20px;
-    border-image: url(':/images/arrow_down_pressed') 0 0 0 0 stretch stretch;
 }
 QComboBox::down-arrow:disabled {
     width: 20px;
     height: 20px;
-    border-image: url(':/images/arrow_light_down_hover') 0 0 0 0 stretch stretch;
 }
 
 /******************************************************
@@ -645,8 +621,8 @@ QPushButton - Special case, tabbar replacement buttons
 /* Options dialog buttons */
 #btnMain,
 #btnWallet,
+#btnPrivateSend,
 #btnNetwork,
-#btnWindow,
 #btnDisplay,
 #btnAppearance,
 /* Sign/Verify dialog buttons */
@@ -668,8 +644,8 @@ QPushButton - Special case, tabbar replacement buttons
 /* Options dialog buttons */
 #btnMain:hover:checked,
 #btnWallet:hover:checked,
+#btnPrivateSend:hover:checked,
 #btnNetwork:hover:checked,
-#btnWindow:hover:checked,
 #btnDisplay:hover:checked,
 #btnAppearance:hover:checked,
 /* Sign/Verify dialog buttons */
@@ -691,8 +667,8 @@ QPushButton - Special case, tabbar replacement buttons
 /* Options dialog buttons */
 #btnMain:hover:!checked,
 #btnWallet:hover:!checked,
+#btnPrivateSend:hover:!checked,
 #btnNetwork:hover:!checked,
-#btnWindow:hover:!checked,
 #btnDisplay:hover:!checked,
 #btnAppearance:hover:!checked,
 /* Sign/Verify dialog buttons */
@@ -714,8 +690,8 @@ QPushButton - Special case, tabbar replacement buttons
 /* Options dialog buttons */
 #btnMain:checked,
 #btnWallet:checked,
+#btnPrivateSend:checked,
 #btnNetwork:checked,
-#btnWindow:checked,
 #btnDisplay:checked,
 #btnAppearance:checked,
 /* Sign/Verify dialog buttons */
@@ -736,8 +712,8 @@ QPushButton - Special case, tabbar replacement buttons
 /* Options dialog buttons */
 #btnMain:hover:pressed,
 #btnWallet:hover:pressed,
+#btnPrivateSend:hover:pressed,
 #btnNetwork:hover:pressed,
-#btnWindow:hover:pressed,
 #btnDisplay:hover:pressed,
 #btnAppearance:hover:pressed,
 /* Sign/Verify dialog buttons */
@@ -762,28 +738,20 @@ QRadioButton::indicator {
     margin-right: 5px;
 }
 QRadioButton::indicator:unchecked {
-    border-image: url(':/images/radio_normal');
 }
 QRadioButton::indicator:hover:unchecked {
-    border-image: url(':/images/radio_normal_hover');
 }
 QRadioButton::indicator:unchecked:pressed {
-    border-image: url(':/images/radio_normal_pressed');
 }
 QRadioButton::indicator:checked {
-    border-image: url(':/images/radio_checked');
 }
 QRadioButton::indicator:checked:hover {
-    border-image: url(':/images/radio_checked_hover');
 }
 QRadioButton::indicator:checked:pressed {
-    border-image: url(':/images/radio_checked_pressed');
 }
 QRadioButton::indicator:checked:disabled {
-    border-image: url(':/images/radio_checked_disabled');
 }
 QRadioButton::indicator:unchecked:disabled {
-    border-image: url(':/images/radio_normal_disabled');
 }
 
 /******************************************************
@@ -955,19 +923,15 @@ QTreeWidget {
 }
 QTreeWidget::branch::closed:has-children {
     padding: 0 -2px 0 2px;
-    border-image: url(':/images/arrow_right_normal');
 }
 QTreeWidget::branch::closed:has-children:hover {
     padding: 0 -2px 0 2px;
-    border-image: url(':/images/arrow_right_hover');
 }
 QTreeWidget::branch::open {
     padding: 0 -2px 0 2px;
-    border-image: url(':/images/arrow_down_normal');
 }
 QTreeWidget::branch::open:hover {
     padding: 0 -2px 0 2px;
-    border-image: url(':/images/arrow_down_hover');
 }
 QTreeWidget::indicator {
     width: 15px;
@@ -975,40 +939,28 @@ QTreeWidget::indicator {
     margin-right: 5px;
 }
 QTreeWidget::indicator:unchecked {
-    border-image: url(':/images/checkbox_normal');
 }
 QTreeWidget::indicator:hover:unchecked {
-    border-image: url(':/images/checkbox_normal_hover');
 }
 QTreeWidget::indicator:unchecked:pressed {
-    border-image: url(':/images/checkbox_normal_pressed');
 }
 QTreeWidget::indicator:unchecked:disabled {
-    border-image: url(':/images/checkbox_normal_disabled');
 }
 QTreeWidget::indicator:checked {
-    border-image: url(':/images/checkbox_checked');
 }
 QTreeWidget::indicator:checked:hover {
-    border-image: url(':/images/checkbox_checked_hover');
 }
 QTreeWidget::indicator:checked:pressed {
-    border-image: url(':/images/checkbox_checked_pressed');
 }
 QTreeWidget::indicator:checked:disabled {
-    border-image: url(':/images/checkbox_checked_disabled');
 }
 QTreeWidget::indicator:indeterminate {
-    border-image: url(':/images/checkbox_partly_checked');
 }
 QTreeWidget::indicator:indeterminate:hover {
-    border-image: url(':/images/checkbox_partly_checked_hover');
 }
 QTreeWidget::indicator:indeterminate:pressed {
-    border-image: url(':/images/checkbox_partly_checked_pressed');
 }
 QTreeWidget::indicator:indeterminate:disabled {
-    border-image: url(':/images/checkbox_partly_checked_disabled');
 }
 
 /******************************************************
@@ -1090,17 +1042,6 @@ QDialog#AppearanceSetup > AppearanceWidget {
 AppearanceWidget
 ******************************************************/
 
-AppearanceWidget #lblSmaller,
-AppearanceWidget #lblBigger,
-AppearanceWidget #lblBolderNormal,
-AppearanceWidget #lblBolderBold,
-AppearanceWidget #lblLighterNormal,
-AppearanceWidget #lblLighterBold {
-    /* Exceptional use of font-size here to
-    avoid changes of the slider postions */
-    font-size: 13px;
-}
-
 AppearanceWidget #lblTheme,
 AppearanceWidget #lblFontFamily,
 AppearanceWidget #lblFontScale,
@@ -1120,8 +1061,8 @@ AppearanceWidget #lblFontFamily,
 AppearanceWidget #lblFontScale,
 AppearanceWidget #lblFontWeightNormal,
 AppearanceWidget #lblFontWeightBold {
-    min-width: 170px;
-    max-width: 170px;
+    min-width: 200px;
+    max-width: 200px;
 }
 
 /******************************************************
@@ -1210,6 +1151,11 @@ QDialog#CoinControlDialog QHeaderView::section:first { /* Bug Fix: the number 1 
 }
 
 QDialog#CoinControlDialog .CoinControlTreeWidget#treeWidget::item {
+    border-bottom: 1px solid red;
+    min-height: 25px;
+}
+QDialog#CoinControlDialog .CoinControlTreeWidget#treeWidget::item:hover {
+    background-color: #00000000;
 }
 QDialog#CoinControlDialog .CoinControlTreeWidget#treeWidget::item:selected { /* Coin Control Item (selected) */
 }
@@ -1280,11 +1226,10 @@ QWidget#bgWidget { /* The frame overlaying the overview-page */
     padding-right: 10px;
 }
 
-QWidget#bgWidget .QPushButton#warningIcon {
+QWidget#bgWidget .QLabel#warningIcon {
     background-color: #00000000;
-    width: 64px;
-    height: 64px;
-    padding: 5px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 QWidget#contentWidget { /* The actual content with the text/buttons/etc... */
@@ -1350,6 +1295,22 @@ QDialog#OptionsDialog QGroupBox {
     margin-top: 10px;
 }
 
+QDialog#OptionsDialog QCheckBox#connectSocksTor,
+QDialog#OptionsDialog QLabel#overriddenByCommandLineInfoLabel {
+    min-width: 550px;
+}
+
+/******************************************************
+ OverviewPage
+ ******************************************************/
+
+QWidget#OverviewPage QLabel#labelAlerts {
+     background-color: #c79304;
+     color: #222222;
+     border-radius: 5px;
+     padding: 5px;
+ }
+
 /******************************************************
 OverviewPage Balances
 ******************************************************/
@@ -1359,21 +1320,18 @@ QWidget .QFrame#frame { /* Wallet Balance */
 }
 
 QWidget .QFrame#frame > .QLabel {
-    min-width: 100px;
-    min-height: 25px;
+    min-width: 60px;
+    min-height: 26px;
 }
 
 QWidget .QFrame#frame .QLabel#label_5 { /* Wallet Label */
-    min-width: 180px;
     margin-top: 0;
     margin-right: 5px;
-    padding-right: 5px;
 }
 
 QWidget .QFrame#frame .QLabel#labelWalletStatus { /* Wallet Sync Status */
     qproperty-alignment: 'AlignVCenter | AlignLeft';
     color: #a84832;
-    margin-left: 3px;
 }
 
 QWidget .QFrame#frame .QLabel#labelSpendable { /* Spendable Header */
@@ -1469,25 +1427,22 @@ OverviewPage PrivateSend
 QWidget .QFrame#framePrivateSend { /* PrivateSend Widget */
     background-color: #00000000;
     max-width: 451px;
-    min-width: 451px;
     max-height: 350px;
 }
 
 QWidget .QFrame#framePrivateSend  > .QLabel {
-    min-width: 175px;
+    min-width: 100px;
     min-height: 26px;
 }
 
 QWidget .QFrame#framePrivateSend .QLabel#labelPrivateSendHeader { /* PrivateSend Header */
     qproperty-alignment: 'AlignVCenter | AlignLeft';
-    margin-right: 10px;
+    margin-right: 5px;
 }
 
 QWidget .QFrame#framePrivateSend .QLabel#labelPrivateSendSyncStatus { /* PrivateSend Sync Status */
     qproperty-alignment: 'AlignVCenter | AlignLeft';
     color: #a84832;
-    margin-left: 2px;
-    padding-right: 5px;
 }
 
 QWidget .QFrame#framePrivateSend  .QLabel#labelPrivateSendEnabledText { /* PrivateSend Enabled Status Label */
@@ -1565,35 +1520,23 @@ OverviewPage RecentTransactions
 ******************************************************/
 
 QWidget .QFrame#frame_2 { /* Transactions Widget */
-    min-width: 510px;
-    margin-right: 20px;
-    margin-left: 0;
-    margin-top: 0;
+    min-width: 430;
 }
 
 QWidget .QFrame#frame_2 .QLabel#label_4 { /* Recent Transactions Label */
-    min-width: 180px;
-    margin-left: 18px;
-    margin-top: 0;
-    margin-right: 5px;
-    padding-right: 5px;
+    margin-right: 0px;
     min-height: 30px;
 }
 
 QWidget .QFrame#frame_2 .QLabel#labelTransactionsStatus { /* Recent Transactions Sync Status */
-    qproperty-alignment: 'AlignBottom | AlignRight';
+    qproperty-alignment: 'AlignVCenter | AlignLeft';
     color: #a84832;
-    min-width: 93px;
-    margin-top: 0;
-    margin-left: 16px;
-    margin-right: 5px;
-    min-height: 16px;
 }
 
 QWidget .QFrame#frame_2 QListView { /* Transaction List */
-    max-width: 369px;
-    margin-top: 12px;
-    margin-left: 0px; /* CSS Voodoo - set to -66px to hide default transaction icons */
+    background: #00000000;
+    max-width: 430px;
+    margin-right: 10px;
 }
 
 /******************************************************
@@ -1665,12 +1608,11 @@ QWidget#RPCConsole QLineEdit#lineEdit { /* Console Input */
     margin-top: 10px;
 }
 
-QWidget#RPCConsole QPushButton#clearButton,
-QWidget#RPCConsole QPushButton#fontSmallerButton,
-QWidget#RPCConsole QPushButton#fontBiggerButton { /* Console Font and Clear Buttons */
+QWidget#RPCConsole .QToolButton { /* Console buttons fontbigger/fontsmaller/clear */
     background-color: #00000000;
-    padding-left: 10px;
-    padding-right: 10px;
+    margin-left: 3px;
+    margin-bottom:5px;
+    border: 0;
 }
 
 QWidget#RPCConsole QPushButton#promptIcon { /* Prompt Icon */
@@ -1678,7 +1620,7 @@ QWidget#RPCConsole QPushButton#promptIcon { /* Prompt Icon */
 }
 
 QWidget#RPCConsole .QGroupBox #line { /* Network In Line */
-    background-color: #096e03;
+    background-color: #5e8c41;
 }
 
 QWidget#RPCConsole .QGroupBox #line_2 { /* Network Out Line */
@@ -1793,7 +1735,6 @@ QStackedWidget#SendCoinsEntry .QToolButton#addressBookButton,
 QStackedWidget#SendCoinsEntry .QToolButton#pasteButton,
 QStackedWidget#SendCoinsEntry .QToolButton#deleteButton,
 QStackedWidget#SendCoinsEntry .QToolButton#deleteButton_is {
-    qproperty-iconSize: 28px 28px;
 }
 
 QStackedWidget#SendCoinsEntry .QLineEdit#addAsLabel { /* Pay To Input Field */
@@ -1845,19 +1786,11 @@ QDialog#SignVerifyMessageDialog QPushButton#addressBookButton_VM { /* Verify Mes
     border: 0px solid red;
 }
 
-QDialog#SignVerifyMessageDialog QPushButton#addressBookButton_VM,
-QDialog#SignVerifyMessageDialog QPushButton#addressBookButton_SM,
-QDialog#SignVerifyMessageDialog QPushButton#copySignatureButton_SM,
-QDialog#SignVerifyMessageDialog QPushButton#pasteButton_SM {
-    qproperty-iconSize: 28px 28px;
-    padding-left: -1px;
-    padding-right: -1px;
-}
-
-QDialog#SignVerifyMessageDialog QPushButton#addressBookButton_VM,
-QDialog#SignVerifyMessageDialog QPushButton#addressBookButton_SM,
-QDialog#SignVerifyMessageDialog QPushButton#copySignatureButton_SM {
-    margin-left: 8px;
+QDialog#SignVerifyMessageDialog .QToolButton { /* General Settings for Pay To Icons */
+    background-color: #00000000;
+    margin-left: 5px;
+    margin-right: 5px;
+    border: 0;
 }
 
 /******************************************************
@@ -1891,10 +1824,6 @@ TransactionView QLineEdit#amountWidget { /* Amount Filter */
     min-width: 101px;
     max-width: 101px;
     text-align: center;
-}
-
-TransactionView QComboBox#instantsendWidget:down-arrow { /* InstantSend Filter */
-    margin-right: -5px;
 }
 
 TransactionView QComboBox {
@@ -2028,58 +1957,6 @@ QScrollBar:left-arrow,
 QScrollBar:right-arrow { /* Arrows Icon */
     width: 18px;
     height: 18px;
-}
-
-QScrollBar:up-arrow {
-    border-image: url(':/images/arrow_up_normal');
-}
-QScrollBar:up-arrow:hover {
-    border-image: url(':/images/arrow_up_hover');
-}
-QScrollBar:up-arrow:pressed {
-    border-image: url(':/images/arrow_up_pressed');
-}
-QScrollBar:up-arrow:disabled {
-    border-image: url(':/images/arrow_light_up_hover');
-}
-
-QScrollBar:down-arrow {
-    border-image: url(':/images/arrow_down_normal');
-}
-QScrollBar:down-arrow:hover {
-    border-image: url(':/images/arrow_down_hover');
-}
-QScrollBar:down-arrow:pressed {
-    border-image: url(':/images/arrow_down_pressed');
-}
-QScrollBar:down-arrow:disabled {
-    border-image: url(':/images/arrow_light_down_hover');
-}
-
-QScrollBar:left-arrow {
-    border-image: url(':/images/arrow_left_normal');
-}
-QScrollBar:left-arrow:hover {
-    border-image: url(':/images/arrow_left_hover');
-}
-QScrollBar:left-arrow:pressed {
-    border-image: url(':/images/arrow_left_pressed');
-}
-QScrollBar:left-arrow:disabled {
-    border-image: url(':/images/arrow_light_left_hover');
-}
-
-QScrollBar:right-arrow {
-    border-image: url(':/images/arrow_right_normal');
-}
-QScrollBar:right-arrow:hover {
-    border-image: url(':/images/arrow_right_hover');
-}
-QScrollBar:right-arrow:pressed {
-    border-image: url(':/images/arrow_right_pressed');
-}
-QScrollBar:right-arrow:disabled {
-    border-image: url(':/images/arrow_light_right_hover');
 }
 
 QDialog#HelpMessageDialog QScrollBar:vertical,

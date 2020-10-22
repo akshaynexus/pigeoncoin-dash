@@ -529,7 +529,7 @@ CBlockPolicyEstimator::CBlockPolicyEstimator()
 {
     static_assert(MIN_BUCKET_FEERATE > 0, "Min feerate must be nonzero");
     size_t bucketIndex = 0;
-    for (double bucketBoundary = MIN_BUCKET_FEERATE; bucketBoundary <= this->MAX_BUCKET_FEERATE; bucketBoundary *= this->FEE_SPACING, bucketIndex++) {
+    for (double bucketBoundary = MIN_BUCKET_FEERATE; bucketBoundary <= MAX_BUCKET_FEERATE; bucketBoundary *= FEE_SPACING, bucketIndex++) {
         buckets.push_back(bucketBoundary);
         bucketMap[bucketBoundary] = bucketIndex;
     }
@@ -980,15 +980,14 @@ bool CBlockPolicyEstimator::Read(CAutoFile& filein)
     return true;
 }
 
-void CBlockPolicyEstimator::FlushUnconfirmed() {
+void CBlockPolicyEstimator::FlushUnconfirmed(CTxMemPool& pool) {
     int64_t startclear = GetTimeMicros();
+    std::vector<uint256> txids;
+    pool.queryHashes(txids);
     LOCK(cs_feeEstimator);
-    size_t num_entries = mapMemPoolTxs.size();
-    // Remove every entry in mapMemPoolTxs
-    while (!mapMemPoolTxs.empty()) {
-        auto mi = mapMemPoolTxs.begin();
-        removeTx(mi->first, false); // this calls erase() on mapMemPoolTxs
+    for (auto& txid : txids) {
+        removeTx(txid, false);
     }
     int64_t endclear = GetTimeMicros();
-    LogPrint(BCLog::ESTIMATEFEE, "Recorded %u unconfirmed txs from mempool in %ld micros\n", num_entries, endclear - startclear);
+    LogPrint(BCLog::ESTIMATEFEE, "Recorded %u unconfirmed txs from mempool in %ld micros\n",txids.size(), endclear - startclear);
 }

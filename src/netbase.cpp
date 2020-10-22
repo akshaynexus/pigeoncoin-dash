@@ -19,6 +19,7 @@
 #endif
 
 #include <boost/algorithm/string/case_conv.hpp> // for to_lower()
+#include <boost/algorithm/string/predicate.hpp> // for startswith() and endswith()
 #ifdef USE_POLL
 #include <poll.h>
 #endif
@@ -42,11 +43,7 @@ enum Network ParseNetwork(std::string net) {
     boost::to_lower(net);
     if (net == "ipv4") return NET_IPV4;
     if (net == "ipv6") return NET_IPV6;
-    if (net == "onion") return NET_ONION;
-    if (net == "tor") {
-        LogPrintf("Warning: net name 'tor' is deprecated and will be removed in the future. You should use 'onion' instead.\n");
-        return NET_ONION;
-    }
+    if (net == "tor" || net == "onion")  return NET_TOR;
     return NET_UNROUTABLE;
 }
 
@@ -55,7 +52,7 @@ std::string GetNetworkName(enum Network net) {
     {
     case NET_IPV4: return "ipv4";
     case NET_IPV6: return "ipv6";
-    case NET_ONION: return "onion";
+    case NET_TOR: return "onion";
     default: return "";
     }
 }
@@ -122,7 +119,8 @@ bool LookupHost(const char *pszName, std::vector<CNetAddr>& vIP, unsigned int nM
     std::string strHost(pszName);
     if (strHost.empty())
         return false;
-    if (strHost.front() == '[' && strHost.back() == ']') {
+    if (boost::algorithm::starts_with(strHost, "[") && boost::algorithm::ends_with(strHost, "]"))
+    {
         strHost = strHost.substr(1, strHost.size() - 2);
     }
 
@@ -144,7 +142,7 @@ bool Lookup(const char *pszName, std::vector<CService>& vAddr, int portDefault, 
     if (pszName[0] == 0)
         return false;
     int port = portDefault;
-    std::string hostname;
+    std::string hostname = "";
     SplitHostPort(std::string(pszName), port, hostname);
 
     std::vector<CNetAddr> vIP;
@@ -588,7 +586,7 @@ bool HaveNameProxy() {
 bool IsProxy(const CNetAddr &addr) {
     LOCK(cs_proxyInfos);
     for (int i = 0; i < NET_MAX; i++) {
-        if (addr == static_cast<CNetAddr>(proxyInfo[i].proxy))
+        if (addr == (CNetAddr)proxyInfo[i].proxy)
             return true;
     }
     return false;

@@ -153,6 +153,16 @@ QDateTime ClientModel::getLastBlockDate() const
     return QDateTime::fromTime_t(Params().GenesisBlock().GetBlockTime()); // Genesis block's time of current network
 }
 
+QString ClientModel::getLastBlockHash() const
+{
+    LOCK(cs_main);
+
+    if (chainActive.Tip())
+        return QString::fromStdString(chainActive.Tip()->GetBlockHash().ToString());
+
+    return QString::fromStdString(Params().GenesisBlock().GetHash().ToString()); // Genesis block's hash of current network
+}
+
 long ClientModel::getMempoolSize() const
 {
     return mempool.size();
@@ -174,9 +184,9 @@ size_t ClientModel::getInstantSentLockCount() const
 double ClientModel::getVerificationProgress(const CBlockIndex *tipIn) const
 {
     CBlockIndex *tip = const_cast<CBlockIndex *>(tipIn);
-    LOCK(cs_main);
     if (!tip)
     {
+        LOCK(cs_main);
         tip = chainActive.Tip();
     }
     return GuessVerificationProgress(Params().TxData(), tip);
@@ -188,7 +198,6 @@ void ClientModel::updateTimer()
     // the following calls will acquire the required lock
     Q_EMIT mempoolSizeChanged(getMempoolSize(), getMempoolDynamicUsage());
     Q_EMIT islockCountChanged(getInstantSentLockCount());
-    Q_EMIT bytesChanged(getTotalBytesRecv(), getTotalBytesSent());
 }
 
 void ClientModel::updateNumConnections(int numConnections)
@@ -214,13 +223,13 @@ bool ClientModel::inInitialBlockDownload() const
 enum BlockSource ClientModel::getBlockSource() const
 {
     if (fReindex)
-        return BlockSource::REINDEX;
+        return BLOCK_SOURCE_REINDEX;
     else if (fImporting)
-        return BlockSource::DISK;
+        return BLOCK_SOURCE_DISK;
     else if (getNumConnections() > 0)
-        return BlockSource::NETWORK;
+        return BLOCK_SOURCE_NETWORK;
 
-    return BlockSource::NONE;
+    return BLOCK_SOURCE_NONE;
 }
 
 void ClientModel::setNetworkActive(bool active)
@@ -344,6 +353,7 @@ static void BlockTipChanged(ClientModel *clientmodel, bool initialSync, const CB
         QMetaObject::invokeMethod(clientmodel, "numBlocksChanged", Qt::QueuedConnection,
                                   Q_ARG(int, pIndex->nHeight),
                                   Q_ARG(QDateTime, QDateTime::fromTime_t(pIndex->GetBlockTime())),
+                                  Q_ARG(QString, QString::fromStdString(pIndex->GetBlockHash().ToString())),
                                   Q_ARG(double, clientmodel->getVerificationProgress(pIndex)),
                                   Q_ARG(bool, fHeader));
         nLastUpdateNotification = now;

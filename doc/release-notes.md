@@ -1,11 +1,14 @@
-Dash Core version 0.15
+Dash Core version 0.16
 ======================
 
 Release is now available from:
 
   <https://www.dash.org/downloads/#wallets>
 
-This is a new major version release, bringing new features, various bugfixes and other improvements.
+This is a new major version release, bringing new features, various bugfixes
+and other improvements.
+
+This release is mandatory for all nodes.
 
 Please report bugs using the issue tracker at github:
 
@@ -23,212 +26,341 @@ shut down (which might take a few minutes for older versions), then run the
 installer (on Windows) or just copy over /Applications/Dash-Qt (on Mac) or
 pigeond/pigeon-qt (on Linux). If you upgrade after DIP0003 activation and you were
 using version < 0.13 you will have to reindex (start with -reindex-chainstate
-or -reindex) to make sure your wallet has all the new data synced. Upgrading from
-version 0.13 should not require any additional actions.
+or -reindex) to make sure your wallet has all the new data synced. Upgrading
+from version 0.13 should not require any additional actions.
 
 When upgrading from a version prior to 0.14.0.3, the
-first startup of Dash Core will run a migration process which can take a few minutes
-to finish. After the migration, a downgrade to an older version is only possible with
-a reindex (or reindex-chainstate).
+first startup of Dash Core will run a migration process which can take a few
+minutes to finish. After the migration, a downgrade to an older version is only
+possible with a reindex (or reindex-chainstate).
 
 Downgrade warning
 -----------------
 
 ### Downgrade to a version < 0.14.0.3
 
-Downgrading to a version smaller than 0.14.0.3 is not supported anymore due to changes
-in the "evodb" database format. If you need to use an older version, you have to perform
-a reindex or re-sync the whole chain.
+Downgrading to a version older than 0.14.0.3 is no longer supported due to
+changes in the "evodb" database format. If you need to use an older version,
+you must either reindex or re-sync the whole chain.
+
+### Downgrade of masternodes to < 0.16
+
+Starting with this release, masternodes will verify the protocol version of other
+masternodes. This will result in PoSe punishment/banning for outdated masternodes,
+so downgrading is not recommended.
 
 Notable changes
 ===============
 
-Removal of the p2p alert system
--------------------------------
-The p2p alert system was designed to send messages to all nodes supporting it by someone who holds
-so called alert keys to notify such nodes in case of severe network issues. This version removes
-the `alert` p2p message and `--alert` option. Internal alerts, partition detection warnings and the
-`--alertnotify` option features remain.
-
-Removal of the legacy InstantSend system
-----------------------------------------
-Version 0.14 introduced the new LLMQ-based InstantSend system which is designed to be much more scalable
-than the legacy one without sacrificing security. The new system also allows all transactions to be treated as
-InstantSend transactions. The legacy system was disabled together with the successful deployment of ChainLocks,
-but we had to keep supporting the legacy system for a while to ensure a smooth transition period. This version finally drops
-the legacy system completely.
-
-Read more about ChainLocks: https://github.com/dashpay/dips/blob/master/dip-0008.md
-Read more about LLMQ-based InstantSend: https://github.com/dashpay/dips/blob/master/dip-0010.md
-
-Sporks
-------
-The security level of ChainLocks and LLMQ-based InstantSend made sporks `SPORK_5_INSTANTSEND_MAX_VALUE` and
-`SPORK_12_RECONSIDER_BLOCKS` obsolete, so they are removed now. Sporks `SPORK_15_DETERMINISTIC_MNS_ENABLED`,
-`SPORK_16_INSTANTSEND_AUTOLOCKS` and `SPORK_20_INSTANTSEND_LLMQ_BASED` have no code logic behind them anymore
-because they were used as part of the DIP0003, DIP0008 and DIP0010 activation process which is finished now.
-They are still kept and relayed only to ensure smooth operation of v0.14 clients and will be removed in some
-future version.
-
-Mempool sync improvements
+Block Reward Reallocation
 -------------------------
-Nodes joining the network will now try to sync their mempool from other v0.15+ peers via the `mempool` p2p message.
-This behaviour can be disabled via the new `--syncmempool` option. Nodes serving such requests will now also push
-`inv` p2p messages for InstandSend locks which are held for transactions in their mempool. These two changes
-should help new nodes to quickly catchup on start and detect any potential double-spend as soon as possible.
-This should also help wallets to slightly improve UX by showing the correct status of unconfirmed transactions
-locked via InstandSend, if they were sent while the receiving wallet was offline. Note that bloom-filters
-still apply to such `inv` messages, just like they do for transactions and locks that are relayed on a
-regular basis.
+This version implements Block Reward Reallocation which was proposed in order
+to slow the growth rate of Dash’s circulating supply by encouraging the
+formation of masternodes and was voted in by the network. The resulting allocation
+will split all non-proposal block rewards 40% toward miners and 60% toward
+masternodes in the end-state once the transition period is complete.
 
-PrivateSend improvements
-------------------------
-This version decouples the so called "Lite Mode" and client-side PrivateSend mixing, which allows client-side mixing
-on pruned nodes running with `--litemode` option. Such nodes will have to also specify the newly redefined
-`--enableprivatesend` option. Non-prunned nodes do not have to do this but they can use `--enableprivatesend`
-option to disable mixing completely instead. Please note that specifying this option does not start mixing
-automatically anymore (which was the case in previous versions). To automatically start mixing, use the new
-`--privatesendautostart` option in addition to `--enableprivatesend`. Additionally, PrivateSend can always be
-controlled with the `privatesend` RPC.
+The reallocation will take place over 4.5 years with a total of 18 reallocation
+periods between the start and end state. The transition is being made gradually
+to avoid market volatility and minimize network disruption.
 
-Thanks to LLMQ-based InstantSend and its ability to lock chains of unconfirmed transactions (and not only a single
-one like in the legacy system), PrivateSend mixing speed has improved significantly. In such an environment
-Liquidity Provider Mode, which was introduced a long time ago to support mixing volume, is no longer needed and
-is removed now. As such the `--liquidityprovider` option is not available anymore.
+Note that this is a hardfork which must be activated by miners. To do this they
+should start creating blocks signalling bit 5 in the `version` field of the block header.
 
-Some other improvements were also introduced to speed up mixing, e.g. by joining more queues or dropping potential
-malicious mixing participants faster by checking some rules earlier etc. Lots of related code was refactored to
-further improve its readability, which should make it easier for someone to re-implement PrivateSend
-correctly in other wallets if there is a desire to do so.
+### Reallocation periods
 
-Wallet changes
---------------
-Wallet internals were optimized to significantly improve performance which should be especially notable for huge
-wallets with tens of thousands of transactions or more. The GUI for such wallets should be much more responsive too now.
+Each reallocation period will last three superblock cycles (approximately one
+quarter). The following table shows the split of the non-proposal block rewards during
+each period.
 
-Running Masternodes from local wallets was deprecated a long time ago and starting from this version we disable
-wallet functionality on Masternodes completely.
+|Event|Miner|Masternode|
+|--|-----|-----|
+|Now|50.0%|50.0%|
+|1 |48.7%|51.3%|
+|2 |47.4%|52.6%|
+|3 |46.7%|53.3%|
+|4 |46.0%|54.0%|
+|5 |45.4%|54.6%|
+|6 |44.8%|55.2%|
+|7 |44.3%|55.7%|
+|8 |43.8%|56.2%|
+|9 |43.3%|56.7%|
+|10|42.8%|57.2%|
+|11|42.3%|57.7%|
+|12|41.8%|58.2%|
+|13|41.5%|58.5%|
+|14|41.2%|58.8%|
+|15|40.9%|59.1%|
+|16|40.6%|59.4%|
+|17|40.3%|59.7%|
+|18|40.1%|59.9%|
+|End|40.0%|60.0%|
+
+Dynamic Activation Thresholds
+-----------------------------
+In Dash we have used lower thresholds (80% vs 95% in BTC) to activate upgrades
+via a BIP9-like mechanism for quite some time. While it's preferable to have as much
+of the network hashrate signal update readiness as possible, this can result in
+quite lengthy upgrades if one large non-upgraded entity stalls
+all progress. Simply lowering thresholds even further can result in network
+upgrades occurring too quickly and potentially introducing network instability. This version
+implements BIP9-like dynamic activation thresholds which drop from some initial
+level to a minimally acceptable one over time at an increasing rate. This provides
+a safe non-blocking way of activating proposals.
+
+This mechanism applies to the Block Reward Reallocation proposal mentioned above.
+Its initial threshold is 80% and it will decrease to a minimum of 60% over the
+course of 10 periods. Each period is 4032 blocks (approximately one week).
+
+Concentrated Recovery
+---------------------
+In the current system, signature shares are propagated to all LLMQ members
+until one of them has collected enough shares to recover the signature. All
+members keep propagating and verifying each share until this recovered signature
+is propagated in the LLMQ. This causes significant load on the LLMQ and results
+in decreased throughput.
+
+This new system initially sends all shares to a single deterministically selected node,
+so that this node can recover the signature and propagate the recovered signature.
+This way only the recovered signature needs to be propagated and verified by all
+members. After sending their share to this node, each member waits for a
+timeout and then sends their share to another deterministically selected member.
+This process is repeated until a recovered signature is finally created and propagated.
+
+This timeout begins at two seconds and increases exponentially up to ten seconds
+(i.e. `2,4,8,10,10`) for each node that times out. This is to minimize the time
+taken to generate a signature if the recovery node is down, while also
+minimizing the traffic generated when the network is under stress.
+
+The new system is activated with the newly added `SPORK_21_QUORUM_ALL_CONNECTED`
+which has two hardcoded values with a special meaning: `0` activates Concentrated
+Recovery for every LLMQ and `1` excludes `400_60` and `400_85` quorums.
+
+Increased number of masternode connections
+------------------------------------------
+To implement "Concentrated Recovery", it is now necessary for all members of a LLMQ
+to connect to all other members of the same LLMQ. This significantly increases the general
+connection count for masternodes. Although these intra-quorum connections are less resource
+intensive than normal p2p connections (as they only exchange LLMQ/masternode related
+messages), masternode hardware and network requirements will still be higher than before.
+
+Initially this change will only be activated for the smaller LLMQs (50 members).
+Eventually it may be activated for larger quorums (400 members).
+
+This is also controlled via `SPORK_21_QUORUM_ALL_CONNECTED`.
+
+Masternode Connection Probing
+-----------------------------
+While each LLMQ member must have a connection to each other member, it's not necessary
+for all members to actually connect to all other members. This is because only
+one of a pair of two masternodes need to initiate the connection while the other one can
+wait for an incoming connection. Probing is done in the case where a masternode doesn't
+really need an outbound connection, but still wants to verify that the other side
+has its port open. This is done by initiating a short lived connection, waiting
+for `MNAUTH` to succeed and then disconnecting again.
+
+After this process, each member of a LLMQ knows which members are unable to accept
+connections, after which they will vote on these members to be "bad".
+
+Masternode Minimum Protocol Version Checks
+------------------------------------------
+Members of LLMQs will now also check all other members for minimum protocol versions
+while in DKG. If a masternode determines that another LLMQ member has a protocol
+version that is too low, it will vote for the other member to be "bad".
+
+PoSe punishment/banning
+-----------------------
+If 80% of all LLMQ members voted for the same member to be bad, it is excluded
+in the final stages of the DKG. This causes the bad masternode to get PoSe punished
+and then eventually PoSe banned.
+
+Network performance improvements
+--------------------------------
+This version of Dash Core includes multiple optimizations to the network and p2p message
+handling code. The most important one is the introduction of `epoll` on linux-based
+systems. This removes most of the CPU overhead caused by the sub-optimal use of `select`,
+which could easily use up 50-80% of the CPU time spent in the network thread when many
+connections were involved.
+
+Since these optimizations are exclusive to linux, it is possible that masternodes hosted
+on windows servers will be unable to handle the network load and should consider migrating
+to a linux based operating system.
+
+Other improvements were made to the p2p message handling code, so that LLMQ
+related connections do less work than full/normal p2p connections.
+
+Wallet files
+------------
+The `--wallet=<path>` option now accepts full paths instead of requiring
+wallets to be located in the `-walletdir` directory.
+
+If `--wallet=<path>` is specified with a path that does not exist, it will now
+create a wallet directory at the specified location (containing a `wallet.dat`
+data file, a `db.log` file, and `database/log.??????????` files) instead of just
+creating a data file at the path and storing log files in the parent
+directory. This should make backing up wallets more straightforward than
+before because the specified wallet path can just be directly archived without
+having to look in the parent directory for transaction log files.
+
+For backwards compatibility, wallet paths that are names of existing data files
+in the `--walletdir` directory will continue to be accepted and interpreted the
+same as before.
+
+When Dash Core is not started with any `--wallet=<path>` options, the name of
+the default wallet returned by `getwalletinfo` and `listwallets` RPCs is
+now the empty string `""` instead of `"wallet.dat"`. If Dash Core is started
+with any `--wallet=<path>` options, there is no change in behavior, and the
+name of any wallet is just its `<path>` string.
+
+PrivateSend coin management improvements
+----------------------------------------
+A new algorithm for the creation of mixing denominations was implemented which
+should reduce the number of the smallest inputs created and give users more
+control on soft and hard caps. A much more accurate fee management algorithm was
+also implemented which should fix issues for users who have custom fees
+specified in wallet config or in times when network is under load.
+
+There is a new "PrivateSend" tab in the GUI which allows spending fully
+mixed coins only. The CoinControl feature was also improved to display coins
+based on the tab it was opened in, to protect users from accidentally spending
+mixed and non-mixed coins in the same transaction and to give better overview of
+spendable mixed coins.
+
+PrivateSend Random Round Mixing
+-------------------------------
+Some potential attacks on PrivateSend assume that all inputs had been mixed
+for the same number of rounds (up to 16). While this assumption alone is not
+enough to break PrivateSend privacy, it could still provide some additional
+information for other methods like cluster analysis and help to narrow results.
+
+With Random Round Mixing, an input will be mixed to N rounds like prior. However,
+at this point, a salted hash of each input is used to pick ~50% of inputs to
+be mixed for another round. This rule is then executed again on the new inputs.
+This results in an exponential decay where if you mix a set
+of inputs, half of those inputs will be mixed for N rounds, 1/4 will be mixed N+1,
+1/8 will be mixed N+2, etc. Current implementation caps it at N+3 which results
+in mixing an average of N+0.875 rounds and sounds like a reasonable compromise
+given the privacy gains.
 
 GUI changes
 -----------
-The Qt GUI went through a refresh to follow branding color guides and to make it feel lighter. All old themes besides
-the Traditional one (the one with a minimal styling) were removed and instead a new Dark theme was added.
+All dialogs, tabs, icons, colors and interface elements were reworked to improve
+user experience, let the wallet look more consistent and to make the GUI more
+flexible. There is a new "Appearance setup" dialog that will show up on the first start
+of this version and a corresponding tab has been added to the options which allows the
+user to pick a theme and to tweak the font family, the font weight and the font size.
+This feature specifically should help users who had font size/scaling issues previously.
 
-In this version we made a lot of optimizations to remove various lags and lockups, the GUI in general should feel
-much more smoother now, especially for huge wallets or when navigating through the masternode list. The latter has
-a few new columns (collateral, owner and voting addresses) which give more options to filter and/or sort the list.
-All issues with hi-dpi monitors should also be fixed now.
+For advanced users and developers there is a new way to control the wallet's look
+by specifying a path to custom css files via `--custom-css-dir`. Additionally, the new
+`--debug-ui` will force Dash Core to reload the custom css files as soon as they get updated
+which makes it possible to see and debug all css adjustments live in the running GUI.
 
-The "Send" popup dialog was slightly tweaked to improve the language and provide a bit more information about inputs
-included in the transaction, its size and the actual resulting fee rate. It will also show the number of inputs
-a PrivateSend transaction is going to consume and display a warning regarding sender privacy if this number is 10
-or higher.
+From now on the "Pay To" field in "Send" and "PrivateSend" tabs also accepts Dash URIs.
+The Dash address and the amount from the URI are assigned to corresponding fields automatically
+if a Dash URI gets pasted into the field.
 
-Changes in regtest and devnet p2p/rpc ports
--------------------------------------------
-Default p2p and rpc ports for devnets and regtest were changed to ensure their consistency and to avoid
-any potential interference with bitcoin's regtests. New default p2p/rpc ports for devnet are 19799/19798,
-for regtest - 19899/19898 respectively.
+Sporks
+------
+Two new sporks were introduced in this version:
+- `SPORK_21_QUORUM_ALL_CONNECTED` allows to control Concentrated Recovery and
+Masternode Probing activation;
+- `SPORK_22_PS_MORE_PARTICIPANTS` raises the number of users that can participate
+in a single PrivateSend mixing transaction to 20.
 
-ZMQ changes
------------
-Added two new messages `rawchainlocksig` and `rawtxlocksig` which return the raw data of the block/transaction
-concatenated with the corresponding `clsig`/`islock` message respectively.
+Sporks `SPORK_15_DETERMINISTIC_MNS_ENABLED`, `SPORK_16_INSTANTSEND_AUTOLOCKS`
+and `SPORK_20_INSTANTSEND_LLMQ_BASED` which were previously deprecated in v0.15
+are completely removed now. `SPORK_6_NEW_SIGS` was never activated on mainnet
+and was also removed in this version.
 
-Crash reports and stack traces
-------------------------------
-Binaries built with Gitian (including all official releases) will from now on always have crash reports and
-crash hooks enabled. This means, that all binaries will print some information about the stack trace at the
-time of a crash. If no debug information is present at crash time (which is usually the case), the binaries
-will print a line that looks like this:
-```
-2020-01-06 14:41:08 Windows Exception: EXCEPTION_ACCESS_VIOLATION
-No debug information available for stacktrace. You should add debug information and then run:
-dashd.exe -printcrashinfo=bvcgc43iinzgc43ijfxgm3yba....
-```
-If you encounter such a crash, include these lines when you report the crash and we will be able to debug it
-further. Anyone interested in running the specified `-printcrashinfo` command can do so after copying the debug info
-file from the Gitian build to the same place where the binary is located. This will then print a detailed stack
-trace.
+Build system
+------------
+The minimum version of the GCC compiler required to compile Dash Core is now 4.8.
+The minimum version of Qt is now 5.5.1. Some packages in `depends/` as well as
+`secp256k1` and `leveldb` subtrees were updated to newer versions.
 
 RPC changes
 -----------
 There are a few changes in existing RPC interfaces in this release:
-- no more `instantsend` field in various RPC commands
-- `use-IS`, `use_is` and `instantsend` options are deprecated in various RPC commands and have no effect anymore
-- added new `merkleRootQuorums` field in `getblock` RPC results
-- individual Dash-specific fields which were used to display soft-fork progress in `getblockchaininfo` are replaced
- with the backported `statistics` object
-- `privatesend_balance` field is shown in all related RPC results regardless of the Lite Mode or PrivateSend state
-- added `pubKeyOperator` field for each masternode in `quorum info` RPC response
+- `getpeerinfo` has new field `masternode` to indicate whether connection was
+  due to masternode connection attempt
+- `getprivatesendinfo` `denoms` field was replaced by `denoms_goal` and
+  `denoms_hardcap`
+- `listunspent` has new filter option `coinType` to be able to filter different
+  types of coins (all, mixed etc.)
+- `protx diff` returns more detailed information about new quorums
+- `quorum dkgstatus` shows `quorumConnections` for each LLMQ with detailed
+  information about each participating masternode
+- `quorum sign` has an optional `quorumHash` argument to pick the exact quorum
+- `socketevents` in `getnetworkinfo` rpc shows the socket events mode,
+  either `epoll`, `poll` or `select`
 
 There are also new RPC commands:
-- `getbestchainlock`
-- `getmerkleblocks`
-- `getprivatesendinfo`
+- `quorum selectquorum` returns the quorum that would/should sign a request
 
-`getpoolinfo` was deprecated in favor of `getprivatesendinfo` and no longer returns any data.
+There are also new RPC commands backported from Bitcoin Core 0.16:
+- `help-console` for more info about using console in Qt
+- `loadwallet` loads a wallet from a wallet file or directory
+- `rescanblockchain` rescans the local blockchain for wallet related transactions
+- `savemempool` dumps the mempool to disk
 
-There are also new RPC commands backported from Bitcoin Core 0.15:
-- `abortrescan`
-- `combinerawtransaction`
-- `getblockstats`
-- `getchaintxstats`
-- `listwallets`
-- `logging`
-- `uptime`
-
-Make sure to check Bitcoin Core 0.15 release notes in a [section](#backports-from-bitcoin-core-015) below
-for more RPC changes.
-
-See `help command` in rpc for more info.
+Please check Bitcoin Core 0.16 release notes in a [section](#backports-from-bitcoin-core-016)
+below and `help <command>` in rpc for more information.
 
 Command-line options
 --------------------
 Changes in existing cmd-line options:
-- `--enableprivatesend` option has a new meaning now, see [PrivateSend](#privatesend) section for more info
 
 New cmd-line options:
-- `--printcrashinfo`
-- `--syncmempool`
-- `--privatesendautostart`
+- `--custom-css-dir`
+- `--debug-ui`
+- `--disablegovernance`
+- `--font-family`
+- `--font-scale`
+- `--font-weight-bold`
+- `--font-weight-normal`
+- `--llmqdevnetparams`
+- `--llmqtestparams`
+- `--privatesenddenomsgoal`
+- `--privatesenddenomshardcap`
+- `--socketevents`
 
 Few cmd-line options are no longer supported:
-- `--alerts`
-- `--masternode`, deprecated, specifying `--masternodeblsprivkey` option alone is enough to enable masternode mode now
-- `--liquidityprovider`
-- `--enableinstantsend`, dropped due to removal of the Legacy InstantSend
+- `--litemode`
+- `--privatesenddenoms`
 
-Make sure to check Bitcoin Core 0.15 release notes in a [section](#backports-from-bitcoin-core-015) below
-for more changes in command-line options.
+There are also new command-line options backported from Bitcoin Core 0.16:
+- `--addrmantest`
+- `--debuglogfile`
+- `--deprecatedrpc`
+- `--enablebip61`
+- `--getinfo`
+- `--stdinrpcpass`
 
-See `Help -> Command-line options` in Qt wallet or `dashd --help` for more info.
+Please check Bitcoin Core 0.16 release notes in a [section](#backports-from-bitcoin-core-016)
+below and `Help -> Command-line options` in Qt wallet or `dashd --help` for more information.
 
-Build system
-------------
-This version always includes stacktraces in binaries now, `--enable-stacktraces` option is no longer available.
-Instead you can choose if you want to hook crash reporting into various types of crashes by using `--enable-crash-hooks`
-option (default is `no`). When using this option on macOS make sure to build binaries with `make -C src osx_debug`.
-
-Backports from Bitcoin Core 0.15
+Backports from Bitcoin Core 0.16
 --------------------------------
 
-Most of the changes between Bitcoin Core 0.14 and Bitcoin Core 0.15 have been backported into Dash Core 0.15.
-We only excluded backports which do not align with Dash, like SegWit or RBF related changes.
+Most of the changes between Bitcoin Core 0.15 and Bitcoin Core 0.16 have been
+backported into Dash Core 0.16. We only excluded backports which do not align
+with Dash, like SegWit or RBF related changes.
 
-You can read about changes brought by backporting from Bitcoin Core 0.15 in following docs:
-- https://github.com/bitcoin/bitcoin/blob/master/doc/release-notes/release-notes-0.15.0.md
-- https://github.com/bitcoin/bitcoin/blob/master/doc/release-notes/release-notes-0.15.1.md
+You can read about changes brought by backporting from Bitcoin Core 0.16 in
+following docs:
+- https://github.com/bitcoin/bitcoin/blob/master/doc/release-notes/release-notes-0.16.0.md
+- https://github.com/bitcoin/bitcoin/blob/master/doc/release-notes/release-notes-0.16.1.md
+- https://github.com/bitcoin/bitcoin/blob/master/doc/release-notes/release-notes-0.16.2.md
 
-Some other individual PRs were backported from versions 0.16+, you can find the full list of backported PRs
-and additional fixes in https://github.com/dashpay/dash/blob/master/doc/release-notes/dash/release-notes-0.15-backports.md
+Some other individual PRs were backported from versions 0.17+, you can find the
+full list of backported PRs and additional fixes in [release-notes-0.16-backports.md](https://github.com/dashpay/dash/blob/master/doc/release-notes/dash/release-notes-0.16-backports.md)
 
 Miscellaneous
 -------------
-A lot of refactoring, backports, code cleanups and other small fixes were done in this release. Dash-specific
-modules were reorganized in separate folders to make navigation through code a bit easier.
+A lot of refactoring, code cleanups and other small fixes were done in this release.
 
-0.15 Change log
+0.16 Change log
 ===============
 
 See detailed [set of changes](https://github.com/dashpay/dash/compare/v0.14.0.5...dashpay:v0.15.0.0).
@@ -500,15 +632,17 @@ Credits
 
 Thanks to everyone who directly contributed to this release:
 
+- 10xcryptodev
+- Akshay CM (akshaynexus)
 - Alexander Block (codablock)
-- Amir Abrams (AmirAbrams)
-- -k (charlesrocket)
 - Cofresi
-- Nathan Marley (nmarley)
+- CryptoTeller
+- dustinface (xdustinface)
+- konez2k
+- Oleg Girko (OlegGirko)
 - PastaPastaPasta
-- Riku (rikublock)
-- strophy
-- taw00
+- Piter Bushnell (Bushstar)
+- sc-9310
 - thephez
 - UdjinM6
 
@@ -537,6 +671,7 @@ Dash Core tree 0.12.1.x was a fork of Bitcoin Core tree 0.12.
 
 These release are considered obsolete. Old release notes can be found here:
 
+- [v0.15.0.0](https://github.com/dashpay/dash/blob/master/doc/release-notes/dash/release-notes-0.15.0.0.md) released Febrary/18/2020
 - [v0.14.0.5](https://github.com/dashpay/dash/blob/master/doc/release-notes/dash/release-notes-0.14.0.5.md) released December/08/2019
 - [v0.14.0.4](https://github.com/dashpay/dash/blob/master/doc/release-notes/dash/release-notes-0.14.0.4.md) released November/22/2019
 - [v0.14.0.3](https://github.com/dashpay/dash/blob/master/doc/release-notes/dash/release-notes-0.14.0.3.md) released August/15/2019

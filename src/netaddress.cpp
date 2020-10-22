@@ -20,6 +20,7 @@ bool fAllowPrivateNet = DEFAULT_ALLOWPRIVATENET;
 CNetAddr::CNetAddr()
 {
     memset(ip, 0, sizeof(ip));
+    scopeId = 0;
 }
 
 void CNetAddr::SetIP(const CNetAddr& ipIn)
@@ -83,16 +84,6 @@ CNetAddr::CNetAddr(const struct in6_addr& ipv6Addr, const uint32_t scope)
 unsigned int CNetAddr::GetByte(int n) const
 {
     return ip[15-n];
-}
-
-bool CNetAddr::IsBindAny() const
-{
-    const int cmplen = IsIPv4() ? 4 : 16;
-    for (int i = 0; i < cmplen; ++i) {
-        if (GetByte(i)) return false;
-    }
-
-    return true;
 }
 
 bool CNetAddr::IsIPv4() const
@@ -262,7 +253,7 @@ enum Network CNetAddr::GetNetwork() const
         return NET_IPV4;
 
     if (IsTor())
-        return NET_ONION;
+        return NET_TOR;
 
     return NET_IPV6;
 }
@@ -319,9 +310,6 @@ bool CNetAddr::GetInAddr(struct in_addr* pipv4Addr) const
 
 bool CNetAddr::GetIn6Addr(struct in6_addr* pipv6Addr) const
 {
-    if (!IsIPv6()) {
-        return false;
-    }
     memcpy(pipv6Addr, ip, 16);
     return true;
 }
@@ -377,7 +365,7 @@ std::vector<unsigned char> CNetAddr::GetGroup() const
     }
     else if (IsTor())
     {
-        nClass = NET_ONION;
+        nClass = NET_TOR;
         nStartByte = 6;
         nBits = 4;
     }
@@ -455,11 +443,11 @@ int CNetAddr::GetReachabilityFrom(const CNetAddr *paddrPartner) const
         case NET_IPV4:   return REACH_IPV4;
         case NET_IPV6:   return fTunnel ? REACH_IPV6_WEAK : REACH_IPV6_STRONG; // only prefer giving our IPv6 address if it's not tunnelled
         }
-    case NET_ONION:
+    case NET_TOR:
         switch(ourNet) {
         default:         return REACH_DEFAULT;
         case NET_IPV4:   return REACH_IPV4; // Tor users can connect to IPv4 as well
-        case NET_ONION:    return REACH_PRIVATE;
+        case NET_TOR:    return REACH_PRIVATE;
         }
     case NET_TEREDO:
         switch(ourNet) {
@@ -476,7 +464,7 @@ int CNetAddr::GetReachabilityFrom(const CNetAddr *paddrPartner) const
         case NET_TEREDO:  return REACH_TEREDO;
         case NET_IPV6:    return REACH_IPV6_WEAK;
         case NET_IPV4:    return REACH_IPV4;
-        case NET_ONION:     return REACH_PRIVATE; // either from Tor, or don't care about our address
+        case NET_TOR:     return REACH_PRIVATE; // either from Tor, or don't care about our address
         }
     }
 }
@@ -528,12 +516,12 @@ unsigned short CService::GetPort() const
 
 bool operator==(const CService& a, const CService& b)
 {
-    return static_cast<CNetAddr>(a) == static_cast<CNetAddr>(b) && a.port == b.port;
+    return (CNetAddr)a == (CNetAddr)b && a.port == b.port;
 }
 
 bool operator<(const CService& a, const CService& b)
 {
-    return static_cast<CNetAddr>(a) < static_cast<CNetAddr>(b) || (static_cast<CNetAddr>(a) == static_cast<CNetAddr>(b) && a.port < b.port);
+    return (CNetAddr)a < (CNetAddr)b || ((CNetAddr)a == (CNetAddr)b && a.port < b.port);
 }
 
 bool CService::GetSockAddr(struct sockaddr* paddr, socklen_t *addrlen) const

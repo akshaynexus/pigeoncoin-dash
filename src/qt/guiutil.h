@@ -7,10 +7,10 @@
 
 #include <amount.h>
 #include <fs.h>
+#include <qt/guiconstants.h>
 
 #include <QEvent>
 #include <QHeaderView>
-#include <QItemDelegate>
 #include <QMessageBox>
 #include <QObject>
 #include <QProgressBar>
@@ -23,6 +23,7 @@ class OptionsModel;
 class SendCoinsRecipient;
 
 QT_BEGIN_NAMESPACE
+class QAbstractButton;
 class QAbstractItemView;
 class QDateTime;
 class QFont;
@@ -43,6 +44,8 @@ namespace GUIUtil
         UNCONFIRMED,
         /* Theme related blue color */
         BLUE,
+        /* Eye-friendly orange color */
+        ORANGE,
         /* Eye-friendly red color, e.g. Transaction list -- negative amount */
         RED,
         /* Eye-friendly green color */
@@ -51,18 +54,18 @@ namespace GUIUtil
         BAREADDRESS,
         /* Transaction list -- TX status decoration - open until date */
         TX_STATUS_OPENUNTILDATE,
-        /* Transaction list -- TX status decoration - offline */
-        TX_STATUS_OFFLINE,
-        /* Transaction list -- TX status decoration - danger, tx needs attention */
-        TX_STATUS_DANGER,
-        /* Transaction list -- TX status decoration - LockedByInstantSend color */
-        TX_STATUS_LOCKED,
         /* Background used for some widgets. Its slightly darker than the wallets frame background. */
         BACKGROUND_WIDGET,
         /* Border color used for some widgets. Its slightly brighter than BACKGROUND_WIDGET. */
         BORDER_WIDGET,
+        /* Border color of network statistics overlay in debug window. */
+        BORDER_NETSTATS,
+        /* Background color of network statistics overlay in debug window. */
+        BACKGROUND_NETSTATS,
         /* Pixel color of generated QR codes. */
         QR_PIXEL,
+        /* Alternative color for black/white icons. White part will be filled with this color by default. */
+        ICON_ALTERNATIVE_COLOR,
     };
 
     /* Enumeration of possible "styles" */
@@ -86,12 +89,17 @@ namespace GUIUtil
     /** Helper to get css style strings which are injected into rich text through qt */
     QString getThemedStyleQString(ThemedStyle style);
 
+    /** Helper to get an icon colorized with the given color (replaces black) and colorAlternative (replaces white)  */
+    QIcon getIcon(const QString& strIcon, ThemedColor color, ThemedColor colorAlternative, const QString& strIconPath = ICONS_PATH);
+    QIcon getIcon(const QString& strIcon, ThemedColor color = ThemedColor::BLUE, const QString& strIconPath = ICONS_PATH);
+
+    /** Helper to set an icon for a button with the given color (replaces black) and colorAlternative (replaces white). */
+    void setIcon(QAbstractButton* button, const QString& strIcon, ThemedColor color, ThemedColor colorAlternative, const QSize& size);
+    void setIcon(QAbstractButton* button, const QString& strIcon, ThemedColor color = ThemedColor::BLUE, const QSize& size = QSize(BUTTON_ICONSIZE, BUTTON_ICONSIZE));
+
     // Create human-readable string from date
     QString dateTimeStr(const QDateTime &datetime);
     QString dateTimeStr(qint64 nTime);
-
-    // Return a monospace font
-    QFont fixedPitchFont();
 
     // Set up widgets for address and amounts
     void setupAddressWidget(QValidatedLineEdit *widget, QWidget *parent, bool fAllowURI = false);
@@ -100,7 +108,7 @@ namespace GUIUtil
     // Setup appearance settings if not done yet
     void setupAppearance(QWidget* parent, OptionsModel* model);
 
-    // Parse "pigeon:" URI into recipient object, return true on successful parsing
+    // Parse "dash:" URI into recipient object, return true on successful parsing
     bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out);
     bool parseBitcoinURI(QString uri, SendCoinsRecipient *out);
     bool validateBitcoinURI(const QString& uri);
@@ -172,9 +180,9 @@ namespace GUIUtil
 
     // Open debug.log
     void openDebugLogfile();
-
-    // Open pigeon.conf
-    void openConfigfile();
+	
+    // Open dash.conf
+    void openConfigfile();	
 
     // Browse backup folder
     void showBackups();
@@ -204,7 +212,7 @@ namespace GUIUtil
      * Makes a QTableView last column feel as if it was being resized from its left border.
      * Also makes sure the column widths are never larger than the table's viewport.
      * In Qt, all columns are resizable from the right, but it's not intuitive resizing the last column from the right.
-     * Usually our second to last columns behave as if stretched, and when on stretch mode, columns aren't resizable
+     * Usually our second to last columns behave as if stretched, and when on strech mode, columns aren't resizable
      * interactively or programmatically.
      *
      * This helper object takes care of this issue.
@@ -320,9 +328,6 @@ namespace GUIUtil
         theme changes. */
     void setFont(const std::vector<QWidget*>& vecWidgets, FontWeight weight, int nPointSize = -1, bool fItalic = false);
 
-    /** Workaround to set a fixed pitch font in traditional theme while keeping track of font updates */
-    void setFixedPitchFont(const std::vector<QWidget*>& vecWidgets);
-
     /** Update the font of all widgets where a custom font has been set with
         GUIUtil::setFont */
     void updateFonts();
@@ -411,7 +416,7 @@ namespace GUIUtil
         void mouseReleaseEvent(QMouseEvent *event);
     };
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MAC) && QT_VERSION >= 0x050000
     // workaround for Qt OSX Bug:
     // https://bugreports.qt-project.org/browse/QTBUG-15631
     // QProgressBar uses around 10% CPU even when app is in background
@@ -425,18 +430,6 @@ namespace GUIUtil
     typedef ClickableProgressBar ProgressBar;
 #endif
 
-    class ItemDelegate : public QItemDelegate
-    {
-        Q_OBJECT
-    public:
-        ItemDelegate(QObject* parent) : QItemDelegate(parent) {}
-
-    Q_SIGNALS:
-        void keyEscapePressed();
-
-    private:
-        bool eventFilter(QObject *object, QEvent *event);
-    };
 } // namespace GUIUtil
 
 #endif // BITCOIN_QT_GUIUTIL_H

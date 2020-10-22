@@ -64,7 +64,7 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("fHideTrayIcon", false);
     fHideTrayIcon = settings.value("fHideTrayIcon").toBool();
     Q_EMIT hideTrayIconChanged(fHideTrayIcon);
-
+    
     if (!settings.contains("fMinimizeToTray"))
         settings.setValue("fMinimizeToTray", false);
     fMinimizeToTray = settings.value("fMinimizeToTray").toBool() && !fHideTrayIcon;
@@ -113,6 +113,13 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("digits", "2");
 
     // PrivateSend
+    if (!settings.contains("fPrivateSendEnabled")) {
+        settings.setValue("fPrivateSendEnabled", true);
+    }
+    if (!gArgs.SoftSetBoolArg("-enableprivatesend", settings.value("fPrivateSendEnabled").toBool())) {
+        addOverriddenOption("-enableprivatesend");
+    }
+
     if (!settings.contains("fShowAdvancedPSUI"))
         settings.setValue("fShowAdvancedPSUI", false);
     fShowAdvancedPSUI = settings.value("fShowAdvancedPSUI", false).toBool();
@@ -155,7 +162,7 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("nPrivateSendRounds", DEFAULT_PRIVATESEND_ROUNDS);
     if (!gArgs.SoftSetArg("-privatesendrounds", settings.value("nPrivateSendRounds").toString().toStdString()))
         addOverriddenOption("-privatesendrounds");
-    CPrivateSendClientOptions::SetRounds(settings.value("nPrivateSendRounds").toInt());
+    privateSendClient.nPrivateSendRounds = settings.value("nPrivateSendRounds").toInt();
 
     if (!settings.contains("nPrivateSendAmount")) {
         // for migration from old settings
@@ -166,13 +173,13 @@ void OptionsModel::Init(bool resetSettings)
     }
     if (!gArgs.SoftSetArg("-privatesendamount", settings.value("nPrivateSendAmount").toString().toStdString()))
         addOverriddenOption("-privatesendamount");
-    CPrivateSendClientOptions::SetAmount(settings.value("nPrivateSendAmount").toInt());
+    privateSendClient.nPrivateSendAmount = settings.value("nPrivateSendAmount").toInt();
 
     if (!settings.contains("fPrivateSendMultiSession"))
         settings.setValue("fPrivateSendMultiSession", DEFAULT_PRIVATESEND_MULTISESSION);
     if (!gArgs.SoftSetBoolArg("-privatesendmultisession", settings.value("fPrivateSendMultiSession").toBool()))
         addOverriddenOption("-privatesendmultisession");
-    CPrivateSendClientOptions::SetMultiSessionEnabled(settings.value("fPrivateSendMultiSession").toBool());
+    privateSendClient.fPrivateSendMultiSession = settings.value("fPrivateSendMultiSession").toBool();
 #endif
 
     // Network
@@ -330,6 +337,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("bSpendZeroConfChange");
         case ShowMasternodesTab:
             return settings.value("fShowMasternodesTab");
+        case PrivateSendEnabled:
+            return settings.value("fPrivateSendEnabled");
         case ShowAdvancedPSUI:
             return fShowAdvancedPSUI;
         case ShowPrivateSendPopups:
@@ -409,12 +418,7 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             break;
         case MapPortUPnP: // core option - can be changed on-the-fly
             settings.setValue("fUseUPnP", value.toBool());
-            if (value.toBool()) {
-                StartMapPort();
-            } else {
-                InterruptMapPort();
-                StopMapPort();
-            }
+            MapPort(value.toBool());
             break;
         case MinimizeOnClose:
             fMinimizeOnClose = value.toBool();
@@ -486,10 +490,18 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
                 setRestartRequired(true);
             }
             break;
+        case PrivateSendEnabled:
+            if (settings.value("fPrivateSendEnabled") != value) {
+                settings.setValue("fPrivateSendEnabled", value.toBool());
+                Q_EMIT privateSendEnabledChanged();
+            }
+            break;
         case ShowAdvancedPSUI:
-            fShowAdvancedPSUI = value.toBool();
-            settings.setValue("fShowAdvancedPSUI", fShowAdvancedPSUI);
-            Q_EMIT advancedPSUIChanged(fShowAdvancedPSUI);
+            if (settings.value("fShowAdvancedPSUI") != value) {
+                fShowAdvancedPSUI = value.toBool();
+                settings.setValue("fShowAdvancedPSUI", fShowAdvancedPSUI);
+                Q_EMIT advancedPSUIChanged(fShowAdvancedPSUI);
+            }
             break;
         case ShowPrivateSendPopups:
             settings.setValue("fShowPrivateSendPopups", value);
@@ -500,24 +512,24 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
         case PrivateSendRounds:
             if (settings.value("nPrivateSendRounds") != value)
             {
-                CPrivateSendClientOptions::SetRounds(value.toInt());
-                settings.setValue("nPrivateSendRounds", CPrivateSendClientOptions::GetRounds());
+                privateSendClient.nPrivateSendRounds = value.toInt();
+                settings.setValue("nPrivateSendRounds", privateSendClient.nPrivateSendRounds);
                 Q_EMIT privateSendRoundsChanged();
             }
             break;
         case PrivateSendAmount:
             if (settings.value("nPrivateSendAmount") != value)
             {
-                CPrivateSendClientOptions::SetAmount(value.toInt());
-                settings.setValue("nPrivateSendAmount", CPrivateSendClientOptions::GetAmount());
+                privateSendClient.nPrivateSendAmount = value.toInt();
+                settings.setValue("nPrivateSendAmount", privateSendClient.nPrivateSendAmount);
                 Q_EMIT privateSentAmountChanged();
             }
             break;
         case PrivateSendMultiSession:
             if (settings.value("fPrivateSendMultiSession") != value)
             {
-                CPrivateSendClientOptions::SetMultiSessionEnabled(value.toBool());
-                settings.setValue("fPrivateSendMultiSession", CPrivateSendClientOptions::IsMultiSessionEnabled());
+                privateSendClient.fPrivateSendMultiSession = value.toBool();
+                settings.setValue("fPrivateSendMultiSession", privateSendClient.fPrivateSendMultiSession);
             }
             break;
 #endif
@@ -636,6 +648,11 @@ bool OptionsModel::getProxySettings(QNetworkProxy& proxy) const
         proxy.setType(QNetworkProxy::NoProxy);
 
     return false;
+}
+
+void OptionsModel::emitPrivateSendEnabledChanged()
+{
+    Q_EMIT privateSendEnabledChanged();
 }
 
 void OptionsModel::setRestartRequired(bool fRequired)

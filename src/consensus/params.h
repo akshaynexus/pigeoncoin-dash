@@ -22,6 +22,7 @@ enum DeploymentPos
     DEPLOYMENT_BIP147, // Deployment of BIP147 (NULLDUMMY)
     DEPLOYMENT_DIP0003, // Deployment of DIP0002 and DIP0003 (txv3 and deterministic MN lists)
     DEPLOYMENT_DIP0008, // Deployment of ChainLock enforcement
+    DEPLOYMENT_REALLOC, // Deployment of Block Reward Reallocation
     // NOTE: Also add new deployments to VersionBitsDeploymentInfo in versionbits.cpp
     MAX_VERSION_BITS_DEPLOYMENTS
 };
@@ -46,8 +47,12 @@ struct BIP9Deployment {
     static constexpr int64_t ALWAYS_ACTIVE = -1;
     /** The number of past blocks (including the block under consideration) to be taken into account for locking in a fork. */
     int64_t nWindowSize{0};
-    /** A number of blocks, in the range of 1..nWindowSize, which must signal for a fork in order to lock it in. */
-    int64_t nThreshold{0};
+    /** A starting number of blocks, in the range of 1..nWindowSize, which must signal for a fork in order to lock it in. */
+    int64_t nThresholdStart{0};
+    /** A minimum number of blocks, in the range of 1..nWindowSize, which must signal for a fork in order to lock it in. */
+    int64_t nThresholdMin{0};
+    /** A coefficient which adjusts the speed a required number of signaling blocks is decreasing from nThresholdStart to nThresholdMin at with each period. */
+    int64_t nFalloffCoeff{0};
 };
 
 enum LLMQType : uint8_t
@@ -168,7 +173,7 @@ struct Params {
     /**
      * Minimum blocks including miner confirmation of the total of nMinerConfirmationWindow blocks in a retargeting period,
      * (nPowTargetTimespan / nPowTargetSpacing) which is also used for BIP9 deployments.
-     * Default BIP9Deployment::nThreshold value for deployments where it's not specified and for unknown deployments.
+     * Default BIP9Deployment::nThresholdStart value for deployments where it's not specified and for unknown deployments.
      * Examples: 1916 for 95%, 1512 for testchains.
      */
     uint32_t nRuleChangeActivationThreshold;

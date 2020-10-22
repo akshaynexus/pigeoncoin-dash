@@ -27,6 +27,10 @@ EditAddressDialog::EditAddressDialog(Mode _mode, QWidget *parent) :
 
     switch(mode)
     {
+    case NewReceivingAddress:
+        setWindowTitle(tr("New receiving address"));
+        ui->addressEdit->setEnabled(false);
+        break;
     case NewSendingAddress:
         setWindowTitle(tr("New sending address"));
         break;
@@ -41,10 +45,6 @@ EditAddressDialog::EditAddressDialog(Mode _mode, QWidget *parent) :
 
     mapper = new QDataWidgetMapper(this);
     mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
-
-    GUIUtil::ItemDelegate* delegate = new GUIUtil::ItemDelegate(mapper);
-    connect(delegate, &GUIUtil::ItemDelegate::keyEscapePressed, this, &EditAddressDialog::reject);
-    mapper->setItemDelegate(delegate);
 }
 
 EditAddressDialog::~EditAddressDialog()
@@ -75,9 +75,10 @@ bool EditAddressDialog::saveCurrentRow()
 
     switch(mode)
     {
+    case NewReceivingAddress:
     case NewSendingAddress:
         address = model->addRow(
-                AddressTableModel::Send,
+                mode == NewSendingAddress ? AddressTableModel::Send : AddressTableModel::Receive,
                 ui->labelEdit->text(),
                 ui->addressEdit->text());
         break;
@@ -109,7 +110,7 @@ void EditAddressDialog::accept()
             break;
         case AddressTableModel::INVALID_ADDRESS:
             QMessageBox::warning(this, windowTitle(),
-                tr("The entered address \"%1\" is not a valid Pigeon Address.").arg(ui->addressEdit->text()),
+                tr("The entered address \"%1\" is not a valid Dash address.").arg(ui->addressEdit->text()),
                 QMessageBox::Ok, QMessageBox::Ok);
             break;
         case AddressTableModel::DUPLICATE_ADDRESS:

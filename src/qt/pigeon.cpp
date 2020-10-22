@@ -31,7 +31,6 @@
 #include <rpc/server.h>
 #include <stacktraces.h>
 #include <ui_interface.h>
-#include <uint256.h>
 #include <util.h>
 #include <warnings.h>
 
@@ -58,6 +57,16 @@
 
 #if defined(QT_STATICPLUGIN)
 #include <QtPlugin>
+#if QT_VERSION < 0x050000
+Q_IMPORT_PLUGIN(qcncodecs)
+Q_IMPORT_PLUGIN(qjpcodecs)
+Q_IMPORT_PLUGIN(qtwcodecs)
+Q_IMPORT_PLUGIN(qkrcodecs)
+Q_IMPORT_PLUGIN(qtaccessiblewidgets)
+#else
+#if QT_VERSION < 0x050400
+Q_IMPORT_PLUGIN(AccessibleFactory)
+#endif
 #if defined(QT_QPA_PLATFORM_XCB)
 Q_IMPORT_PLUGIN(QXcbIntegrationPlugin);
 #elif defined(QT_QPA_PLATFORM_WINDOWS)
@@ -66,11 +75,15 @@ Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin);
 Q_IMPORT_PLUGIN(QCocoaIntegrationPlugin);
 #endif
 #endif
+#endif
+
+#if QT_VERSION < 0x050000
+#include <QTextCodec>
+#endif
 
 // Declare meta types used for QMetaObject::invokeMethod
 Q_DECLARE_METATYPE(bool*)
 Q_DECLARE_METATYPE(CAmount)
-Q_DECLARE_METATYPE(uint256)
 
 static void InitMessage(const std::string &message)
 {
@@ -82,7 +95,7 @@ static void InitMessage(const std::string &message)
  */
 static std::string Translate(const char* psz)
 {
-    return QCoreApplication::translate("pigeon-core", psz).toStdString();
+    return QCoreApplication::translate("dash-core", psz).toStdString();
 }
 
 static QString GetLangTerritory()
@@ -129,16 +142,26 @@ static void initTranslations(QTranslator &qtTranslatorBase, QTranslator &qtTrans
     if (qtTranslator.load("qt_" + lang_territory, QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
         QApplication::installTranslator(&qtTranslator);
 
-    // Load e.g. bitcoin_de.qm (shortcut "de" needs to be defined in pigeon.qrc)
+    // Load e.g. bitcoin_de.qm (shortcut "de" needs to be defined in dash.qrc)
     if (translatorBase.load(lang, ":/translations/"))
         QApplication::installTranslator(&translatorBase);
 
-    // Load e.g. bitcoin_de_DE.qm (shortcut "de_DE" needs to be defined in pigeon.qrc)
+    // Load e.g. bitcoin_de_DE.qm (shortcut "de_DE" needs to be defined in dash.qrc)
     if (translator.load(lang_territory, ":/translations/"))
         QApplication::installTranslator(&translator);
 }
 
 /* qDebug() message handler --> debug.log */
+#if QT_VERSION < 0x050000
+void DebugMessageHandler(QtMsgType type, const char *msg)
+{
+    if (type == QtDebugMsg) {
+        LogPrint(BCLog::QT, "GUI: %s\n", msg);
+    } else {
+        LogPrintf("GUI: %s\n", msg);
+    }
+}
+#else
 void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString &msg)
 {
     Q_UNUSED(context);
@@ -148,6 +171,7 @@ void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, cons
         LogPrintf("GUI: %s\n", msg.toStdString());
     }
 }
+#endif
 
 /** Class encapsulating Dash Core startup and shutdown.
  * Allows running startup and shutdown in a different thread from the UI thread.
@@ -231,7 +255,7 @@ private:
     QTimer *pollShutdownTimer;
 #ifdef ENABLE_WALLET
     PaymentServer* paymentServer;
-    std::vector<WalletModel*> m_wallet_models;
+    WalletModel *walletModel;
 #endif
     int returnValue;
     std::unique_ptr<QWidget> shutdownWindow;
@@ -332,7 +356,7 @@ BitcoinApplication::BitcoinApplication(int &argc, char **argv):
     pollShutdownTimer(0),
 #ifdef ENABLE_WALLET
     paymentServer(0),
-    m_wallet_models(),
+    walletModel(0),
 #endif
     returnValue(0)
 {
@@ -447,10 +471,8 @@ void BitcoinApplication::requestShutdown()
 
 #ifdef ENABLE_WALLET
     window->removeAllWallets();
-    for (WalletModel *walletModel : m_wallet_models) {
-        delete walletModel;
-    }
-    m_wallet_models.clear();
+    delete walletModel;
+    walletModel = 0;
 #endif
     delete clientModel;
     clientModel = 0;
@@ -479,20 +501,16 @@ void BitcoinApplication::initializeResult(bool success)
         window->setClientModel(clientModel);
 
 #ifdef ENABLE_WALLET
-        bool fFirstWallet = true;
-        for (CWallet* pwallet : GetWallets()) {
-            WalletModel * const walletModel = new WalletModel(pwallet, optionsModel);
+        // TODO: Expose secondary wallets
+        if (HasWallets())
+        {
+            walletModel = new WalletModel(GetWallets()[0], optionsModel);
 
-            window->addWallet(walletModel);
-            if (fFirstWallet) {
-                window->setCurrentWallet(walletModel->getWalletName());
-                fFirstWallet = false;
-            }
+            window->addWallet(BitcoinGUI::DEFAULT_WALLET, walletModel);
+            window->setCurrentWallet(BitcoinGUI::DEFAULT_WALLET);
 
             connect(walletModel, SIGNAL(coinsSent(CWallet*,SendCoinsRecipient,QByteArray)),
                              paymentServer, SLOT(fetchPaymentACK(CWallet*,const SendCoinsRecipient&,QByteArray)));
-
-            m_wallet_models.push_back(walletModel);
         }
 #endif
 
@@ -512,7 +530,7 @@ void BitcoinApplication::initializeResult(bool success)
 
 #ifdef ENABLE_WALLET
         // Now that initialization/startup is done, process any command-line
-        // pigeon: URIs or payment requests:
+        // dash: URIs or payment requests:
         connect(paymentServer, SIGNAL(receivedPaymentRequest(SendCoinsRecipient)),
                          window, SLOT(handlePaymentRequest(SendCoinsRecipient)));
         connect(window, SIGNAL(receivedURI(QString)),
@@ -535,7 +553,7 @@ void BitcoinApplication::shutdownResult()
 
 void BitcoinApplication::handleRunawayException(const QString &message)
 {
-    QMessageBox::critical(0, "Runaway exception", BitcoinGUI::tr("A fatal error occurred. Pigeon Core can no longer continue safely and will quit.") + QString("\n\n") + message);
+    QMessageBox::critical(0, "Runaway exception", BitcoinGUI::tr("A fatal error occurred. Dash Core can no longer continue safely and will quit.") + QString("\n\n") + message);
     ::exit(EXIT_FAILURE);
 }
 
@@ -562,11 +580,19 @@ int main(int argc, char *argv[])
     // Do not refer to data directory yet, this can be overridden by Intro::pickDataDirectory
 
     /// 2. Basic Qt initialization (not dependent on parameters or configuration)
+#if QT_VERSION < 0x050000
+    // Internal string conversion is all UTF-8
+    QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
+    QTextCodec::setCodecForCStrings(QTextCodec::codecForTr());
+#endif
+
     Q_INIT_RESOURCE(pigeon);
     Q_INIT_RESOURCE(pigeon_locale);
 
+#if QT_VERSION > 0x050100
     // Generate high-dpi pixmaps
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+#endif
 #if QT_VERSION >= 0x050600
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
@@ -618,7 +644,7 @@ int main(int argc, char *argv[])
     if (!Intro::pickDataDirectory())
         return EXIT_SUCCESS;
 
-    /// 6. Determine availability of data directory and parse pigeon.conf
+    /// 6. Determine availability of data directory and parse dash.conf
     /// - Do not call GetDataDir(true) before this step finishes
     if (!fs::is_directory(GetDataDir(false)))
     {
@@ -670,19 +696,24 @@ int main(int argc, char *argv[])
         exit(EXIT_SUCCESS);
 
     // Start up the payment server early, too, so impatient users that click on
-    // pigeon: links repeatedly have their payment requests routed to this process:
+    // dash: links repeatedly have their payment requests routed to this process:
     app.createPaymentServer();
 #endif
 
     /// 9. Main GUI initialization
     // Install global event filter that makes sure that long tooltips can be word-wrapped
     app.installEventFilter(new GUIUtil::ToolTipToRichTextFilter(TOOLTIP_WRAP_THRESHOLD, &app));
+#if QT_VERSION < 0x050000
+    // Install qDebug() message handler to route to debug.log
+    qInstallMsgHandler(DebugMessageHandler);
+#else
 #if defined(Q_OS_WIN)
     // Install global event filter for processing Windows session related Windows messages (WM_QUERYENDSESSION and WM_ENDSESSION)
     qApp->installNativeEventFilter(new WinShutdownMonitor());
 #endif
     // Install qDebug() message handler to route to debug.log
     qInstallMessageHandler(DebugMessageHandler);
+#endif
     // Allow parameter interaction before we create the options model
     app.parameterSetup();
     // Load GUI settings from QSettings
@@ -793,7 +824,7 @@ int main(int argc, char *argv[])
         // so the GUI thread won't be held up.
         if (BitcoinCore::baseInitialize()) {
             app.requestInitialize();
-#if defined(Q_OS_WIN)
+#if defined(Q_OS_WIN) && QT_VERSION >= 0x050000
             WinShutdownMonitor::registerShutdownBlockReason(QObject::tr("%1 didn't yet exit safely...").arg(QObject::tr(PACKAGE_NAME)), (HWND)app.getMainWinId());
 #endif
             app.exec();

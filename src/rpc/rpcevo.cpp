@@ -7,6 +7,7 @@
 #include <core_io.h>
 #include <init.h>
 #include <messagesigner.h>
+#include <rpc/safemode.h>
 #include <rpc/server.h>
 #include <txmempool.h>
 #include <utilmoneystr.h>
@@ -27,7 +28,7 @@
 
 #include <bls/bls.h>
 
-#include <masternode/masternode-meta.h>
+#include "masternode/masternode-meta.h"
 
 #ifdef ENABLE_WALLET
 extern UniValue signrawtransaction(const JSONRPCRequest& request);
@@ -38,7 +39,7 @@ std::string GetHelpString(int nParamNum, std::string strParamName)
 {
     static const std::map<std::string, std::string> mapParamHelp = {
         {"collateralAddress",
-            "%d. \"collateralAddress\"        (string, required) The pigeon address to send the collateral to.\n"
+            "%d. \"collateralAddress\"        (string, required) The dash address to send the collateral to.\n"
         },
         {"collateralHash",
             "%d. \"collateralHash\"           (string, required) The collateral transaction hash.\n"
@@ -83,15 +84,15 @@ std::string GetHelpString(int nParamNum, std::string strParamName)
             "                              between 0.00 and 100.00.\n"
         },
         {"ownerAddress",
-            "%d. \"ownerAddress\"             (string, required) The pigeon address to use for payee updates and proposal voting.\n"
+            "%d. \"ownerAddress\"             (string, required) The dash address to use for payee updates and proposal voting.\n"
             "                              The private key belonging to this address must be known in your wallet. The address must\n"
             "                              be unused and must differ from the collateralAddress\n"
         },
         {"payoutAddress_register",
-            "%d. \"payoutAddress\"            (string, required) The pigeon address to use for masternode reward payments.\n"
+            "%d. \"payoutAddress\"            (string, required) The dash address to use for masternode reward payments.\n"
         },
         {"payoutAddress_update",
-            "%d. \"payoutAddress\"            (string, required) The pigeon address to use for masternode reward payments.\n"
+            "%d. \"payoutAddress\"            (string, required) The dash address to use for masternode reward payments.\n"
             "                              If set to an empty string, the currently active payout address is reused.\n"
         },
         {"proTxHash",
@@ -119,7 +120,7 @@ std::string GetHelpString(int nParamNum, std::string strParamName)
     return strprintf(it->second, nParamNum);
 }
 
-// Allows to specify Pigeon Address or priv key. In case of Pigeon Address, the priv key is taken from the wallet
+// Allows to specify Dash address or priv key. In case of Dash address, the priv key is taken from the wallet
 static CKey ParsePrivKey(CWallet* pwallet, const std::string &strKeyOrAddress, bool allowAddresses = true) {
     CTxDestination dest = DecodeDestination(strKeyOrAddress);
     if (allowAddresses && IsValidDestination(dest)) {
@@ -226,7 +227,7 @@ static void FundSpecialTx(CWallet* pwallet, CMutableTransaction& tx, const Speci
     }
 
     if (!coinControl.HasSelected()) {
-        throw JSONRPCError(RPC_INTERNAL_ERROR, "No funds at specified address");
+        throw JSONRPCError(RPC_INTERNAL_ERROR, strprintf("No funds at specified address %s", EncodeDestination(fundDest)));
     }
 
     CWalletTx wtx;
@@ -428,6 +429,8 @@ UniValue protx_register(const JSONRPCRequest& request)
         protx_register_prepare_help();
     }
 
+    ObserveSafeMode();
+
     if (!EnsureWalletIsAvailable(pwallet, request.fHelp))
         return NullUniValue;
 
@@ -437,7 +440,7 @@ UniValue protx_register(const JSONRPCRequest& request)
 
     size_t paramIdx = 1;
 
-    CAmount collateralAmount = Params().GetConsensus().masternodeCollateral * COIN;
+    CAmount collateralAmount = 1000 * COIN;
 
     CMutableTransaction tx;
     tx.nVersion = 3;
@@ -513,7 +516,7 @@ UniValue protx_register(const JSONRPCRequest& request)
     if (!request.params[paramIdx + 6].isNull()) {
         fundDest = DecodeDestination(request.params[paramIdx + 6].get_str());
         if (!IsValidDestination(fundDest))
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("Invalid Pigeon address: ") + request.params[paramIdx + 6].get_str());
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("Invalid Dash address: ") + request.params[paramIdx + 6].get_str());
     }
 
     FundSpecialTx(pwallet, tx, ptx, fundDest);
@@ -552,9 +555,9 @@ UniValue protx_register(const JSONRPCRequest& request)
             SetTxPayload(tx, ptx);
 
             UniValue ret(UniValue::VOBJ);
-            ret.pushKV("tx", EncodeHexTx(tx));
-            ret.pushKV("collateralAddress", EncodeDestination(txDest));
-            ret.pushKV("signMessage", ptx.MakeSignString());
+            ret.push_back(Pair("tx", EncodeHexTx(tx)));
+            ret.push_back(Pair("collateralAddress", EncodeDestination(txDest)));
+            ret.push_back(Pair("signMessage", ptx.MakeSignString()));
             return ret;
         } else {
             // lets prove we own the collateral
@@ -575,6 +578,8 @@ UniValue protx_register_submit(const JSONRPCRequest& request)
     if (request.fHelp || request.params.size() != 3) {
         protx_register_submit_help(pwallet);
     }
+
+    ObserveSafeMode();
 
     if (!EnsureWalletIsAvailable(pwallet, request.fHelp))
         return NullUniValue;
@@ -628,6 +633,8 @@ UniValue protx_update_service(const JSONRPCRequest& request)
     CWallet* const pwallet = GetWalletForJSONRPCRequest(request);
     if (request.fHelp || (request.params.size() < 4 || request.params.size() > 6))
         protx_update_service_help(pwallet);
+
+    ObserveSafeMode();
 
     if (!EnsureWalletIsAvailable(pwallet, request.fHelp))
         return NullUniValue;
@@ -725,6 +732,8 @@ UniValue protx_update_registrar(const JSONRPCRequest& request)
         protx_update_registrar_help(pwallet);
     }
 
+    ObserveSafeMode();
+
     if (!EnsureWalletIsAvailable(pwallet, request.fHelp))
         return NullUniValue;
 
@@ -812,6 +821,8 @@ UniValue protx_revoke(const JSONRPCRequest& request)
     if (request.fHelp || (request.params.size() < 3 || request.params.size() > 5)) {
         protx_revoke_help(pwallet);
     }
+
+    ObserveSafeMode();
 
     if (!EnsureWalletIsAvailable(pwallet, request.fHelp))
         return NullUniValue;
@@ -930,7 +941,7 @@ UniValue BuildDMNListEntry(CWallet* pwallet, const CDeterministicMNCPtr& dmn, bo
     dmn->ToJson(o);
 
     int confirmations = GetUTXOConfirmations(dmn->collateralOutpoint);
-    o.pushKV("confirmations", confirmations);
+    o.push_back(Pair("confirmations", confirmations));
 
     bool hasOwnerKey = CheckWalletOwnsKey(pwallet, dmn->pdmnState->keyIDOwner);
     bool hasOperatorKey = false; //CheckWalletOwnsKey(dmn->pdmnState->keyIDOperator);
@@ -946,18 +957,18 @@ UniValue BuildDMNListEntry(CWallet* pwallet, const CDeterministicMNCPtr& dmn, bo
 #ifdef ENABLE_WALLET
     if (pwallet) {
         UniValue walletObj(UniValue::VOBJ);
-        walletObj.pushKV("hasOwnerKey", hasOwnerKey);
-        walletObj.pushKV("hasOperatorKey", hasOperatorKey);
-        walletObj.pushKV("hasVotingKey", hasVotingKey);
-        walletObj.pushKV("ownsCollateral", ownsCollateral);
-        walletObj.pushKV("ownsPayeeScript", CheckWalletOwnsScript(pwallet, dmn->pdmnState->scriptPayout));
-        walletObj.pushKV("ownsOperatorRewardScript", CheckWalletOwnsScript(pwallet, dmn->pdmnState->scriptOperatorPayout));
-        o.pushKV("wallet", walletObj);
+        walletObj.push_back(Pair("hasOwnerKey", hasOwnerKey));
+        walletObj.push_back(Pair("hasOperatorKey", hasOperatorKey));
+        walletObj.push_back(Pair("hasVotingKey", hasVotingKey));
+        walletObj.push_back(Pair("ownsCollateral", ownsCollateral));
+        walletObj.push_back(Pair("ownsPayeeScript", CheckWalletOwnsScript(pwallet, dmn->pdmnState->scriptPayout)));
+        walletObj.push_back(Pair("ownsOperatorRewardScript", CheckWalletOwnsScript(pwallet, dmn->pdmnState->scriptOperatorPayout)));
+        o.push_back(Pair("wallet", walletObj));
     }
 #endif
 
     auto metaInfo = mmetaman.GetMetaInfo(dmn->proTxHash);
-    o.pushKV("metaInfo", metaInfo->ToJson());
+    o.push_back(Pair("metaInfo", metaInfo->ToJson()));
 
     return o;
 }
@@ -1213,8 +1224,8 @@ UniValue bls_generate(const JSONRPCRequest& request)
     sk.MakeNewKey();
 
     UniValue ret(UniValue::VOBJ);
-    ret.pushKV("secret", sk.ToString());
-    ret.pushKV("public", sk.GetPublicKey().ToString());
+    ret.push_back(Pair("secret", sk.ToString()));
+    ret.push_back(Pair("public", sk.GetPublicKey().ToString()));
     return ret;
 }
 
@@ -1247,8 +1258,8 @@ UniValue bls_fromsecret(const JSONRPCRequest& request)
     }
 
     UniValue ret(UniValue::VOBJ);
-    ret.pushKV("secret", sk.ToString());
-    ret.pushKV("public", sk.GetPublicKey().ToString());
+    ret.push_back(Pair("secret", sk.ToString()));
+    ret.push_back(Pair("public", sk.GetPublicKey().ToString()));
     return ret;
 }
 

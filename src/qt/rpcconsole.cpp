@@ -12,7 +12,6 @@
 
 #include <qt/bantablemodel.h>
 #include <qt/clientmodel.h>
-#include <qt/walletmodel.h>
 #include <chainparams.h>
 #include <netbase.h>
 #include <rpc/server.h>
@@ -41,6 +40,10 @@
 #include <QStringList>
 #include <QStyledItemDelegate>
 
+#if QT_VERSION < 0x050000
+#include <QUrl>
+#endif
+
 // TODO: add a scrollback limit, as there is currently none
 // TODO: make it possible to filter out categories (esp debug messages when implemented)
 // TODO: receive errors and debug messages through ClientModel
@@ -58,17 +61,6 @@ const QString ZAPTXES1("-zapwallettxes=1 -persistmempool=0");
 const QString ZAPTXES2("-zapwallettxes=2 -persistmempool=0");
 const QString UPGRADEWALLET("-upgradewallet");
 const QString REINDEX("-reindex");
-
-const struct {
-    const char *url;
-    const char *source;
-} ICON_MAPPING[] = {
-    {"cmd-request", "tx_input"},
-    {"cmd-reply", "tx_output"},
-    {"cmd-error", "tx_output"},
-    {"misc", "tx_inout"},
-    {nullptr, nullptr}
-};
 
 namespace {
 
@@ -91,7 +83,7 @@ class RPCExecutor : public QObject
     Q_OBJECT
 
 public Q_SLOTS:
-    void request(const QString &command, const QString &walletID);
+    void request(const QString &command);
 
 Q_SIGNALS:
     void reply(int category, const QString &command);
@@ -152,7 +144,7 @@ public:
  * @param[out]   pstrFilteredOut  Command line, filtered to remove any sensitive data
  */
 
-bool RPCConsole::RPCParseCommandLine(std::string &strResult, const std::string &strCommand, const bool fExecute, std::string * const pstrFilteredOut, const std::string *walletID)
+bool RPCConsole::RPCParseCommandLine(std::string &strResult, const std::string &strCommand, const bool fExecute, std::string * const pstrFilteredOut)
 {
     std::vector< std::vector<std::string> > stack;
     stack.push_back(std::vector<std::string>());
@@ -310,8 +302,10 @@ bool RPCConsole::RPCParseCommandLine(std::string &strResult, const std::string &
                             req.params = RPCConvertValues(stack.back()[0], std::vector<std::string>(stack.back().begin() + 1, stack.back().end()));
                             req.strMethod = stack.back()[0];
 #ifdef ENABLE_WALLET
-                            if (walletID && !walletID->empty()) {
-                                QByteArray encodedName = QUrl::toPercentEncoding(QString::fromStdString(*walletID));
+                            // TODO: Move this logic to WalletModel
+                            if (HasWallets()) {
+                                // in Qt, use always the wallet with index 0 when running with multiple wallets
+                                QByteArray encodedName = QUrl::toPercentEncoding(QString::fromStdString(GetWallets()[0]->GetName()));
                                 req.URI = "/wallet/"+std::string(encodedName.constData(), encodedName.length());
                             }
 #endif
@@ -390,7 +384,7 @@ bool RPCConsole::RPCParseCommandLine(std::string &strResult, const std::string &
     }
 }
 
-void RPCExecutor::request(const QString &command, const QString &walletID)
+void RPCExecutor::request(const QString &command)
 {
     try
     {
@@ -421,8 +415,7 @@ void RPCExecutor::request(const QString &command, const QString &walletID)
                 "   example:    getblock(getblockhash(0),true)[tx][0]\n\n")));
             return;
         }
-        std::string wallet_id = walletID.toStdString();
-        if(!RPCConsole::RPCExecuteCommandLine(result, executableCommand, nullptr, &wallet_id))
+        if(!RPCConsole::RPCExecuteCommandLine(result, executableCommand))
         {
             Q_EMIT reply(RPCConsole::CMD_ERROR, QString("Parse error: unbalanced ' or \""));
             return;
@@ -469,6 +462,8 @@ RPCConsole::RPCConsole(QWidget* parent) :
                       ui->banHeading
                      }, GUIUtil::FontWeight::Bold, 16);
 
+    GUIUtil::updateFonts();
+
     GUIUtil::disableMacFocusRect(this);
 
     QSettings settings;
@@ -479,10 +474,7 @@ RPCConsole::RPCConsole(QWidget* parent) :
 
     ui->openDebugLogfileButton->setToolTip(ui->openDebugLogfileButton->toolTip().arg(tr(PACKAGE_NAME)));
 
-    // Needed on Mac also
-    ui->clearButton->setIcon(QIcon(":/icons/console_remove"));
-    ui->fontBiggerButton->setIcon(QIcon(":/icons/fontbigger"));
-    ui->fontSmallerButton->setIcon(QIcon(":/icons/fontsmaller"));
+    setButtonIcons();
 
     // Install event filter for up and down arrow
     ui->lineEdit->installEventFilter(this);
@@ -492,10 +484,6 @@ RPCConsole::RPCConsole(QWidget* parent) :
     connect(ui->fontBiggerButton, SIGNAL(clicked()), this, SLOT(fontBigger()));
     connect(ui->fontSmallerButton, SIGNAL(clicked()), this, SLOT(fontSmaller()));
     connect(ui->btnClearTrafficGraph, SIGNAL(clicked()), ui->trafficGraph, SLOT(clear()));
-
-    // disable the wallet selector by default
-    ui->WalletSelector->setVisible(false);
-    ui->WalletSelectorLabel->setVisible(false);
 
     // Wallet Repair Buttons
     // connect(ui->btn_salvagewallet, SIGNAL(clicked()), this, SLOT(walletSalvage()));
@@ -602,17 +590,14 @@ void RPCConsole::setClientModel(ClientModel *model)
         setNumConnections(model->getNumConnections());
         connect(model, SIGNAL(numConnectionsChanged(int)), this, SLOT(setNumConnections(int)));
 
-        setNumBlocks(model->getNumBlocks(), model->getLastBlockDate(), model->getVerificationProgress(nullptr), false);
-        connect(model, SIGNAL(numBlocksChanged(int,QDateTime,double,bool)), this, SLOT(setNumBlocks(int,QDateTime,double,bool)));
+        setNumBlocks(model->getNumBlocks(), model->getLastBlockDate(), model->getLastBlockHash(), model->getVerificationProgress(nullptr), false);
+        connect(model, SIGNAL(numBlocksChanged(int,QDateTime,QString,double,bool)), this, SLOT(setNumBlocks(int,QDateTime,QString,double,bool)));
 
         updateNetworkState();
         connect(model, SIGNAL(networkActiveChanged(bool)), this, SLOT(setNetworkActive(bool)));
 
         connect(model, SIGNAL(masternodeListChanged()), this, SLOT(updateMasternodeCount()));
         clientModel->refreshMasternodeList();
-
-        updateTrafficStats(model->getTotalBytesRecv(), model->getTotalBytesSent());
-        connect(model, SIGNAL(bytesChanged(quint64,quint64)), this, SLOT(updateTrafficStats(quint64, quint64)));
 
         connect(model, SIGNAL(mempoolSizeChanged(long,size_t)), this, SLOT(setMempoolSize(long,size_t)));
         connect(model, SIGNAL(islockCountChanged(size_t)), this, SLOT(setInstantSendLockCount(size_t)));
@@ -734,23 +719,6 @@ void RPCConsole::setClientModel(ClientModel *model)
     }
 }
 
-#ifdef ENABLE_WALLET
-void RPCConsole::addWallet(WalletModel * const walletModel)
-{
-    const QString name = walletModel->getWalletName();
-    // use name for text and internal data object (to allow to move to a wallet id later)
-    ui->WalletSelector->addItem(name, name);
-    if (ui->WalletSelector->count() == 2 && !isVisible()) {
-        // First wallet added, set to default so long as the window isn't presently visible (and potentially in use)
-        ui->WalletSelector->setCurrentIndex(1);
-    }
-    if (ui->WalletSelector->count() > 2) {
-        ui->WalletSelector->setVisible(true);
-        ui->WalletSelectorLabel->setVisible(true);
-    }
-}
-#endif
-
 static QString categoryClass(int category)
 {
     switch(category)
@@ -866,26 +834,12 @@ void RPCConsole::clear(bool clearHistory)
     ui->lineEdit->clear();
     ui->lineEdit->setFocus();
 
-    // Add smoothly scaled icon images.
-    // (when using width/height on an img, Qt uses nearest instead of linear interpolation)
-    QString iconPath = ":/icons/";
-    QString iconName = "";
-
-    for(int i=0; ICON_MAPPING[i].url; ++i)
-    {
-        iconName = ICON_MAPPING[i].source;
-        ui->messagesWidget->document()->addResource(
-                    QTextDocument::ImageResource,
-                    QUrl(ICON_MAPPING[i].url),
-                    QImage(iconPath + iconName).scaled(QSize(consoleFontSize*2, consoleFontSize*2), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-    }
-
     // Set default style sheet
-    QFontInfo fixedFontInfo(GUIUtil::fixedPitchFont());
+    QFontInfo fixedFontInfo(GUIUtil::getFontNormal());
     ui->messagesWidget->document()->setDefaultStyleSheet(
         QString(
                 "table { }"
-                "td.time { " + GUIUtil::getThemedStyleQString(GUIUtil::ThemedStyle::TS_SECONDARY) + " font-size: %2; padding-top: 3px; } "
+                "td.time { " + GUIUtil::getThemedStyleQString(GUIUtil::ThemedStyle::TS_SECONDARY) + " font-size: %2; } "
                 "td.message { " + GUIUtil::getThemedStyleQString(GUIUtil::ThemedStyle::TS_PRIMARY) + " font-family: %1; font-size: %2; white-space:pre-wrap; } "
                 "td.cmd-request, b { " + GUIUtil::getThemedStyleQString(GUIUtil::ThemedStyle::TS_COMMAND) + " } "
                 "td.cmd-error, .secwarning { " + GUIUtil::getThemedStyleQString(GUIUtil::ThemedStyle::TS_ERROR) + " }"
@@ -922,7 +876,6 @@ void RPCConsole::message(int category, const QString &message, bool html)
     QString timeString = time.toString();
     QString out;
     out += "<table><tr><td class=\"time\" width=\"65\">" + timeString + "</td>";
-    out += "<td class=\"icon\" width=\"32\"><img src=\"" + categoryClass(category) + "\"></td>";
     out += "<td class=\"message " + categoryClass(category) + "\" valign=\"middle\">";
     if(html)
         out += message;
@@ -958,11 +911,12 @@ void RPCConsole::setNetworkActive(bool networkActive)
     updateNetworkState();
 }
 
-void RPCConsole::setNumBlocks(int count, const QDateTime& blockDate, double nVerificationProgress, bool headers)
+void RPCConsole::setNumBlocks(int count, const QDateTime& blockDate, const QString& blockHash, double nVerificationProgress, bool headers)
 {
     if (!headers) {
         ui->numberOfBlocks->setText(QString::number(count));
         ui->lastBlockTime->setText(blockDate.toString());
+        ui->lastBlockHash->setText(blockHash);
     }
 }
 
@@ -1005,6 +959,7 @@ void RPCConsole::showPage(int index)
 
     GUIUtil::setFont({btnActive}, GUIUtil::FontWeight::Bold, 16);
     GUIUtil::setFont(vecNormal, GUIUtil::FontWeight::Normal, 16);
+    GUIUtil::updateFonts();
 
     ui->stackedWidgetRPC->setCurrentIndex(index);
     btnActive->setChecked(true);
@@ -1032,25 +987,8 @@ void RPCConsole::on_lineEdit_returnPressed()
 
         cmdBeforeBrowsing = QString();
 
-        QString walletID;
-#ifdef ENABLE_WALLET
-        const int wallet_index = ui->WalletSelector->currentIndex();
-        if (wallet_index > 0) {
-            walletID = (QString)ui->WalletSelector->itemData(wallet_index).value<QString>();
-        }
-
-        if (m_last_wallet_id != walletID) {
-            if (walletID.isEmpty()) {
-                message(CMD_REQUEST, tr("Executing command without any wallet"));
-            } else {
-                message(CMD_REQUEST, tr("Executing command using \"%1\" wallet").arg(walletID));
-            }
-            m_last_wallet_id = walletID;
-        }
-#endif
-
         message(CMD_REQUEST, QString::fromStdString(strFilteredCmd));
-        Q_EMIT cmdRequest(cmd, walletID);
+        Q_EMIT cmdRequest(cmd);
 
         cmd = QString::fromStdString(strFilteredCmd);
 
@@ -1098,7 +1036,7 @@ void RPCConsole::startExecutor()
     // Replies from executor object must go to this object
     connect(executor, SIGNAL(reply(int,QString)), this, SLOT(message(int,QString)));
     // Requests from this object must go to executor
-    connect(this, SIGNAL(cmdRequest(QString, QString)), executor, SLOT(request(QString, QString)));
+    connect(this, SIGNAL(cmdRequest(QString)), executor, SLOT(request(QString)));
 
     // On stopExecutor signal
     // - quit the Qt event loop in the execution thread
@@ -1139,12 +1077,6 @@ void RPCConsole::setTrafficGraphRange(TrafficGraphData::GraphRange range)
 {
     ui->trafficGraph->setGraphRangeMins(range);
     ui->lblGraphRange->setText(GUIUtil::formatDurationStr(TrafficGraphData::RangeMinutes[range] * 60));
-}
-
-void RPCConsole::updateTrafficStats(quint64 totalBytesIn, quint64 totalBytesOut)
-{
-    ui->lblBytesIn->setText(GUIUtil::formatBytes(totalBytesIn));
-    ui->lblBytesOut->setText(GUIUtil::formatBytes(totalBytesOut));
 }
 
 void RPCConsole::peerSelected(const QItemSelection &selected, const QItemSelection &deselected)
@@ -1273,6 +1205,14 @@ void RPCConsole::updateNodeDetail(const CNodeCombinedStats *stats)
     ui->detailWidget->show();
 }
 
+void RPCConsole::setButtonIcons()
+{
+    const QSize consoleButtonsSize(BUTTON_ICONSIZE * 0.8, BUTTON_ICONSIZE * 0.8);
+    GUIUtil::setIcon(ui->clearButton, "remove", GUIUtil::ThemedColor::RED, consoleButtonsSize);
+    GUIUtil::setIcon(ui->fontBiggerButton, "fontbigger", GUIUtil::ThemedColor::BLUE, consoleButtonsSize);
+    GUIUtil::setIcon(ui->fontSmallerButton, "fontsmaller", GUIUtil::ThemedColor::BLUE, consoleButtonsSize);
+}
+
 void RPCConsole::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
@@ -1305,6 +1245,8 @@ void RPCConsole::changeEvent(QEvent* e)
     if (e->type() == QEvent::StyleChange) {
         clear();
         ui->promptIcon->setHidden(GUIUtil::dashThemeActive());
+        // Adjust button icon colors on theme changes
+        setButtonIcons();
     }
 
     QWidget::changeEvent(e);

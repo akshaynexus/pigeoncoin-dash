@@ -54,12 +54,11 @@ static const int PRIVATESEND_DENOM_OUTPUTS_THRESHOLD = 500;
 static const int PRIVATESEND_KEYS_THRESHOLD_WARNING = 100;
 // Stop mixing completely, it's too dangerous to continue when we have only this many keys left
 static const int PRIVATESEND_KEYS_THRESHOLD_STOP = 50;
+// Pseudorandomly mix up to this many times in addition to base round count
+static const int PRIVATESEND_RANDOM_ROUNDS = 3;
 
 // The main object for accessing mixing
-extern std::map<const std::string, CPrivateSendClientManager*> privateSendClientManagers;
-
-// The object to track mixing queues
-extern CPrivateSendClientQueueManager privateSendClientQueueManager;
+extern CPrivateSendClientManager privateSendClient;
 
 class CPendingDsaRequest
 {
@@ -117,15 +116,13 @@ private:
 
     CKeyHolderStorage keyHolderStorage; // storage for keys used in PrepareDenominate
 
-    CWallet* mixingWallet;
-
     /// Create denominations
-    bool CreateDenominated(CAmount nBalanceToDenominate, CConnman& connman);
-    bool CreateDenominated(CAmount nBalanceToDenominate, const CompactTallyItem& tallyItem, bool fCreateMixingCollaterals, CConnman& connman);
+    bool CreateDenominated(CAmount nBalanceToDenominate);
+    bool CreateDenominated(CAmount nBalanceToDenominate, const CompactTallyItem& tallyItem, bool fCreateMixingCollaterals);
 
     /// Split up large inputs or make fee sized inputs
-    bool MakeCollateralAmounts(CConnman& connman);
-    bool MakeCollateralAmounts(const CompactTallyItem& tallyItem, bool fTryDenominated, CConnman& connman);
+    bool MakeCollateralAmounts();
+    bool MakeCollateralAmounts(const CompactTallyItem& tallyItem, bool fTryDenominated);
 
     bool JoinExistingQueue(CAmount nBalanceNeedsAnonymized, CConnman& connman);
     bool StartNewQueue(CAmount nBalanceNeedsAnonymized, CConnman& connman);
@@ -152,19 +149,18 @@ private:
     void SetNull();
 
 public:
-    CPrivateSendClientSession(CWallet* pwallet) :
+    CPrivateSendClientSession() :
         vecOutPointLocked(),
         strLastMessage(),
         strAutoDenomResult(),
         mixingMasternode(),
         txMyCollateral(),
         pendingDsaRequest(),
-        keyHolderStorage(),
-        mixingWallet(pwallet)
+        keyHolderStorage()
     {
     }
 
-    void ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, CConnman& connman, bool enable_bip61);
+    void ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, CConnman& connman);
 
     void UnlockCoins();
 
@@ -187,19 +183,9 @@ public:
     void GetJsonInfo(UniValue& obj) const;
 };
 
-/** Used to keep track of mixing queues
- */
-class CPrivateSendClientQueueManager : public CPrivateSendBaseManager
-{
-public:
-    void ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, CConnman& connman, bool enable_bip61);
-
-    void DoMaintenance();
-};
-
 /** Used to keep track of current status of mixing pool
  */
-class CPrivateSendClientManager
+class CPrivateSendClientManager : public CPrivateSendBaseManager
 {
 private:
     // Keep track of the used Masternodes
@@ -213,8 +199,6 @@ private:
     int nMinBlocksToWait; // how many blocks to wait after one successful mixing tx in non-multisession mode
     std::string strAutoDenomResult;
 
-    CWallet* mixingWallet;
-
     // Keep track of current block height
     int nCachedBlockHeight;
 
@@ -224,8 +208,18 @@ private:
     bool CheckAutomaticBackup();
 
 public:
-    int nCachedNumBlocks;    //used for the overview screen
-    bool fCreateAutoBackups; //builtin support for automatic backups
+    int nPrivateSendSessions;
+    int nPrivateSendRounds;
+    int nPrivateSendRandomRounds;
+    int nPrivateSendAmount;
+    int nPrivateSendDenomsGoal;
+    int nPrivateSendDenomsHardCap;
+    bool fEnablePrivateSend;
+    bool fPrivateSendRunning;
+    bool fPrivateSendMultiSession;
+
+    int nCachedNumBlocks;    // used for the overview screen
+    bool fCreateAutoBackups; // builtin support for automatic backups
 
     CPrivateSendClientManager() :
         vecMasternodesUsed(),
@@ -234,17 +228,21 @@ public:
         nMinBlocksToWait(1),
         strAutoDenomResult(),
         nCachedBlockHeight(0),
+        nPrivateSendRounds(DEFAULT_PRIVATESEND_ROUNDS),
+        nPrivateSendRandomRounds(PRIVATESEND_RANDOM_ROUNDS),
+        nPrivateSendAmount(DEFAULT_PRIVATESEND_AMOUNT),
+        nPrivateSendDenomsGoal(DEFAULT_PRIVATESEND_DENOMS_GOAL),
+        nPrivateSendDenomsHardCap(DEFAULT_PRIVATESEND_DENOMS_HARDCAP),
+        fEnablePrivateSend(false),
+        fPrivateSendRunning(false),
+        fPrivateSendMultiSession(DEFAULT_PRIVATESEND_MULTISESSION),
         nCachedNumBlocks(std::numeric_limits<int>::max()),
-        fCreateAutoBackups(true),
-        mixingWallet(nullptr)
+        fCreateAutoBackups(true)
     {
     }
 
-    void ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, CConnman& connman, bool enable_bip61);
+    void ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, CConnman& connman);
 
-    bool StartMixing(CWallet* pwallet);
-    void StopMixing();
-    bool IsMixing() const;
     void ResetPool();
 
     std::string GetStatuses();
@@ -254,9 +252,6 @@ public:
 
     /// Passively run mixing in the background according to the configuration in settings
     bool DoAutomaticDenominating(CConnman& connman, bool fDryRun = false);
-
-    bool TrySubmitDenominate(const CService& mnAddr, CConnman& connman);
-    bool MarkAlreadyJoinedQueueAsTried(CPrivateSendQueue& dsq) const;
 
     void CheckTimeout();
 
@@ -274,56 +269,4 @@ public:
     void GetJsonInfo(UniValue& obj) const;
 };
 
-/* Application wide mixing options */
-class CPrivateSendClientOptions
-{
-public:
-    static int GetSessions() { return CPrivateSendClientOptions::Get().nPrivateSendSessions; }
-    static int GetRounds() { return CPrivateSendClientOptions::Get().nPrivateSendRounds; }
-    static int GetAmount() { return CPrivateSendClientOptions::Get().nPrivateSendAmount; }
-    static int GetDenomsGoal() { return CPrivateSendClientOptions::Get().nPrivateSendDenomsGoal; }
-    static int GetDenomsHardCap() { return CPrivateSendClientOptions::Get().nPrivateSendDenomsHardCap; }
-
-    static void SetEnabled(bool fEnabled);
-    static void SetMultiSessionEnabled(bool fEnabled);
-    static void SetRounds(int nRounds);
-    static void SetAmount(CAmount amount);
-
-    static int IsEnabled() { return CPrivateSendClientOptions::Get().fEnablePrivateSend; }
-    static int IsMultiSessionEnabled() { return CPrivateSendClientOptions::Get().fPrivateSendMultiSession; }
-
-    static void GetJsonInfo(UniValue& obj);
-
-private:
-    static CPrivateSendClientOptions* _instance;
-    static std::once_flag onceFlag;
-
-    CCriticalSection cs_ps_options;
-    int nPrivateSendSessions;
-    int nPrivateSendRounds;
-    int nPrivateSendAmount;
-    int nPrivateSendDenomsGoal;
-    int nPrivateSendDenomsHardCap;
-    bool fEnablePrivateSend;
-    bool fPrivateSendMultiSession;
-
-    CPrivateSendClientOptions() :
-        nPrivateSendRounds(DEFAULT_PRIVATESEND_ROUNDS),
-        nPrivateSendAmount(DEFAULT_PRIVATESEND_AMOUNT),
-        nPrivateSendDenomsGoal(DEFAULT_PRIVATESEND_DENOMS_GOAL),
-        nPrivateSendDenomsHardCap(DEFAULT_PRIVATESEND_DENOMS_HARDCAP),
-        fEnablePrivateSend(false),
-        fPrivateSendMultiSession(DEFAULT_PRIVATESEND_MULTISESSION)
-    {
-    }
-
-    CPrivateSendClientOptions(const CPrivateSendClientOptions& other) = delete;
-    CPrivateSendClientOptions& operator=(const CPrivateSendClientOptions&) = delete;
-
-    static CPrivateSendClientOptions& Get();
-    static void Init();
-};
-
-void DoPrivateSendMaintenance(CConnman& connman);
-
-#endif // BITCOIN_PRIVATESEND_PRIVATESEND_CLIENT_H
+#endif

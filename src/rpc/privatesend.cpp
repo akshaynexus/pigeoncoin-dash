@@ -8,6 +8,7 @@
 #endif // ENABLE_WALLET
 #include <privatesend/privatesend-server.h>
 #include <rpc/server.h>
+#include <rpc/safemode.h>
 
 #include <univalue.h>
 
@@ -29,10 +30,12 @@ UniValue privatesend(const JSONRPCRequest& request)
             "  reset       - Reset mixing\n"
         );
 
+    ObserveSafeMode();
+
     if (fMasternodeMode)
         throw JSONRPCError(RPC_INTERNAL_ERROR, "Client-side mixing is not supported on masternodes");
 
-    if (!CPrivateSendClientOptions::IsEnabled()) {
+    if (!privateSendClient.fEnablePrivateSend) {
         if (!gArgs.GetBoolArg("-enableprivatesend", true)) {
             // otherwise it's on by default, unless cmd line option says otherwise
             throw JSONRPCError(RPC_INTERNAL_ERROR, "Mixing is disabled via -enableprivatesend=0 command line option, remove it to enable mixing again");
@@ -43,8 +46,6 @@ UniValue privatesend(const JSONRPCRequest& request)
         }
     }
 
-    auto it = privateSendClientManagers.find(pwallet->GetName());
-
     if (request.params[0].get_str() == "start") {
         {
             LOCK(pwallet->cs_wallet);
@@ -52,21 +53,18 @@ UniValue privatesend(const JSONRPCRequest& request)
                 throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please unlock wallet for mixing with walletpassphrase first.");
         }
 
-        if (!it->second->StartMixing(pwallet)) {
-            throw JSONRPCError(RPC_INTERNAL_ERROR, "Mixing has been started already.");
-        }
-
-        bool result = it->second->DoAutomaticDenominating(*g_connman);
-        return "Mixing " + (result ? "started successfully" : ("start failed: " + it->second->GetStatuses() + ", will retry"));
+        privateSendClient.fPrivateSendRunning = true;
+        bool result = privateSendClient.DoAutomaticDenominating(*g_connman);
+        return "Mixing " + (result ? "started successfully" : ("start failed: " + privateSendClient.GetStatuses() + ", will retry"));
     }
 
     if (request.params[0].get_str() == "stop") {
-        it->second->StopMixing();
+        privateSendClient.fPrivateSendRunning = false;
         return "Mixing was stopped";
     }
 
     if (request.params[0].get_str() == "reset") {
-        it->second->ResetPool();
+        privateSendClient.ResetPool();
         return "Mixing was reset";
     }
 
@@ -91,13 +89,14 @@ UniValue getprivatesendinfo(const JSONRPCRequest& request)
                 "\nResult (for regular nodes):\n"
                 "{\n"
                 "  \"enabled\": true|false,             (bool) Whether mixing functionality is enabled\n"
+                "  \"running\": true|false,             (bool) Whether mixing is currently running\n"
                 "  \"multisession\": true|false,        (bool) Whether PrivateSend Multisession option is enabled\n"
                 "  \"max_sessions\": xxx,               (numeric) How many parallel mixing sessions can there be at once\n"
                 "  \"max_rounds\": xxx,                 (numeric) How many rounds to mix\n"
                 "  \"max_amount\": xxx,                 (numeric) Target PrivateSend balance in " + CURRENCY_UNIT + "\n"
-                "  \"max_denoms\": xxx,                 (numeric) How many inputs of each denominated amount to create\n"
+                "  \"denoms_goal\": xxx,                (numeric) How many inputs of each denominated amount to target\n"
+                "  \"denoms_hardcap\": xxx,             (numeric) Maximum limit of how many inputs of each denominated amount to create\n"
                 "  \"queue_size\": xxx,                 (numeric) How many queues there are currently on the network\n"
-                "  \"running\": true|false,             (bool) Whether mixing is currently running\n"
                 "  \"sessions\":                        (array of json objects)\n"
                 "    [\n"
                 "      {\n"
@@ -135,19 +134,14 @@ UniValue getprivatesendinfo(const JSONRPCRequest& request)
 
 
 #ifdef ENABLE_WALLET
-
-    CPrivateSendClientOptions::GetJsonInfo(obj);
-
-    obj.pushKV("queue_size", privateSendClientQueueManager.GetQueueSize());
+    privateSendClient.GetJsonInfo(obj);
 
     CWallet* const pwallet = GetWalletForJSONRPCRequest(request);
     if (!pwallet) {
         return obj;
     }
 
-    privateSendClientManagers.at(pwallet->GetName())->GetJsonInfo(obj);
-
-    obj.pushKV("keys_left",     pwallet->nKeysLeftSinceAutoBackup);
+    obj.push_back(Pair("keys_left",     pwallet->nKeysLeftSinceAutoBackup));
     obj.push_back(Pair("warnings",      pwallet->nKeysLeftSinceAutoBackup < PRIVATESEND_KEYS_THRESHOLD_WARNING
                                         ? "WARNING: keypool is almost depleted!" : ""));
 #endif // ENABLE_WALLET

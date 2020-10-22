@@ -2,8 +2,10 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <llmq/quorums.h>
 #include <llmq/quorums_chainlocks.h>
 #include <llmq/quorums_instantsend.h>
+#include <llmq/quorums_signing.h>
 #include <llmq/quorums_utils.h>
 
 #include <chain.h>
@@ -90,7 +92,7 @@ CChainLockSig CChainLocksHandler::GetBestChainLock()
 
 void CChainLocksHandler::ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, CConnman& connman)
 {
-    if (!isEnforced) {
+    if (!sporkManager.IsSporkActive(SPORK_19_CHAINLOCKS_ENABLED)) {
         return;
     }
 
@@ -225,7 +227,7 @@ void CChainLocksHandler::CheckActiveState()
     bool fDIP0008Active;
     {
         LOCK(cs_main);
-        fDIP0008Active = chainActive.Tip() && VersionBitsState(chainActive.Tip()->pprev, Params().GetConsensus(), Consensus::DEPLOYMENT_DIP0008, versionbitscache) == ThresholdState::ACTIVE;
+        fDIP0008Active = chainActive.Tip() && VersionBitsState(chainActive.Tip()->pprev, Params().GetConsensus(), Consensus::DEPLOYMENT_DIP0008, versionbitscache) == THRESHOLD_ACTIVE;
     }
 
     LOCK(cs);
@@ -273,7 +275,7 @@ void CChainLocksHandler::TrySignChainTip()
     {
         LOCK(cs);
 
-        if (!isEnforced) {
+        if (!isSporkActive) {
             return;
         }
 
@@ -469,7 +471,7 @@ bool CChainLocksHandler::IsTxSafeForMining(const uint256& txid)
     int64_t txAge = 0;
     {
         LOCK(cs);
-        if (!isEnforced) {
+        if (!isSporkActive) {
             return true;
         }
         auto it = txFirstSeenTime.find(txid);
@@ -565,7 +567,7 @@ void CChainLocksHandler::HandleNewRecoveredSig(const llmq::CRecoveredSig& recove
     {
         LOCK(cs);
 
-        if (!isEnforced) {
+        if (!isSporkActive) {
             return;
         }
 

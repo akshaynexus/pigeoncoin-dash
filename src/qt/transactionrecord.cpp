@@ -5,6 +5,7 @@
 
 #include <qt/transactionrecord.h>
 
+#include <base58.h>
 #include <consensus/consensus.h>
 #include <validation.h>
 #include <timedata.h>
@@ -55,7 +56,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 sub.involvesWatchAddress = mine & ISMINE_WATCH_ONLY;
                 if (ExtractDestination(txout.scriptPubKey, address) && IsMine(*wallet, address))
                 {
-                    // Received by Pigeon Address
+                    // Received by Dash Address
                     sub.type = TransactionRecord::RecvWithAddress;
                     sub.strAddress = EncodeDestination(address);
                     sub.txDest = address;
@@ -151,13 +152,16 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 } else {
                     bool fMakeCollateral{false};
                     if (wtx.tx->vout.size() == 2) {
-                        CAmount nMaxCollateralAmount = CPrivateSend::GetMaxCollateralAmount();
-                        CAmount nPreMaxCollateralAmount = nMaxCollateralAmount  - CPrivateSend::GetCollateralAmount();
-                        fMakeCollateral =
-                            wtx.tx->vout[0].nValue == nMaxCollateralAmount ||
-                            wtx.tx->vout[1].nValue == nMaxCollateralAmount ||
-                            (wtx.tx->vout[0].nValue == nPreMaxCollateralAmount && CPrivateSend::IsCollateralAmount(wtx.tx->vout[1].nValue)) ||
-                            (wtx.tx->vout[1].nValue == nPreMaxCollateralAmount && CPrivateSend::IsCollateralAmount(wtx.tx->vout[0].nValue));
+                        CAmount nAmount0 = wtx.tx->vout[0].nValue;
+                        CAmount nAmount1 = wtx.tx->vout[1].nValue;
+                        // <case1>, see CPrivateSendClientSession::MakeCollateralAmounts
+                        fMakeCollateral = (nAmount0 == CPrivateSend::GetMaxCollateralAmount() && !CPrivateSend::IsDenominatedAmount(nAmount1) && nAmount1 >= CPrivateSend::GetCollateralAmount()) ||
+                                          (nAmount1 == CPrivateSend::GetMaxCollateralAmount() && !CPrivateSend::IsDenominatedAmount(nAmount0) && nAmount0 >= CPrivateSend::GetCollateralAmount()) ||
+                        // <case2>, see CPrivateSendClientSession::MakeCollateralAmounts
+                                          (nAmount0 == nAmount1 && CPrivateSend::IsCollateralAmount(nAmount0));
+                    } else if (wtx.tx->vout.size() == 1) {
+                        // <case3>, see CPrivateSendClientSession::MakeCollateralAmounts
+                        fMakeCollateral = CPrivateSend::IsCollateralAmount(wtx.tx->vout[0].nValue);
                     }
                     if (fMakeCollateral) {
                         sub.type = TransactionRecord::PrivateSendMakeCollaterals;
@@ -217,7 +221,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 CTxDestination address;
                 if (ExtractDestination(txout.scriptPubKey, address))
                 {
-                    // Sent to Pigeon Address
+                    // Sent to Dash Address
                     sub.type = TransactionRecord::SendToAddress;
                     sub.strAddress = EncodeDestination(address);
                     sub.txDest = address;
@@ -318,10 +322,6 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx, int chainLockHeight)
             if (wtx.IsInMainChain())
             {
                 status.matures_in = wtx.GetBlocksToMaturity();
-
-                // Check if the block was requested by anyone
-                if (GetAdjustedTime() - wtx.nTimeReceived > 2 * 60 && wtx.GetRequestCount() == 0)
-                    status.status = TransactionStatus::MaturesWarning;
             }
             else
             {
@@ -350,10 +350,6 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx, int chainLockHeight)
         {
             status.status = TransactionStatus::Conflicted;
         }
-        else if (GetAdjustedTime() - wtx.nTimeReceived > 2 * 60 && wtx.GetRequestCount() == 0)
-        {
-            status.status = TransactionStatus::Offline;
-        }
         else if (status.depth == 0)
         {
             status.status = TransactionStatus::Unconfirmed;
@@ -379,7 +375,7 @@ bool TransactionRecord::statusUpdateNeeded(int chainLockHeight) const
         || (!status.lockedByChainLocks && status.cachedChainLockHeight != chainLockHeight);
 }
 
-QString TransactionRecord::getTxHash() const
+QString TransactionRecord::getTxID() const
 {
     return QString::fromStdString(hash.ToString());
 }

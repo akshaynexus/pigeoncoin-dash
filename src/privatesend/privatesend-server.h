@@ -2,8 +2,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_PRIVATESEND_PRIVATESEND_SERVER_H
-#define BITCOIN_PRIVATESEND_PRIVATESEND_SERVER_H
+#ifndef PRIVATESENDSERVER_H
+#define PRIVATESENDSERVER_H
 
 #include <net.h>
 #include <privatesend/privatesend.h>
@@ -71,7 +71,7 @@ public:
         vecSessionCollaterals(),
         fUnitTest(false) {}
 
-    void ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, CConnman& connman, bool enable_bip61);
+    void ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, CConnman& connman);
 
     bool HasTimedOut();
     void CheckTimeout(CConnman& connman);
@@ -82,4 +82,4 @@ public:
     void GetJsonInfo(UniValue& obj) const;
 };
 
-#endif // BITCOIN_PRIVATESEND_PRIVATESEND_SERVER_H
+#endif
