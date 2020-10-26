@@ -59,7 +59,8 @@ public:
     };
 
     const Consensus::Params& GetConsensus() const { return consensus; }
-    const CMessageHeader::MessageStartChars& MessageStart() const { return GetAdjustedTime() > pchMessageForktime ? MessageStartNew() : MessageStartOld(); }
+    const bool PastForkTime() const {return GetAdjustedTime() > pchMessageForktime; }
+    const CMessageHeader::MessageStartChars& MessageStart() const { return  PastForkTime() ? MessageStartNew() : MessageStartOld(); }
     const CMessageHeader::MessageStartChars& MessageStartOld() const {return pchMessageStart;}
     const CMessageHeader::MessageStartChars& MessageStartNew() const {return pchMessageStartNew;}
     int GetDefaultPort() const { return nDefaultPort; }
