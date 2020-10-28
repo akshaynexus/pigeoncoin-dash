@@ -679,6 +679,13 @@ void CInstantSendManager::ProcessMessage(CNode* pfrom, const std::string& strCom
 
 void CInstantSendManager::ProcessMessageInstantSendLock(CNode* pfrom, const llmq::CInstantSendLock& islock, CConnman& connman)
 {
+    auto hash = ::SerializeHash(islock);
+
+    {
+        LOCK(cs_main);
+        EraseObjectRequest(pfrom->GetId(), CInv(MSG_ISLOCK, hash));
+    }
+
     bool ban = false;
     if (!PreVerifyInstantSendLock(pfrom->GetId(), islock, ban)) {
         if (ban) {
@@ -687,8 +694,6 @@ void CInstantSendManager::ProcessMessageInstantSendLock(CNode* pfrom, const llmq
         }
         return;
     }
-
-    auto hash = ::SerializeHash(islock);
 
     LOCK(cs);
     if (db.GetInstantSendLockByHash(hash) != nullptr) {
@@ -882,11 +887,6 @@ std::unordered_set<uint256> CInstantSendManager::ProcessPendingInstantSendLocks(
 
 void CInstantSendManager::ProcessInstantSendLock(NodeId from, const uint256& hash, const CInstantSendLock& islock)
 {
-    {
-        LOCK(cs_main);
-        EraseObjectRequest(from, CInv(MSG_ISLOCK, hash));
-    }
-
     CTransactionRef tx;
     uint256 hashBlock;
     const CBlockIndex* pindexMined = nullptr;
