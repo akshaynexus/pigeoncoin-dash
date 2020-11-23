@@ -16,8 +16,8 @@ BEGIN
     BEGIN
         BLOCK "040904E4" // U.S. English - multilingual (hex)
         BEGIN
-            VALUE "CompanyName",        "Dash"
-            VALUE "FileDescription",    "pigeond (Dash node with a JSON-RPC server)"
+            VALUE "CompanyName",        "Pigeon"
+            VALUE "FileDescription",    "pigeond (Pigeon node with a JSON-RPC server)"
             VALUE "FileVersion",        VER_FILEVERSION_STR
             VALUE "InternalName",       "pigeond"
             VALUE "LegalCopyright",     COPYRIGHT_STR

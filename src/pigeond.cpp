@@ -30,8 +30,8 @@
  *
  * \section intro_sec Introduction
  *
- * This is the developer documentation of the reference client for an experimental new digital currency called Dash (https://www.pigeon.org/),
- * which enables instant payments to anyone, anywhere in the world. Dash uses peer-to-peer technology to operate
+ * This is the developer documentation of the reference client for an experimental new digital currency called Pigeon (https://www.pigeon.org/),
+ * which enables instant payments to anyone, anywhere in the world. Pigeon uses peer-to-peer technology to operate
  * with no central authority: managing transactions and issuing money are carried out collectively by the network.
  *
  * The software is a community-driven open source project, released under the MIT license.
@@ -128,7 +128,7 @@ bool AppInit(int argc, char* argv[])
             }
         }
 
-        // -server defaults to true for dashd but not for the GUI so do this here
+        // -server defaults to true for pigeond but not for the GUI so do this here
         gArgs.SoftSetBoolArg("-server", true);
         // Set this early so that parameter interactions go to console
         InitLogging();

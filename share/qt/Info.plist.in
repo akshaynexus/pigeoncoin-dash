@@ -43,7 +43,7 @@
       <key>CFBundleTypeRole</key>
       <string>Editor</string>
       <key>CFBundleURLName</key>
-      <string>org.pigeon.DashPayment</string>
+      <string>org.pigeon.PigeonPayment</string>
       <key>CFBundleURLSchemes</key>
       <array>
         <string>pigeon</string>
@@ -57,7 +57,7 @@
       <key>UTTypeIdentifier</key>
       <string>org.pigeon.paymentrequest</string>
       <key>UTTypeDescription</key>
-      <string>Dash payment request</string>
+      <string>Pigeon payment request</string>
       <key>UTTypeConformsTo</key>
       <array>
         <string>public.data</string>

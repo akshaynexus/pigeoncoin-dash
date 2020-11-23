@@ -59,7 +59,7 @@ builddocker: &builddocker
   stage: build docker
   script:
     # no need to run tests again here
-    - if [ "$DOCKER_BUILD" = "true" ]; then $DOCKER_RUN_IN_BUILDER ./ci/build_depends.sh && $DOCKER_RUN_IN_BUILDER ./ci/build_src.sh && BUILD_DIR=build-ci/dashcore-$BUILD_TARGET ./docker/build-docker.sh; fi
+    - if [ "$DOCKER_BUILD" = "true" ]; then $DOCKER_RUN_IN_BUILDER ./ci/build_depends.sh && $DOCKER_RUN_IN_BUILDER ./ci/build_src.sh && BUILD_DIR=build-ci/pigeoncore-$BUILD_TARGET ./docker/build-docker.sh; fi
 
 jobs:
   include:
@@ -120,7 +120,7 @@ jobs:
 
 before_cache:
   # Save builder image
-  - docker save dash-builder-$BUILD_TARGET-$TRAVIS_JOB_NUMBER $(docker history -q dash-builder-$BUILD_TARGET-$TRAVIS_JOB_NUMBER | grep -v \<missing\>) | gzip -2 > $HOME/cache/docker/dash-builder-$BUILD_TARGET.tar.gz
+  - docker save pigeon-builder-$BUILD_TARGET-$TRAVIS_JOB_NUMBER $(docker history -q pigeon-builder-$BUILD_TARGET-$TRAVIS_JOB_NUMBER | grep -v \<missing\>) | gzip -2 > $HOME/cache/docker/pigeon-builder-$BUILD_TARGET.tar.gz
 
 before_install:
     - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
@@ -135,10 +135,10 @@ before_script:
     # See https://github.com/travis-ci/travis-ci/issues/4704. If this gets fixed, this line can also be removed.
     - python3 -c 'import os,sys,fcntl; flags = fcntl.fcntl(sys.stdout, fcntl.F_GETFL); fcntl.fcntl(sys.stdout, fcntl.F_SETFL, flags&~os.O_NONBLOCK);'
     # Build docker image only for develop branch of the main repo
-    - if [ "$TRAVIS_REPO_SLUG" != "dashpay/dash" -o "$TRAVIS_BRANCH" != "develop" -o "$TRAVIS_PULL_REQUEST" != "false" ]; then export DOCKER_BUILD="false"; echo DOCKER_BUILD=$DOCKER_BUILD; fi
+    - if [ "$TRAVIS_REPO_SLUG" != "pigeonpay/pigeon" -o "$TRAVIS_BRANCH" != "develop" -o "$TRAVIS_PULL_REQUEST" != "false" ]; then export DOCKER_BUILD="false"; echo DOCKER_BUILD=$DOCKER_BUILD; fi
     # TODO: Check keys and signed commits
-    #- if [ "$TRAVIS_REPO_SLUG" = "dashpay/dash" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then while read LINE; do travis_retry gpg --keyserver hkp://subset.pool.sks-keyservers.net --recv-keys $LINE; done < contrib/verify-commits/trusted-keys; fi
-    #- if [ "$TRAVIS_REPO_SLUG" = "dashpay/dash" -a "$TRAVIS_EVENT_TYPE" = "cron" ]; then travis_wait 30 contrib/verify-commits/verify-commits.sh; fi
+    #- if [ "$TRAVIS_REPO_SLUG" = "pigeonpay/pigeon" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then while read LINE; do travis_retry gpg --keyserver hkp://subset.pool.sks-keyservers.net --recv-keys $LINE; done < contrib/verify-commits/trusted-keys; fi
+    #- if [ "$TRAVIS_REPO_SLUG" = "pigeonpay/pigeon" -a "$TRAVIS_EVENT_TYPE" = "cron" ]; then travis_wait 30 contrib/verify-commits/verify-commits.sh; fi
 after_script:
     - echo $TRAVIS_COMMIT_RANGE
     - echo $TRAVIS_COMMIT_LOG

@@ -104,9 +104,9 @@ QModelIndex FindTx(const QAbstractItemModel& model, const uint256& txid)
 //
 // This also requires overriding the default minimal Qt platform:
 //
-//     src/qt/test/test_dash-qt -platform xcb      # Linux
-//     src/qt/test/test_dash-qt -platform windows  # Windows
-//     src/qt/test/test_dash-qt -platform cocoa    # macOS
+//     src/qt/test/test_pigeon-qt -platform xcb      # Linux
+//     src/qt/test/test_pigeon-qt -platform windows  # Windows
+//     src/qt/test/test_pigeon-qt -platform cocoa    # macOS
 void TestGUI()
 {
     GUIUtil::loadFonts();
@@ -184,7 +184,7 @@ void TestGUI()
             QString paymentText = rlist->toPlainText();
             QStringList paymentTextList = paymentText.split('\n');
             QCOMPARE(paymentTextList.at(0), QString("Payment information"));
-            QVERIFY(paymentTextList.at(2).indexOf(QString("URI: dash:")) != -1);
+            QVERIFY(paymentTextList.at(2).indexOf(QString("URI: pigeon:")) != -1);
             QVERIFY(paymentTextList.at(3).indexOf(QString("Address:")) != -1);
             QCOMPARE(paymentTextList.at(4), QString("Amount: 0.00000001 ") + BitcoinUnits::name(unit));
             QCOMPARE(paymentTextList.at(5), QString("Label: TEST_LABEL_1"));

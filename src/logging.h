@@ -62,7 +62,7 @@ namespace BCLog {
         QT          = (1 << 19),
         LEVELDB     = (1 << 20),
 
-        //Start Dash
+        //Start Pigeon
         CHAINLOCKS  = ((uint64_t)1 << 32),
         GOBJECT     = ((uint64_t)1 << 33),
         INSTANTSEND = ((uint64_t)1 << 34),
@@ -75,7 +75,7 @@ namespace BCLog {
         PRIVATESEND = ((uint64_t)1 << 41),
         SPORK       = ((uint64_t)1 << 42),
         NETCONN     = ((uint64_t)1 << 43),
-        //End Dash
+        //End Pigeon
 
         NET_NETCONN = NET | NETCONN, // use this to have something logged in NET and NETCONN as well
 

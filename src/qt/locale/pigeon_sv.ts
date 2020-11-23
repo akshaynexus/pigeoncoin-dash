@@ -59,11 +59,11 @@
     </message>
     <message>
         <source>These are your Pigeon Addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>De här är dina Dash-adresser för att skicka betalningar. Kontrollera alltid mängden och mottagaradressen innan du skickar mynt.</translation>
+        <translation>De här är dina Pigeon-adresser för att skicka betalningar. Kontrollera alltid mängden och mottagaradressen innan du skickar mynt.</translation>
     </message>
     <message>
         <source>These are your Pigeon Addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
-        <translation>De här är dina Dash-adresser för betalningsmottagningar. Det rekommenderas att använda en ny mottagaradress för varje transaktion.</translation>
+        <translation>De här är dina Pigeon-adresser för betalningsmottagningar. Det rekommenderas att använda en ny mottagaradress för varje transaktion.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -176,8 +176,8 @@
         <translation>Plånbok krypterad</translation>
     </message>
     <message>
-        <source>Dash will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your pigeons from being stolen by malware infecting your computer.</source>
-        <translation>Dash kommer nu att färdigställa krypteringsprocessen. Kom ihåg att krypteringen av din plånbok inte kan skydda dig helt och hållet från att dina Dash stjäls av skadeprogram som har infekterat din dator.</translation>
+        <source>Pigeon will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your pigeons from being stolen by malware infecting your computer.</source>
+        <translation>Pigeon kommer nu att färdigställa krypteringsprocessen. Kom ihåg att krypteringen av din plånbok inte kan skydda dig helt och hållet från att dina Pigeon stjäls av skadeprogram som har infekterat din dator.</translation>
     </message>
     <message>
         <source>IMPORTANT: Any previous backups you have made of your wallet file should be replaced with the newly generated, encrypted wallet file. For security reasons, previous backups of the unencrypted wallet file will become useless as soon as you start using the new, encrypted wallet.</source>
@@ -245,7 +245,7 @@
     </message>
     <message>
         <source>Send coins to a Pigeon Address</source>
-        <translation>Skicka mynt till en Dash-adress</translation>
+        <translation>Skicka mynt till en Pigeon-adress</translation>
     </message>
     <message>
         <source>&amp;Receive</source>
@@ -253,7 +253,7 @@
     </message>
     <message>
         <source>Request payments (generates QR codes and pigeon: URIs)</source>
-        <translation>Begär betalningar (genererar QR-koder och Dash:-URI:s)</translation>
+        <translation>Begär betalningar (genererar QR-koder och Pigeon:-URI:s)</translation>
     </message>
     <message>
         <source>&amp;Transactions</source>
@@ -288,8 +288,8 @@
         <translation>&amp;Alternativ...</translation>
     </message>
     <message>
-        <source>Modify configuration options for Dash</source>
-        <translation>Anpassa konfigurationsalternatv för Dash</translation>
+        <source>Modify configuration options for Pigeon</source>
+        <translation>Anpassa konfigurationsalternatv för Pigeon</translation>
     </message>
     <message>
         <source>&amp;Show / Hide</source>
@@ -341,7 +341,7 @@
     </message>
     <message>
         <source>Sign messages with your Pigeon Addresses to prove you own them</source>
-        <translation>Signera meddelanden med dina Dash-adresser för att bevisa att du äger dem</translation>
+        <translation>Signera meddelanden med dina Pigeon-adresser för att bevisa att du äger dem</translation>
     </message>
     <message>
         <source>&amp;Verify message...</source>
@@ -349,7 +349,7 @@
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Pigeon Addresses</source>
-        <translation>Bekräfta meddelanden för att garantera att de signerades med de angivna Dash-adresserna</translation>
+        <translation>Bekräfta meddelanden för att garantera att de signerades med de angivna Pigeon-adresserna</translation>
     </message>
     <message>
         <source>&amp;Information</source>
@@ -405,15 +405,15 @@
     </message>
     <message>
         <source>Open a pigeon: URI or payment request</source>
-        <translation>Öppna en Dash-URI eller betalningsbegäran</translation>
+        <translation>Öppna en Pigeon-URI eller betalningsbegäran</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
         <translation>&amp;Kommandoradalternativ</translation>
     </message>
     <message>
-        <source>Show the Pigeon Core help message to get a list with possible Dash command-line options</source>
-        <translation>Visa Pigeon Core-hjälpmeddelandet för att få en lista med möjliga Dash-kommandoradalternativ</translation>
+        <source>Show the Pigeon Core help message to get a list with possible Pigeon command-line options</source>
+        <translation>Visa Pigeon Core-hjälpmeddelandet för att få en lista med möjliga Pigeon-kommandoradalternativ</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -790,16 +790,16 @@ Adress: %4
         <translation>Darksend-konfiguration</translation>
     </message>
     <message>
-        <source>Darksend was successfully set to basic (%1 and 2 rounds). You can change this at any time by opening Dash's configuration screen.</source>
-        <translation>Darksend ställdes framgångsrikt om till grundläggande (%1 och 2 omgångar). Du kan ändra detta när som helst genom att öppna Dash:s konfigurationsskärm.</translation>
+        <source>Darksend was successfully set to basic (%1 and 2 rounds). You can change this at any time by opening Pigeon's configuration screen.</source>
+        <translation>Darksend ställdes framgångsrikt om till grundläggande (%1 och 2 omgångar). Du kan ändra detta när som helst genom att öppna Pigeon:s konfigurationsskärm.</translation>
     </message>
     <message>
-        <source>Darksend was successfully set to high (%1 and 8 rounds). You can change this at any time by opening Dash's configuration screen.</source>
-        <translation>Darksend ställdes framgångsrikt in på hög (%1 och 8 omgångar). Du kan ändra detta när som helst genom att öppna Dash:s konfigurationsskärm.</translation>
+        <source>Darksend was successfully set to high (%1 and 8 rounds). You can change this at any time by opening Pigeon's configuration screen.</source>
+        <translation>Darksend ställdes framgångsrikt in på hög (%1 och 8 omgångar). Du kan ändra detta när som helst genom att öppna Pigeon:s konfigurationsskärm.</translation>
     </message>
     <message>
-        <source>Darksend was successfully set to maximum (%1 and 16 rounds). You can change this at any time by opening Dash's configuration screen.</source>
-        <translation>Darksend ställdes framgångsrikt in på maximal (%1 och 16 omgångar). Du kan ändra detta när som helst genom att öppna Dash:s konfigurationsskärm</translation>
+        <source>Darksend was successfully set to maximum (%1 and 16 rounds). You can change this at any time by opening Pigeon's configuration screen.</source>
+        <translation>Darksend ställdes framgångsrikt in på maximal (%1 och 16 omgångar). Du kan ändra detta när som helst genom att öppna Pigeon:s konfigurationsskärm</translation>
     </message>
 </context>
 <context>
@@ -842,7 +842,7 @@ Adress: %4
     </message>
     <message>
         <source>The entered address "%1" is not a valid Pigeon Address.</source>
-        <translation>Den angivna adressen "%1" är inte en giltig Dash-adress.</translation>
+        <translation>Den angivna adressen "%1" är inte en giltig Pigeon-adress.</translation>
     </message>
     <message>
         <source>The entered address "%1" is already in the address book.</source>
@@ -939,8 +939,8 @@ Adress: %4
         <translation>Då detta är första gången programmet startas kan du välja var Pigeon Core ska lagra sin data.</translation>
     </message>
     <message>
-        <source>Pigeon Core will download and store a copy of the Dash block chain. At least %1GB of data will be stored in this directory, and it will grow over time. The wallet will also be stored in this directory.</source>
-        <translation>Pigeon Core kommer att laddas ned och lagra en kopia av Dash:s blockkedja. Minst %1 GB data kommer att lagras i denna katalog och den kommer att växa med tiden. Plånboken kommer också att lagras i denna katalog.</translation>
+        <source>Pigeon Core will download and store a copy of the Pigeon block chain. At least %1GB of data will be stored in this directory, and it will grow over time. The wallet will also be stored in this directory.</source>
+        <translation>Pigeon Core kommer att laddas ned och lagra en kopia av Pigeon:s blockkedja. Minst %1 GB data kommer att lagras i denna katalog och den kommer att växa med tiden. Plånboken kommer också att lagras i denna katalog.</translation>
     </message>
     <message>
         <source>Use the default data directory</source>
@@ -989,12 +989,12 @@ Adress: %4
         <translation>&amp;Huvud</translation>
     </message>
     <message>
-        <source>Automatically start Dash after logging in to the system.</source>
-        <translation>Starta Dash automatiskt efter systeminloggning.</translation>
+        <source>Automatically start Pigeon after logging in to the system.</source>
+        <translation>Starta Pigeon automatiskt efter systeminloggning.</translation>
     </message>
     <message>
-        <source>&amp;Start Dash on system login</source>
-        <translation>&amp;Starta Dash vid systeminloggning</translation>
+        <source>&amp;Start Pigeon on system login</source>
+        <translation>&amp;Starta Pigeon vid systeminloggning</translation>
     </message>
     <message>
         <source>Size of &amp;database cache</source>
@@ -1021,8 +1021,8 @@ Adress: %4
         <translation>Denna mängd fungerar som en tröskel att stänga av Darksend då det har uppnåtts.</translation>
     </message>
     <message>
-        <source>Amount of Dash to keep anonymized</source>
-        <translation>Mängd Dash att bibehålla anonymiserade</translation>
+        <source>Amount of Pigeon to keep anonymized</source>
+        <translation>Mängd Pigeon att bibehålla anonymiserade</translation>
     </message>
     <message>
         <source>W&amp;allet</source>
@@ -1049,8 +1049,8 @@ Adress: %4
         <translation>&amp;Nätverk</translation>
     </message>
     <message>
-        <source>Automatically open the Dash client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Öppna Dash:s klientport automatiskt på routern. Detta fungerar bara om din router stöder UPnP och är aktiverad.</translation>
+        <source>Automatically open the Pigeon client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Öppna Pigeon:s klientport automatiskt på routern. Detta fungerar bara om din router stöder UPnP och är aktiverad.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -1101,8 +1101,8 @@ Adress: %4
         <translation>Användargränssnitt&amp;språk: </translation>
     </message>
     <message>
-        <source>The user interface language can be set here. This setting will take effect after restarting Dash.</source>
-        <translation>Användargränssnittspråket kan ställas in här. Denna inställning träder i kraft efter att Dash startats om.</translation>
+        <source>The user interface language can be set here. This setting will take effect after restarting Pigeon.</source>
+        <translation>Användargränssnittspråket kan ställas in här. Denna inställning träder i kraft efter att Pigeon startats om.</translation>
     </message>
     <message>
         <source>Language missing or translation incomplete? Help contributing translations here:
@@ -1182,8 +1182,8 @@ https://www.transifex.com/projects/p/pigeon/</translation>
         <translation>Formulär</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Dash network after a connection is established, but this process has not completed yet.</source>
-        <translation>Den visade informationen kan vara utdaterad. Din plånbok synkroniseras automatiskt med Dash-nätverket efter att en anslutning har etablerats men denna process har ännu inte slutförts.</translation>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Pigeon network after a connection is established, but this process has not completed yet.</source>
+        <translation>Den visade informationen kan vara utdaterad. Din plånbok synkroniseras automatiskt med Pigeon-nätverket efter att en anslutning har etablerats men denna process har ännu inte slutförts.</translation>
     </message>
     <message>
         <source>Available:</source>
@@ -1435,8 +1435,8 @@ https://www.transifex.com/projects/p/pigeon/</translation>
         <translation>Antal anslutningar</translation>
     </message>
     <message>
-        <source>Open the Dash debug log file from the current data directory. This can take a few seconds for large log files.</source>
-        <translation>Öppna Dashs avsökningsloggfil från den nuvarande datakatalogen. Detta kan ta ett par sekunder för stora loggfiler.</translation>
+        <source>Open the Pigeon debug log file from the current data directory. This can take a few seconds for large log files.</source>
+        <translation>Öppna Pigeons avsökningsloggfil från den nuvarande datakatalogen. Detta kan ta ett par sekunder för stora loggfiler.</translation>
     </message>
     <message>
         <source>&amp;Open</source>
@@ -1507,8 +1507,8 @@ https://www.transifex.com/projects/p/pigeon/</translation>
         <translation>Ut:</translation>
     </message>
     <message>
-        <source>Welcome to the Dash RPC console.</source>
-        <translation>Välkommen till Dashs RPC-konsol.</translation>
+        <source>Welcome to the Pigeon RPC console.</source>
+        <translation>Välkommen till Pigeons RPC-konsol.</translation>
     </message>
     <message>
         <source>Use up and down arrows to navigate history, and &lt;b&gt;Ctrl-L&lt;/b&gt; to clear screen.</source>
@@ -1542,8 +1542,8 @@ https://www.transifex.com/projects/p/pigeon/</translation>
         <translation>Åt&amp;eranvänd en befintlig mottagaradress (rekommenderas inte)</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Dash network.</source>
-        <translation>Ett valfritt meddelande att bifoga betalningsbegärandet vilket kommer att visas när begärandet öppnas. Observera: Meddelandet kommer inte att skickas med betalningen över Dash-nätverket.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Pigeon network.</source>
+        <translation>Ett valfritt meddelande att bifoga betalningsbegärandet vilket kommer att visas när begärandet öppnas. Observera: Meddelandet kommer inte att skickas med betalningen över Pigeon-nätverket.</translation>
     </message>
     <message>
         <source>&amp;Message:</source>
@@ -1900,7 +1900,7 @@ https://www.transifex.com/projects/p/pigeon/</translation>
     </message>
     <message>
         <source>Warning: Invalid Pigeon Address</source>
-        <translation>Varning: Ogiltig Dash-adress</translation>
+        <translation>Varning: Ogiltig Pigeon-adress</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -1958,8 +1958,8 @@ https://www.transifex.com/projects/p/pigeon/</translation>
         <translation>Meddelande:</translation>
     </message>
     <message>
-        <source>A message that was attached to the pigeon: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Dash network.</source>
-        <translation>Ett meddelande som bifogades till Dash: URI vilket kommer att lagras med transaktionen så att du vet. Observera: Meddelandet kommer inte att skickas över Dash-nätverket.</translation>
+        <source>A message that was attached to the pigeon: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Pigeon network.</source>
+        <translation>Ett meddelande som bifogades till Pigeon: URI vilket kommer att lagras med transaktionen så att du vet. Observera: Meddelandet kommer inte att skickas över Pigeon-nätverket.</translation>
     </message>
     <message>
         <source>This is an unverified payment request.</source>
@@ -2037,7 +2037,7 @@ https://www.transifex.com/projects/p/pigeon/</translation>
     </message>
     <message>
         <source>Sign the message to prove you own this Pigeon Address</source>
-        <translation>Signera meddelandet för att bevisa att du äger denna Dash-adress</translation>
+        <translation>Signera meddelandet för att bevisa att du äger denna Pigeon-adress</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -2061,7 +2061,7 @@ https://www.transifex.com/projects/p/pigeon/</translation>
     </message>
     <message>
         <source>Verify the message to ensure it was signed with the specified Pigeon Address</source>
-        <translation>Bekräfta meddelandet för att försäkra dig om att den signerades med den angivna Dash-adressen</translation>
+        <translation>Bekräfta meddelandet för att försäkra dig om att den signerades med den angivna Pigeon-adressen</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -2140,7 +2140,7 @@ https://www.transifex.com/projects/p/pigeon/</translation>
         <translation>Bitcoin Core-utvecklarna</translation>
     </message>
     <message>
-        <source>The Pigeon Core developers</source>
+        <source>The Dash Core developers</source>
         <translation>Pigeon Core-utvecklarna</translation>
     </message>
     <message>

@@ -3,7 +3,7 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-from test_framework.test_framework import DashTestFramework
+from test_framework.test_framework import PigeonTestFramework
 
 '''
 feature_llmq_dkgerrors.py
@@ -12,7 +12,7 @@ Simulate and check DKG errors
 
 '''
 
-class LLMQDKGErrors(DashTestFramework):
+class LLMQDKGErrors(PigeonTestFramework):
     def set_test_params(self):
         self.set_pigeon_test_params(4, 3, [["-whitelist=127.0.0.1"]] * 4, fast_dip3_enforcement=True)
         self.set_pigeon_dip8_activation(10)

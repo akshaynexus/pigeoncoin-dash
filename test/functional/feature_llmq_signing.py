@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.mininode import *
-from test_framework.test_framework import DashTestFramework
+from test_framework.test_framework import PigeonTestFramework
 from test_framework.util import *
 
 '''
@@ -14,7 +14,7 @@ Checks LLMQs signing sessions
 
 '''
 
-class LLMQSigningTest(DashTestFramework):
+class LLMQSigningTest(PigeonTestFramework):
     def set_test_params(self):
         self.set_pigeon_test_params(6, 5, fast_dip3_enforcement=True)
         self.set_pigeon_llmq_test_params(5, 3)

@@ -11,7 +11,7 @@
 
 /**
  * CBaseChainParams defines the base parameters (shared between pigeon-cli and pigeond)
- * of a given instance of the Dash system.
+ * of a given instance of the Pigeon system.
  */
 class CBaseChainParams
 {

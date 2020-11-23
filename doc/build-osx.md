@@ -33,11 +33,11 @@ Follow the instructions in [build-generic](build-generic.md)
 Running
 -------
 
-Dash Core is now available at `./src/pigeond`
+Pigeon Core is now available at `./src/pigeond`
 
 Before running, it's recommended you create an RPC configuration file.
 
-    echo -e "rpcuser=dashrpc\nrpcpassword=$(xxd -l 16 -p /dev/urandom)" > "/Users/${USER}/Library/Application Support/PigeonCore/pigeon.conf"
+    echo -e "rpcuser=pigeonrpc\nrpcpassword=$(xxd -l 16 -p /dev/urandom)" > "/Users/${USER}/Library/Application Support/PigeonCore/pigeon.conf"
 
     chmod 600 "/Users/${USER}/Library/Application Support/PigeonCore/pigeon.conf"
 
@@ -50,6 +50,6 @@ You can monitor the download process by looking at the debug.log file:
 Other commands:
 -------
 
-    ./src/dashd -daemon # Starts the dash daemon.
-    ./src/dash-cli --help # Outputs a list of command-line options.
-    ./src/dash-cli help # Outputs a list of RPC commands when the daemon is running.
+    ./src/pigeond -daemon # Starts the pigeon daemon.
+    ./src/pigeon-cli --help # Outputs a list of command-line options.
+    ./src/pigeon-cli help # Outputs a list of RPC commands when the daemon is running.

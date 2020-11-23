@@ -108,7 +108,7 @@ use old versions of Upstart and do not supply the start-stop-daemon utility.
 Copy pigeond.init to /etc/init.d/pigeond. Test by running `service pigeond start`.
 
 Using this script, you can adjust the path and flags to the pigeond program by
-setting the DASHD and FLAGS environment variables in the file
+setting the PGND and FLAGS environment variables in the file
 /etc/sysconfig/pigeond. You can also use the DAEMONOPTS environment variable here.
 
 ### Mac OS X

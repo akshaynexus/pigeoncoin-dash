@@ -3,7 +3,7 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 from test_framework.mininode import *
-from test_framework.test_framework import DashTestFramework
+from test_framework.test_framework import PigeonTestFramework
 from test_framework.util import assert_equal
 
 '''
@@ -34,7 +34,7 @@ class TestP2PConn(P2PInterface):
         return self.last_mnlistdiff
 
 
-class LLMQCoinbaseCommitmentsTest(DashTestFramework):
+class LLMQCoinbaseCommitmentsTest(PigeonTestFramework):
     def set_test_params(self):
         self.set_pigeon_test_params(4, 3, fast_dip3_enforcement=True)
         self.set_pigeon_dip8_activation(200)
@@ -53,7 +53,7 @@ class LLMQCoinbaseCommitmentsTest(DashTestFramework):
         mnList = self.test_getmnlistdiff(null_hash, self.nodes[0].getbestblockhash(), {}, [], expectedUpdated)
         expectedUpdated2 = expectedUpdated + []
 
-        # Register one more MN, but don't start it (that would fail as DashTestFramework doesn't support this atm)
+        # Register one more MN, but don't start it (that would fail as PigeonTestFramework doesn't support this atm)
         baseBlockHash = self.nodes[0].getbestblockhash()
         self.prepare_masternode(self.mn_count)
         new_mn = self.mninfo[self.mn_count]

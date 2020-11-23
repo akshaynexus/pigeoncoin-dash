@@ -27,7 +27,7 @@
 #define COPYRIGHT_HOLDERS "The %s developers"
 
 /* Copyright holder(s) */
-#define COPYRIGHT_HOLDERS_FINAL "The Pigeon Core developers"
+#define COPYRIGHT_HOLDERS_FINAL "The Dash Core developers"
 
 /* Replacement for %s in copyright holders string */
 #define COPYRIGHT_HOLDERS_SUBSTITUTION "Pigeon Core"

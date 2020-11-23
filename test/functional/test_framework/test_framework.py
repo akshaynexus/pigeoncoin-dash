@@ -88,9 +88,9 @@ class BitcoinTestFramework():
         parser.add_option("--nocleanup", dest="nocleanup", default=False, action="store_true",
                           help="Leave pigeonds and test.* datadir on exit or error")
         parser.add_option("--noshutdown", dest="noshutdown", default=False, action="store_true",
-                          help="Don't stop dashds after the test execution")
+                          help="Don't stop pigeonds after the test execution")
         parser.add_option("--srcdir", dest="srcdir", default=os.path.abspath(os.path.dirname(os.path.realpath(__file__)) + "/../../../src"),
-                          help="Source directory containing dashd/dash-cli (default: %default)")
+                          help="Source directory containing pigeond/pigeon-cli (default: %default)")
         parser.add_option("--cachedir", dest="cachedir", default=os.path.abspath(os.path.dirname(os.path.realpath(__file__)) + "/../../cache"),
                           help="Directory for caching pregenerated datadirs (default: %default)")
         parser.add_option("--tmpdir", dest="tmpdir", help="Root directory for datadirs")
@@ -108,9 +108,9 @@ class BitcoinTestFramework():
         parser.add_option("--pdbonfailure", dest="pdbonfailure", default=False, action="store_true",
                           help="Attach a python debugger if test fails")
         parser.add_option("--usecli", dest="usecli", default=False, action="store_true",
-                          help="use dash-cli instead of RPC for all commands")
-        parser.add_option("--dashd-arg", dest="dashd_extra_args", default=[], type='string', action='append',
-                          help="Pass extra args to all dashd instances")
+                          help="use pigeon-cli instead of RPC for all commands")
+        parser.add_option("--pigeond-arg", dest="pigeond_extra_args", default=[], type='string', action='append',
+                          help="Pass extra args to all pigeond instances")
         parser.add_option("--timeoutscale", dest="timeout_scale", default=1, type='int' ,
                           help="Scale the test timeouts by multiplying them with the here provided value (defaul: 1)")
         self.add_options(parser)
@@ -133,10 +133,10 @@ class BitcoinTestFramework():
 
         config = configparser.ConfigParser()
         config.read_file(open(self.options.configfile))
-        self.options.bitcoind = os.getenv("BITCOIND", default=config["environment"]["BUILDDIR"] + '/src/dashd' + config["environment"]["EXEEXT"])
-        self.options.bitcoincli = os.getenv("BITCOINCLI", default=config["environment"]["BUILDDIR"] + '/src/dash-cli' + config["environment"]["EXEEXT"])
+        self.options.bitcoind = os.getenv("BITCOIND", default=config["environment"]["BUILDDIR"] + '/src/pigeond' + config["environment"]["EXEEXT"])
+        self.options.bitcoincli = os.getenv("BITCOINCLI", default=config["environment"]["BUILDDIR"] + '/src/pigeon-cli' + config["environment"]["EXEEXT"])
 
-        self.extra_args_from_options = self.options.dashd_extra_args
+        self.extra_args_from_options = self.options.pigeond_extra_args
 
         # Set up temp directory and start logging
         if self.options.tmpdir:
@@ -184,7 +184,7 @@ class BitcoinTestFramework():
         else:
             for node in self.nodes:
                 node.cleanup_on_exit = False
-            self.log.info("Note: dashds were not stopped and may still be running")
+            self.log.info("Note: pigeonds were not stopped and may still be running")
 
         if not self.options.nocleanup and not self.options.noshutdown and success != TestStatus.FAILED:
             self.log.info("Cleaning up {} on exit".format(self.options.tmpdir))
@@ -273,7 +273,7 @@ class BitcoinTestFramework():
             self.nodes.append(TestNode(old_num_nodes + i, self.options.tmpdir, self.extra_args_from_options, rpchost=rpchost, timewait=timewait, bitcoind=binary[i], bitcoin_cli=self.options.bitcoincli, stderr=stderr, mocktime=self.mocktime, coverage_dir=self.options.coveragedir, extra_conf=extra_confs[i], extra_args=extra_args[i], use_cli=self.options.usecli))
 
     def start_node(self, i, *args, **kwargs):
-        """Start a dashd"""
+        """Start a pigeond"""
 
         node = self.nodes[i]
 
@@ -284,7 +284,7 @@ class BitcoinTestFramework():
             coverage.write_all_rpc_commands(self.options.coveragedir, node.rpc)
 
     def start_nodes(self, extra_args=None, stderr=None, *args, **kwargs):
-        """Start multiple dashds"""
+        """Start multiple pigeonds"""
 
         if extra_args is None:
             extra_args = [None] * self.num_nodes
@@ -529,7 +529,7 @@ class MasternodeInfo:
         self.collateral_vout = collateral_vout
 
 
-class DashTestFramework(BitcoinTestFramework):
+class PigeonTestFramework(BitcoinTestFramework):
     def set_pigeon_test_params(self, num_nodes, masterodes_count, extra_args=None, fast_dip3_enforcement=False):
         self.mn_count = masterodes_count
         self.num_nodes = num_nodes

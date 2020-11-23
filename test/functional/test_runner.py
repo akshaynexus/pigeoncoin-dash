@@ -58,12 +58,12 @@ TRAVIS_TIMEOUT_DURATION = 20 * 60
 BASE_SCRIPTS= [
     # Scripts that are run by the travis build process.
     # Longest test should go first, to favor running tests in parallel
-    'dip3-deterministicmns.py', # NOTE: needs dash_hash to pass
+    'dip3-deterministicmns.py', # NOTE: needs pigeon_hash to pass
     'feature_block_reward_reallocation.py',
     'wallet-hd.py',
     'walletbackup.py',
     # vv Tests less than 5m vv
-    'feature_block.py', # NOTE: needs dash_hash to pass
+    'feature_block.py', # NOTE: needs pigeon_hash to pass
     'rpc_fundrawtransaction.py',
     'rpc_fundrawtransaction_hd.py',
     'wallet_multiwallet.py --usecli',
@@ -74,17 +74,17 @@ BASE_SCRIPTS= [
     'wallet_dump.py',
     'rpc_listtransactions.py',
     'feature_multikeysporks.py',
-    'feature_llmq_signing.py', # NOTE: needs dash_hash to pass
-    'feature_llmq_signing.py --spork21', # NOTE: needs dash_hash to pass
-    'feature_llmq_chainlocks.py', # NOTE: needs dash_hash to pass
-    'feature_llmq_connections.py', # NOTE: needs dash_hash to pass
-    'feature_llmq_simplepose.py', # NOTE: needs dash_hash to pass
-    'feature_llmq_is_cl_conflicts.py', # NOTE: needs dash_hash to pass
-    'feature_llmq_is_retroactive.py', # NOTE: needs dash_hash to pass
-    'feature_llmq_dkgerrors.py', # NOTE: needs dash_hash to pass
-    'feature_dip4_coinbasemerkleroots.py', # NOTE: needs dash_hash to pass
+    'feature_llmq_signing.py', # NOTE: needs pigeon_hash to pass
+    'feature_llmq_signing.py --spork21', # NOTE: needs pigeon_hash to pass
+    'feature_llmq_chainlocks.py', # NOTE: needs pigeon_hash to pass
+    'feature_llmq_connections.py', # NOTE: needs pigeon_hash to pass
+    'feature_llmq_simplepose.py', # NOTE: needs pigeon_hash to pass
+    'feature_llmq_is_cl_conflicts.py', # NOTE: needs pigeon_hash to pass
+    'feature_llmq_is_retroactive.py', # NOTE: needs pigeon_hash to pass
+    'feature_llmq_dkgerrors.py', # NOTE: needs pigeon_hash to pass
+    'feature_dip4_coinbasemerkleroots.py', # NOTE: needs pigeon_hash to pass
     # vv Tests less than 60s vv
-    'p2p_sendheaders.py', # NOTE: needs dash_hash to pass
+    'p2p_sendheaders.py', # NOTE: needs pigeon_hash to pass
     'wallet_zapwallettxes.py',
     'wallet_importmulti.py',
     'mempool_limit.py',
@@ -149,7 +149,7 @@ BASE_SCRIPTS= [
     'rpc_uptime.py',
     'wallet_resendwallettransactions.py',
     'feature_minchainwork.py',
-    'p2p_unrequested_blocks.py', # NOTE: needs dash_hash to pass
+    'p2p_unrequested_blocks.py', # NOTE: needs pigeon_hash to pass
     'feature_shutdown.py',
     'rpc_privatesend.py',
     'p2p_fingerprint.py',
@@ -252,7 +252,7 @@ def main():
         sys.exit(0)
 
     if not (enable_wallet and enable_utils and enable_bitcoind):
-        print("No functional tests to run. Wallet, utils, and dashd must all be enabled")
+        print("No functional tests to run. Wallet, utils, and pigeond must all be enabled")
         print("Rerun `configure` with -enable-wallet, -with-utils and -with-daemon and rerun make")
         sys.exit(0)
 
@@ -316,7 +316,7 @@ def main():
 def run_tests(*, test_list, src_dir, build_dir, tmpdir, jobs=1, enable_coverage=False, args=None, failfast=False, runs_ci, combined_logs_len=0):
     args = args or []
 
-    # Warn if dashd is already running (unix only)
+    # Warn if pigeond is already running (unix only)
     try:
         pidof_output = subprocess.check_output(["pidof", "pigeond"])
         if not (pidof_output is None or pidof_output == b''):
@@ -440,7 +440,7 @@ class TestHandler:
         self.test_list = test_list
         self.flags = flags
         self.num_running = 0
-        # In case there is a graveyard of zombie dashds, we can apply a
+        # In case there is a graveyard of zombie pigeonds, we can apply a
         # pseudorandom offset to hopefully jump over them.
         # (625 is PORT_RANGE/MAX_NODES)
         self.portseed_offset = int(time.time() * 1000) % 625
@@ -568,7 +568,7 @@ class RPCCoverage():
     Coverage calculation works by having each test script subprocess write
     coverage files into a particular directory. These files contain the RPC
     commands invoked during testing, as well as a complete listing of RPC
-    commands per `dash-cli help` (`rpc_interface.txt`).
+    commands per `pigeon-cli help` (`rpc_interface.txt`).
 
     After all tests complete, the commands run are combined and diff'd against
     the complete list to calculate uncovered RPC commands.

@@ -1,36 +1,36 @@
-Dash Core staging tree 0.17
+Pigeon Core staging tree 0.17
 ===========================
 
-`master:` [![Build Status](https://travis-ci.org/dashpay/dash.svg?branch=master)](https://travis-ci.org/dashpay/dash) `develop:` [![Build Status](https://travis-ci.org/dashpay/dash.svg?branch=develop)](https://travis-ci.org/dashpay/dash/branches)
+`master:` [![Build Status](https://travis-ci.org/pigeonpay/pigeon.svg?branch=master)](https://travis-ci.org/pigeonpay/pigeon) `develop:` [![Build Status](https://travis-ci.org/pigeonpay/pigeon.svg?branch=develop)](https://travis-ci.org/pigeonpay/pigeon/branches)
 
-https://www.dash.org
+https://www.pigeon.org
 
 
-What is Dash?
+What is Pigeon?
 -------------
 
-Dash is an experimental digital currency that enables instant, private
-payments to anyone, anywhere in the world. Dash uses peer-to-peer technology
+Pigeon is an experimental digital currency that enables instant, private
+payments to anyone, anywhere in the world. Pigeon uses peer-to-peer technology
 to operate with no central authority: managing transactions and issuing money
-are carried out collectively by the network. Dash Core is the name of the open
+are carried out collectively by the network. Pigeon Core is the name of the open
 source software which enables the use of this currency.
 
 For more information, as well as an immediately useable, binary version of
-the Dash Core software, see https://www.dash.org/get-dash/.
+the Pigeon Core software, see https://www.pigeon.org/get-pigeon/.
 
 
 License
 -------
 
-Dash Core is released under the terms of the MIT license. See [COPYING](COPYING) for more
+Pigeon Core is released under the terms of the MIT license. See [COPYING](COPYING) for more
 information or see https://opensource.org/licenses/MIT.
 
 Development Process
 -------------------
 
 The `master` branch is meant to be stable. Development is normally done in separate branches.
-[Tags](https://github.com/dashpay/dash/tags) are created to indicate new official,
-stable release versions of Dash Core.
+[Tags](https://github.com/pigeonpay/pigeon/tags) are created to indicate new official,
+stable release versions of Pigeon Core.
 
 The contribution workflow is described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
@@ -66,7 +66,7 @@ Translations
 ------------
 
 Changes to translations as well as new translations can be submitted to
-[Dash Core's Transifex page](https://www.transifex.com/projects/p/dash/).
+[Pigeon Core's Transifex page](https://www.transifex.com/projects/p/pigeon/).
 
 Translations are periodically pulled from Transifex and merged into the git repository. See the
 [translation process](doc/translation_process.md) for details on how this works.
@@ -74,4 +74,4 @@ Translations are periodically pulled from Transifex and merged into the git repo
 **Important**: We do not accept translation changes as GitHub pull requests because the next
 pull from Transifex would automatically overwrite them again.
 
-Translators should also follow the [forum](https://www.dash.org/forum/topic/dash-worldwide-collaboration.88/).
+Translators should also follow the [forum](https://www.pigeon.org/forum/topic/pigeon-worldwide-collaboration.88/).

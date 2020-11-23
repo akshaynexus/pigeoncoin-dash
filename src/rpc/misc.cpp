@@ -49,7 +49,7 @@ UniValue debug(const JSONRPCRequest& request)
             "libevent logging is configured on startup and cannot be modified by this RPC during runtime.\n"
             "There are also a few meta-categories:\n"
             " - \"all\", \"1\" and \"\" activate all categories at once;\n"
-            " - \"pigeon\" activates all Dash-specific categories at once;\n"
+            " - \"pigeon\" activates all Pigeon-specific categories at once;\n"
             " - \"none\" (or \"0\") deactivates all categories at once.\n"
             "Note: If specified category doesn't match any of the above, no error is thrown.\n"
             "\nArguments:\n"
@@ -1105,7 +1105,7 @@ UniValue logging(const JSONRPCRequest& request)
             "The valid logging categories are: " + ListLogCategories() + "\n"
             "In addition, the following are available as category names with special meanings:\n"
             "  - \"all\",  \"1\" : represent all logging categories.\n"
-            "  - \"dash\" activates all Dash-specific categories at once.\n"
+            "  - \"pigeon\" activates all Pigeon-specific categories at once.\n"
             "To deactivate all categories at once you can specify \"all\" in <exclude>.\n"
             "  - \"none\", \"0\" : even if other logging categories are specified, ignore all of them.\n"
             "\nArguments:\n"
@@ -1170,7 +1170,7 @@ UniValue echo(const JSONRPCRequest& request)
             "echo|echojson \"message\" ...\n"
             "\nSimply echo back the input arguments. This command is for testing.\n"
             "\nThe difference between echo and echojson is that echojson has argument conversion enabled in the client-side table in"
-            "dash-cli and the GUI. There is no server-side difference."
+            "pigeon-cli and the GUI. There is no server-side difference."
         );
 
     return request.params;
@@ -1184,7 +1184,7 @@ static UniValue getinfo_deprecated(const JSONRPCRequest& request)
         "- getblockchaininfo: blocks, difficulty, chain\n"
         "- getnetworkinfo: version, protocolversion, timeoffset, connections, proxy, relayfee, warnings\n"
         "- getwalletinfo: balance, privatesend_balance, keypoololdest, keypoolsize, paytxfee, unlocked_until, walletversion\n"
-        "\ndash-cli has the option -getinfo to collect and format these in the old format."
+        "\npigeon-cli has the option -getinfo to collect and format these in the old format."
     );
 }
 
@@ -1207,9 +1207,9 @@ static const CRPCCommand commands[] =
     { "addressindex",       "getaddresstxids",        &getaddresstxids,        {"addresses"} },
     { "addressindex",       "getaddressbalance",      &getaddressbalance,      {"addresses"} },
 
-    /* Dash features */
-    { "dash",               "mnsync",                 &mnsync,                 {} },
-    { "dash",               "spork",                  &spork,                  {"arg0","value"} },
+    /* Pigeon features */
+    { "pigeon",               "mnsync",                 &mnsync,                 {} },
+    { "pigeon",               "spork",                  &spork,                  {"arg0","value"} },
 
     /* Not shown in help */
     { "hidden",             "setmocktime",            &setmocktime,            {"timestamp"}},
