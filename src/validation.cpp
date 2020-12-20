@@ -1117,8 +1117,8 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams, b
     CAmount nSubsidy = 5000 * COIN;
 
     if (bNetwork.fOnTestnet) {
-        nSubsidy = 20000 * COIN;//Make more moneyz on testnet 
-    }   
+        nSubsidy = 20000 * COIN;//Make more moneyz on testnet
+    }
     // Subsidy is cut in half every 210,000 blocks which will occur approximately every 4 years.
     nSubsidy >>= halvings;
     return fSuperblockPartOnly ? 0 : nSubsidy;
@@ -1126,10 +1126,9 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams, b
 
 CAmount GetMasternodePayment(int nHeight, CAmount blockValue)
 {
-    CAmount ret =  0;
     if(nHeight >= Params().GetConsensus().nMasternodePaymentsStartBlock)
-        ret = blockValue * 0.2;
-    return ret;
+        return blockValue * 0.2;
+    return 0;
 }
 
 bool IsInitialBlockDownload()

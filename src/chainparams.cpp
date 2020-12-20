@@ -381,7 +381,6 @@ public:
 	    											"rLzD7RxVS1QMZ5yYrmoUvfnTNuzgUqJVVK", 738178);
 
         consensus.masternodeCollateral = 1000000; //1,000,000 PGN Servicenode collateral
-        consensus.nMagicChangeHeight = 999999999;//TODO akshaynexus set this when we go on mainnet
         /**
          * The message start string is designed to be unlikely to occur in normal data.
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -482,7 +481,7 @@ public:
     CTestNetParams() {
         strNetworkID = "test";
         consensus.nSubsidyHalvingInterval = 2100000;  //~ 4 yrs at 1 min block time
-        consensus.nMasternodePaymentsStartBlock = 800; 
+        consensus.nMasternodePaymentsStartBlock = 800;
         consensus.nInstantSendConfirmationsRequired = 2;
         consensus.nInstantSendKeepLock = 6;
         consensus.nBudgetPaymentsStartBlock = 4100;
@@ -507,8 +506,8 @@ public:
         consensus.nPowTargetSpacing = 1 * 60; // Pigeon: 2.5 minutes
         consensus.nPowDifficultyRetargetHeight = 2017; // blockheight to switch to 360 block retarget rules
         consensus.nPowTargetTimespanShort = 360 * 60; //~6 hours
-        consensus.zawyLWMAHeight = 500; // blockheight to switch to LWMA retarget rules
-        consensus.nAfterExploitHeight = 0; 
+        consensus.zawyLWMAHeight = 1000; // blockheight to switch to LWMA retarget rules
+        consensus.nAfterExploitHeight = 0;
 
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = false;
@@ -528,28 +527,28 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].nWindowSize = 100;
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].nThresholdMin = 10; // 10% of 100
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].nThresholdMin = 1; // 10% of 100
 
         // Deployment of BIP147
         consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].bit = 2;
         consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].nWindowSize = 100;
-        consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].nThresholdMin = 10; // 10% of 100
+        consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].nThresholdMin = 1; // 10% of 100
 
         // Deployment of DIP0003
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].bit = 3;
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].nWindowSize = 100;
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].nThresholdMin = 10; // 10% of 100
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].nThresholdMin = 1; // 10% of 100
 
         // Deployment of DIP0008
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].bit = 4;
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nWindowSize = 100;
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nThresholdMin = 10; // 10% of 100
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nThresholdMin = 1; // 10% of 100
 
         consensus.nMinimumChainWork = uint256S("0x00");
 
@@ -560,18 +559,17 @@ public:
 		consensus.nFounderPayment = FounderPayment(rewardStructures, 3000, "n7YVWJjZhUi5ZepC9nQWX8hzhSFRCpzcNY",
 													"", INT_MAX);//first addr stays,no devfee addr change
         consensus.masternodeCollateral = 1000000; //1,000,000 PGN Servicenode collateral
-        consensus.nMagicChangeHeight = 2;
 
-        pchMessageStart[0] = 0x5d;
-        pchMessageStart[1] = 0x6a;
-        pchMessageStart[2] = 0x4d;
-        pchMessageStart[3] = 0x5a;
+        pchMessageStart[0] = 0x5c;
+        pchMessageStart[1] = 0x6d;
+        pchMessageStart[2] = 0x4a;
+        pchMessageStart[3] = 0x5b;
 
-        //New message start after hf,TODO Add code to change pchmessagestart
-        pchMessageStartNew[0] = 0x2a;
-        pchMessageStartNew[1] = 0x5d;
-        pchMessageStartNew[2] = 0x2c;
-        pchMessageStartNew[3] = 0x1a;
+        //New message start after hf
+        pchMessageStartNew[0] = 0x2c;
+        pchMessageStartNew[1] = 0x5a;
+        pchMessageStartNew[2] = 0x2d;
+        pchMessageStartNew[3] = 0x1f;
 
         nDefaultPort = 18765;
         nPruneAfterHeight = 1000;
@@ -614,11 +612,12 @@ public:
         std::cout << "Genesis Nonce to " << genesisNonce << std::endl;
         std::cout << "Genesis Merkle " << genesis.hashMerkleRoot.GetHex() << std::endl;
         std::cout << "\n";
-        std::exit(0);*/
-        genesis = CreateGenesisBlock(1596160996, 419160, 0x1e0ffff0, 4, 5000 * COIN);
+        std::exit(0);
+        */
+        genesis = CreateGenesisBlock(1608477300, 1206646, 0x1e0ffff0, 4, 5000 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x00000be49a798b5156cd41539c413718622eb7e0784aa9ba4b9b5e975cfd56fc"));
-		assert(genesis.hashMerkleRoot == uint256S("0xf0cc5f92b11a6655a4939fc239e8bf960cd0453b87b5a0820ab36904279341a5"));
+        assert(consensus.hashGenesisBlock == uint256S("0x0000003f7ef4081012f7ad81f602d3f5779cfd7ff52f4b7935e48fd7a9a4732f"));
+		assert(genesis.hashMerkleRoot == uint256S("f0cc5f92b11a6655a4939fc239e8bf960cd0453b87b5a0820ab36904279341a5"));
 
         vFixedSeeds.clear();
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_test, pnSeed6_test + ARRAYLEN(pnSeed6_test));
@@ -913,7 +912,6 @@ public:
         nDefaultPort = 19899;
         nPruneAfterHeight = 1000;
 
-        consensus.nMagicChangeHeight = 2;
 
         genesis = CreateGenesisBlock(1588377010, 1, 0x207fffff, 3, 50 * COIN);
 
