@@ -721,36 +721,36 @@ public:
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
-        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = 1609764134;//Date and time (GMT): Monday, January 4, 2021 12:42:14
-        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 1641300134;//Date and time (GMT): Tuesday, January 4, 2022 12:42:14
+        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
 
         // Deployment of DIP0001
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].bit = 1;
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].nStartTime = 1609764134;//Date and time (GMT): Monday, January 4, 2021 12:42:14
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].nTimeout = 1641300134;//Date and time (GMT): Tuesday, January 4, 2022 12:42:14
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nWindowSize = 2688;
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nThresholdStart = 2151; // 80% of 2688
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].nWindowSize = 100;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].nThresholdStart = 50; // 50% of 100
 
         // Deployment of BIP147
         consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].bit = 2;
-        consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].nStartTime = 1609764134;//Date and time (GMT): Monday, January 4, 2021 12:42:14
-        consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].nTimeout = 1641300134;//Date and time (GMT): Tuesday, January 4, 2022 12:42:14
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nWindowSize = 2688;
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nThresholdStart = 2151; // 80% of 2688
+        consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].nWindowSize = 100;
+        consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].nThresholdStart = 50; // 50% of 100
 
         // Deployment of DIP0003
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].bit = 3;
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].nStartTime = 1609764134;//Date and time (GMT): Monday, January 4, 2021 12:42:14
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].nTimeout = 1641300134;//Date and time (GMT): Tuesday, January 4, 2022 12:42:14
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nWindowSize = 2688;
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nThresholdStart = 2151; // 80% of 2688
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].nWindowSize = 100;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].nThresholdStart = 50; // 50% of 100
 
         // Deployment of DIP0008
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].bit = 4;
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nStartTime = 1609764134;//Date and time (GMT): Monday, January 4, 2021 12:42:14
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nTimeout = 1641300134;//Date and time (GMT): Tuesday, January 4, 2022 12:42:14
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nWindowSize = 2688;
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nThresholdStart = 2151; // 80% of 2688
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nWindowSize = 100;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nThresholdStart = 50; // 50% of 100
 
 
         // The best chain should have at least this much work.
