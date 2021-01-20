@@ -511,8 +511,8 @@ public:
 
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = false;
-        consensus.nRuleChangeActivationThreshold = 1512; // 75% for testchains
-        consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
+        consensus.nRuleChangeActivationThreshold = 151; // 75% for testchains
+        consensus.nMinerConfirmationWindow = 201; // nPowTargetTimespan / nPowTargetSpacing
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
@@ -527,29 +527,29 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].bit = 1;
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].nStartTime = 1609764134;//Date and time (GMT): Monday, January 4, 2021 12:42:14
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].nTimeout = 1641300134;//Date and time (GMT): Tuesday, January 4, 2022 12:42:14
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nWindowSize = 2688;
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nThresholdStart = 2151; // 80% of 2688
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nWindowSize = 268;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nThresholdStart = 215; // 80% of 2688
 
         // Deployment of BIP147
         consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].bit = 2;
         consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].nStartTime = 1609764134;//Date and time (GMT): Monday, January 4, 2021 12:42:14
         consensus.vDeployments[Consensus::DEPLOYMENT_BIP147].nTimeout = 1641300134;//Date and time (GMT): Tuesday, January 4, 2022 12:42:14
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nWindowSize = 2688;
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nThresholdStart = 2151; // 80% of 2688
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nWindowSize = 268;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nThresholdStart = 215; // 80% of 2688
 
         // Deployment of DIP0003
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].bit = 3;
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].nStartTime = 1609764134;//Date and time (GMT): Monday, January 4, 2021 12:42:14
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0003].nTimeout = 1641300134;//Date and time (GMT): Tuesday, January 4, 2022 12:42:14
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nWindowSize = 2688;
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nThresholdStart = 2151; // 80% of 2688
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nWindowSize = 268;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nThresholdStart = 215; // 80% of 2688
 
         // Deployment of DIP0008
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].bit = 4;
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nStartTime = 1609764134;//Date and time (GMT): Monday, January 4, 2021 12:42:14
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nTimeout = 1641300134;//Date and time (GMT): Tuesday, January 4, 2022 12:42:14
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nWindowSize = 2688;
-        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nThresholdStart = 2151; // 80% of 2688
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nWindowSize = 268;
+        consensus.vDeployments[Consensus::DEPLOYMENT_DIP0008].nThresholdStart = 215; // 80% of 2688
 
         consensus.nMinimumChainWork = uint256S("0x00");
 
@@ -561,14 +561,14 @@ public:
 													"", INT_MAX);//first addr stays,no devfee addr change
         consensus.masternodeCollateral = 1000000; //1,000,000 PGN Servicenode collateral
 
-        pchMessageStart[0] = 0x5c;
-        pchMessageStart[1] = 0x6d;
+        pchMessageStart[0] = 0x5d;
+        pchMessageStart[1] = 0x6b;
         pchMessageStart[2] = 0x4a;
         pchMessageStart[3] = 0x5b;
 
         //New message start after hf
-        pchMessageStartNew[0] = 0x2c;
-        pchMessageStartNew[1] = 0x5a;
+        pchMessageStartNew[0] = 0x2a;
+        pchMessageStartNew[1] = 0x5c;
         pchMessageStartNew[2] = 0x2d;
         pchMessageStartNew[3] = 0x1f;
 
@@ -615,9 +615,9 @@ public:
         std::cout << "\n";
         std::exit(0);
         */
-        genesis = CreateGenesisBlock(1608477300, 1206646, 0x1e0ffff0, 4, 5000 * COIN);
+        genesis = CreateGenesisBlock(1611147624, 2284373, 0x1e0ffff0, 4, 5000 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x0000003f7ef4081012f7ad81f602d3f5779cfd7ff52f4b7935e48fd7a9a4732f"));
+        assert(consensus.hashGenesisBlock == uint256S("0x00000cc7426e3d6b87dd8fcbd1adc50c52c536589f88b68548fa369be8188d9a"));
 		assert(genesis.hashMerkleRoot == uint256S("f0cc5f92b11a6655a4939fc239e8bf960cd0453b87b5a0820ab36904279341a5"));
 
         vFixedSeeds.clear();

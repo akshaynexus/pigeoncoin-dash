@@ -48,7 +48,7 @@ public:
     CBaseTestNetParams()
     {
         nRPCPort = 19998;
-        strDataDir = "testnet9";//updated for new testnetv8,due to uncessary llmq types used in testnetv7
+        strDataDir = "testnet10";//updated for new testnetv8,due to uncessary llmq types used in testnetv7
     }
 };
 
