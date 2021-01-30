@@ -866,7 +866,7 @@ CDeterministicMNCPtr CSigSharesManager::SelectMemberForRecovery(const CQuorumCPt
         v.emplace_back(h, dmn);
     }
     std::sort(v.begin(), v.end());
-
+    assert(v[attempt].second != nullptr);
     return v[attempt].second;
 }
 
