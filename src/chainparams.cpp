@@ -615,9 +615,9 @@ public:
         std::cout << "\n";
         std::exit(0);
         */
-        genesis = CreateGenesisBlock(1611147624, 2284373, 0x1e0ffff0, 4, 5000 * COIN);
+        genesis = CreateGenesisBlock(1612795125, 935865, 0x1e0ffff0, 4, 5000 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x00000cc7426e3d6b87dd8fcbd1adc50c52c536589f88b68548fa369be8188d9a"));
+        assert(consensus.hashGenesisBlock == uint256S("0x000007a41d0ce1278c041c41ccf4a23c7d95df64b3604935a536778265985338"));
 		assert(genesis.hashMerkleRoot == uint256S("f0cc5f92b11a6655a4939fc239e8bf960cd0453b87b5a0820ab36904279341a5"));
 
         vFixedSeeds.clear();
@@ -641,9 +641,9 @@ public:
         nExtCoinType = 1;
 
         // long living quorum params
-        consensus.llmqs[Consensus::LLMQ_5_60] = llmq5_60;
-        consensus.llmqTypeChainLocks = Consensus::LLMQ_5_60;
-        consensus.llmqTypeInstantSend = Consensus::LLMQ_5_60;
+        consensus.llmqs[Consensus::LLMQ_DEVNET] = llmq_devnet;
+        consensus.llmqTypeChainLocks = Consensus::LLMQ_DEVNET;
+        consensus.llmqTypeInstantSend = Consensus::LLMQ_DEVNET;
 
         fDefaultConsistencyChecks = false;
         fRequireStandard = false;
