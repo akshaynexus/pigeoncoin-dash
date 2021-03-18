@@ -1895,6 +1895,7 @@ static int64_t nTimeTotal = 0;
 static int64_t nBlocksTotal = 0;
 
 bool IsFounderPaymentValid(const CTransaction& coinbaseTX, const Consensus::Params& consensusParams,const int nHeight){
+    assert(coinbaseTX != CTransaction());
     CAmount blockReward = GetBlockSubsidy(nHeight,consensusParams);
     FounderPayment founderPayment = consensusParams.nFounderPayment;
     CAmount founderAmt = founderPayment.getFounderPaymentAmount(nHeight, blockReward);
